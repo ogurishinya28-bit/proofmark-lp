@@ -1,9 +1,14 @@
 /**
  * Email Service
- * 
+ *
  * Handles email sending via Vercel Serverless Function (/api/send-email).
  * The function calls Resend API on the server side.
- * 
+ *
+ * ローカル開発時の動作:
+ *   Vite dev サーバーには /api プロキシが設定されていないため、
+ *   /api/send-email へのリクエストは SPA フォールバック（HTML）が返ってきます。
+ *   このファイルはその状況を検知し、ローカルではモック成功レスポンスを返します。
+ *
  * When deploying to Vercel:
  * 1. Add RESEND_API_KEY to Vercel environment variables
  * 2. The /api/send-email endpoint will automatically be available
@@ -14,6 +19,33 @@ interface EmailResponse {
   success: boolean;
   message: string;
   error?: string;
+}
+
+/**
+ * Response.json() をラップし、JSONでない応答（HTMLなど）を安全に処理する。
+ * HTMLや空ボディが返ってきた場合は null を返す。
+ */
+async function safeJson(response: Response): Promise<unknown | null> {
+  const text = await response.text();
+  if (!text || !text.trimStart().startsWith("{") && !text.trimStart().startsWith("[")) {
+    return null;
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * ローカル環境かどうかを判定する
+ */
+function isLocalDev(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1")
+  );
 }
 
 /**
@@ -29,7 +61,7 @@ export async function sendConfirmationEmail(email: string): Promise<EmailRespons
       return {
         success: false,
         message: "Invalid email format",
-        error: "Please enter a valid email address",
+        error: "メールアドレスの形式が正しくありません",
       };
     }
 
@@ -45,23 +77,56 @@ export async function sendConfirmationEmail(email: string): Promise<EmailRespons
       }),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error("Email API error:", error);
+    // レスポンスを安全にパース（HTML フォールバックも考慮）
+    const data = await safeJson(response);
+
+    // データが null = JSON ではない応答（= API に到達できていない）
+    if (data === null) {
+      if (isLocalDev()) {
+        // ローカル開発環境では API が存在しないため、モック成功を返す
+        console.info(
+          "[ProofMark] ローカル環境のため、メール送信をシミュレートしました。\n" +
+          "  登録メール: " + email + "\n" +
+          "  本番デプロイ後に実際のメールが送信されます。"
+        );
+        return {
+          success: true,
+          message: `[ローカルモック] ${email} への登録を受け付けました`,
+        };
+      }
       return {
         success: false,
-        message: "Failed to send email",
-        error: error.error || error.message || "Unknown error",
+        message: "サーバーからの応答が正しくありませんでした",
+        error: "APIエンドポイントに到達できませんでした",
       };
     }
 
-    const data = await response.json();
+    const json = data as { success?: boolean; message?: string; error?: string };
+
+    if (!response.ok) {
+      console.error("Email API error:", json);
+      return {
+        success: false,
+        message: "Failed to send email",
+        error: json.error || json.message || "Unknown error",
+      };
+    }
+
     return {
       success: true,
       message: `Confirmation email sent to ${email}`,
     };
   } catch (error) {
     console.error("Email sending error:", error);
+
+    // ネットワークエラー（接続拒否など）もローカルではモック扱い
+    if (isLocalDev()) {
+      return {
+        success: true,
+        message: `[ローカルモック] ${email} への登録を受け付けました`,
+      };
+    }
+
     return {
       success: false,
       message: "Failed to send email",
@@ -69,6 +134,8 @@ export async function sendConfirmationEmail(email: string): Promise<EmailRespons
     };
   }
 }
+
+
 
 /**
  * Send waitlist email
@@ -83,7 +150,7 @@ export async function sendWaitlistEmail(email: string): Promise<EmailResponse> {
       return {
         success: false,
         message: "Invalid email format",
-        error: "Please enter a valid email address",
+        error: "メールアドレスの形式が正しくありません",
       };
     }
 
@@ -99,23 +166,52 @@ export async function sendWaitlistEmail(email: string): Promise<EmailResponse> {
       }),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error("Email API error:", error);
+    // レスポンスを安全にパース（HTML フォールバックも考慮）
+    const data = await safeJson(response);
+
+    if (data === null) {
+      if (isLocalDev()) {
+        console.info(
+          "[ProofMark] ローカル環境のため、ウェイティングリスト登録をシミュレートしました。\n" +
+          "  登録メール: " + email
+        );
+        return {
+          success: true,
+          message: `[ローカルモック] ${email} をウェイティングリストに追加しました`,
+        };
+      }
       return {
         success: false,
-        message: "Failed to send email",
-        error: error.error || error.message || "Unknown error",
+        message: "サーバーからの応答が正しくありませんでした",
+        error: "APIエンドポイントに到達できませんでした",
       };
     }
 
-    const data = await response.json();
+    const json = data as { success?: boolean; message?: string; error?: string };
+
+    if (!response.ok) {
+      console.error("Email API error:", json);
+      return {
+        success: false,
+        message: "Failed to send email",
+        error: json.error || json.message || "Unknown error",
+      };
+    }
+
     return {
       success: true,
       message: `Waitlist email sent to ${email}`,
     };
   } catch (error) {
     console.error("Email sending error:", error);
+
+    if (isLocalDev()) {
+      return {
+        success: true,
+        message: `[ローカルモック] ${email} をウェイティングリストに追加しました`,
+      };
+    }
+
     return {
       success: false,
       message: "Failed to send email",

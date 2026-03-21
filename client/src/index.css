@@ -42,91 +42,99 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
+  --font-heading: var(--font-display);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Custom shadow tokens */
+  --shadow-glow-primary: 0 0 20px rgba(108, 62, 244, 0.4);
+  --shadow-glow-accent: 0 0 20px rgba(0, 212, 170, 0.4);
+  --shadow-glow-sm: 0 0 10px rgba(108, 62, 244, 0.2);
 }
 
 :root {
   /* ProofMark Design: Cyber-Minimalist Security */
-  --primary: oklch(0.205 0 0);              /* 紫 - 創造性とテクノロジーの融合 */
-  --primary-foreground: oklch(0.985 0 0);   /* 明るいグレー */
-  --accent: oklch(0.97 0 0);               /* シアン - セキュリティ・保護 */
-  --accent-foreground: oklch(0.205 0 0);    /* 深い紺 */
+  --primary: #6c3ef4;              /* 紫 - 創造性とテクノロジーの融合 */
+  --primary-foreground: #f0f0fa;   /* 明るいグレー */
+  --accent: #00d4aa;               /* シアン - セキュリティ・保護 */
+  --accent-foreground: #0a0e27;    /* 深い紺 */
   --gold: #ffd966;                 /* ゴールド - 希少性・価値 */
-  --destructive: oklch(0.577 0.245 27.325);          /* 赤 - エラー・警告 */
+  --destructive: #e74c3c;          /* 赤 - エラー・警告 */
   --destructive-foreground: #f0f0fa;
 
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);           /* 深い紺 - 信頼感と集中力 */
-  --foreground: oklch(0.145 0 0);           /* 明るいグレー - 読みやすさ */
-  --card: oklch(1 0 0);                 /* カード背景 */
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.97 0 0);            /* サーフェス層 */
-  --secondary-foreground: oklch(0.205 0 0); /* 薄いグレー */
-  --muted: oklch(0.97 0 0);               /* 薄いグレー */
-  --muted-foreground: oklch(0.556 0 0);    /* より薄いグレー */
-  --border: oklch(0.922 0 0);              /* ボーダー色 */
-  --input: oklch(0.922 0 0);               /* 入力フィールド背景 */
-  --ring: oklch(0.708 0 0);                /* フォーカスリング */
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --radius: 0.65rem;
+  --background: #0a0e27;           /* 深い紺 - 信頼感と集中力 */
+  --foreground: #f0f0fa;           /* 明るいグレー - 読みやすさ */
+  --card: #151d2f;                 /* カード背景 */
+  --card-foreground: #f0f0fa;
+  --popover: #151d2f;
+  --popover-foreground: #f0f0fa;
+  --secondary: #0f1629;            /* サーフェス層 */
+  --secondary-foreground: #a0a0c0; /* 薄いグレー */
+  --muted: #a0a0c0;               /* 薄いグレー */
+  --muted-foreground: #6b7280;    /* より薄いグレー */
+  --border: #2a2a4e;              /* ボーダー色 */
+  --input: #151d2f;               /* 入力フィールド背景 */
+  --ring: #6c3ef4;                /* フォーカスリング */
+  --sidebar: #0a0e27;
+  --sidebar-foreground: #f0f0fa;
+  --sidebar-accent: #6c3ef4;
+  --sidebar-accent-foreground: #f0f0fa;
+  --sidebar-border: #2a2a4e;
+  --sidebar-ring: #6c3ef4;
+  --sidebar-primary: #6c3ef4;
+  --sidebar-primary-foreground: #f0f0fa;
+  --chart-1: #6c3ef4;
+  --chart-2: #00d4aa;
+  --chart-3: #ffd966;
+  --chart-4: #e74c3c;
+  --chart-5: #a0a0c0;
 }
 
 .dark {
-  /* ProofMark Dark Mode (already dark by default) */
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  /* ProofMark Dark Mode - same as :root (always dark by design) */
+  --primary: #6c3ef4;
+  --primary-foreground: #f0f0fa;
+  --accent: #00d4aa;
+  --accent-foreground: #0a0e27;
+  --background: #0a0e27;
+  --foreground: #f0f0fa;
+  --card: #151d2f;
+  --card-foreground: #f0f0fa;
+  --popover: #151d2f;
+  --popover-foreground: #f0f0fa;
+  --secondary: #0f1629;
+  --secondary-foreground: #a0a0c0;
+  --muted: #a0a0c0;
+  --muted-foreground: #6b7280;
+  --border: #2a2a4e;
+  --input: #151d2f;
+  --ring: #6c3ef4;
+  --destructive: #e74c3c;
   --destructive-foreground: #f0f0fa;
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar: #0a0e27;
+  --sidebar-foreground: #f0f0fa;
+  --sidebar-accent: #6c3ef4;
+  --sidebar-accent-foreground: #f0f0fa;
+  --sidebar-border: #2a2a4e;
+  --sidebar-ring: #6c3ef4;
+  --sidebar-primary: #6c3ef4;
+  --sidebar-primary-foreground: #f0f0fa;
+  --chart-1: #6c3ef4;
+  --chart-2: #00d4aa;
+  --chart-3: #ffd966;
+  --chart-4: #e74c3c;
+  --chart-5: #a0a0c0;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: dark;
   }
   body {
     @apply bg-background text-foreground;
@@ -171,30 +179,14 @@
       font-size: 28px;
     }
   }
-  html {
-    @apply font-sans;
-  }
 }
 
 @layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
+    padding-left: 1rem;
     padding-right: 1rem;
   }
 
@@ -205,16 +197,138 @@
 
   @media (min-width: 640px) {
     .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
+      padding-left: 1.5rem;
       padding-right: 1.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .container {
-      padding-left: 2rem; /* 32px - desktop padding */
+      padding-left: 2rem;
       padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
+      max-width: 1280px;
     }
   }
+
+  /* ── ProofMark Design Utilities ── */
+
+  .gradient-primary {
+    background: linear-gradient(135deg, #6c3ef4 0%, #00d4aa 100%);
+  }
+  .gradient-accent {
+    background: linear-gradient(135deg, #00d4aa 0%, #6c3ef4 100%);
+  }
+  .gradient-dark {
+    background: linear-gradient(135deg, #0a0e27 0%, #151d2f 100%);
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #6c3ef4, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(108, 62, 244, 0.4);
+  }
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(0, 212, 170, 0.4);
+  }
+  .glow-sm {
+    box-shadow: 0 0 10px rgba(108, 62, 244, 0.2);
+  }
+
+  .shadow-hover {
+    transition: box-shadow 0.3s ease;
+  }
+  .shadow-hover:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .border-glow {
+    border: 1px solid #2a2a4e;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .border-glow:hover {
+    border-color: rgba(108, 62, 244, 0.5);
+    box-shadow: 0 0 12px rgba(108, 62, 244, 0.2);
+  }
+
+  /* Glassmorphism card */
+  .glass-card {
+    background: rgba(21, 29, 47, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(42, 42, 78, 0.6);
+  }
+
+  /* Cyber accent line */
+  .accent-line {
+    position: relative;
+  }
+  .accent-line::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #6c3ef4, #00d4aa);
+    border-radius: 2px;
+  }
+}
+
+/* ── ProofMark Keyframe Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes slideIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes slideOut {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(10px); opacity: 0; }
+}
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.8; }
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px  rgba(108, 62, 244, 0.3); }
+  50%       { box-shadow: 0 0 20px rgba(108, 62, 244, 0.6); }
+}
+@keyframes glowAccent {
+  0%, 100% { box-shadow: 0 0 5px  rgba(0, 212, 170, 0.3); }
+  50%       { box-shadow: 0 0 20px rgba(0, 212, 170, 0.6); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+}
+
+@layer utilities {
+  .animate-fade-in    { animation: fadeIn    0.3s ease-in-out; }
+  .animate-fade-out   { animation: fadeOut   0.3s ease-in-out; }
+  .animate-slide-in   { animation: slideIn   0.3s ease-out; }
+  .animate-slide-out  { animation: slideOut  0.3s ease-in; }
+  .animate-pulse-soft { animation: pulseSoft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  .animate-glow       { animation: glow      2s ease-in-out infinite; }
+  .animate-glow-accent { animation: glowAccent 2s ease-in-out infinite; }
+  .animate-float      { animation: float     3s ease-in-out infinite; }
+  .animate-shimmer    { animation: shimmer   2.5s linear infinite; }
+  .animate-orbit      { animation: orbit     8s linear infinite; }
 }

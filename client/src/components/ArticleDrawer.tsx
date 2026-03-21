@@ -41,14 +41,16 @@ export default function ArticleDrawer({
                 <span>{article.content.sources.length}つの参考文献</span>
               </div>
             </div>
-            <SheetClose asChild>
-              <button
-                onClick={onClose}
-                className="rounded-lg p-2 hover:bg-secondary transition-colors"
-                aria-label="ドロワーを閉じる"
-              >
-                <X className="h-5 w-5" />
-              </button>
+            <SheetClose
+              render={
+                <button
+                  onClick={onClose}
+                  className="rounded-lg p-2 hover:bg-secondary transition-colors"
+                  aria-label="ドロワーを閉じる"
+                />
+              }
+            >
+              <X className="h-5 w-5" />
             </SheetClose>
           </div>
         </SheetHeader>
