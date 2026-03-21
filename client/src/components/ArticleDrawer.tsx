@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Article } from "@/data/articles";
 import { Clock, ExternalLink, ArrowRight, X, BookOpen } from "lucide-react";
 
@@ -19,44 +19,46 @@ export default function ArticleDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
-        {/* ヘッダー */}
-        <SheetHeader className="mb-8 pb-6 border-b border-border">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1">
-                <BookOpen className="h-3 w-3 text-accent" />
-                <span className="text-xs font-medium text-accent">
-                  {article.category}
-                </span>
-              </div>
-              <SheetTitle className="text-2xl font-black leading-tight">
-                {article.title}
-              </SheetTitle>
-              <div className="mt-4 flex items-center gap-4 text-sm text-muted">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  {article.readTime}分で読める
-                </div>
-                <span>{article.content.sources.length}つの参考文献</span>
-              </div>
-            </div>
-            <SheetClose
-              render={
-                <button
-                  onClick={onClose}
-                  className="rounded-lg p-2 hover:bg-secondary transition-colors"
-                  aria-label="ドロワーを閉じる"
-                />
-              }
-            >
-              <X className="h-5 w-5" />
-            </SheetClose>
-          </div>
-        </SheetHeader>
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-2xl overflow-y-auto flex flex-col gap-0 p-0"
+      >
+        {/* ヘッダー — 閉じるボタンと重ならないよう padding を確保 */}
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-6 pt-6 pb-5">
+          {/* 閉じるボタン — 右上の絶対配置 */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 rounded-lg p-2 hover:bg-secondary transition-colors text-muted hover:text-foreground"
+            aria-label="ドロワーを閉じる"
+          >
+            <X className="h-5 w-5" />
+          </button>
 
-        {/* コンテンツ */}
-        <div className="space-y-8">
+          {/* カテゴリバッジ */}
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1">
+            <BookOpen className="h-3 w-3 text-accent" />
+            <span className="text-xs font-medium text-accent">
+              {article.category}
+            </span>
+          </div>
+
+          {/* タイトル — sr-only で SheetTitle も保持（アクセシビリティ） */}
+          <SheetTitle className="text-xl font-black leading-snug pr-10 text-foreground">
+            {article.title}
+          </SheetTitle>
+
+          {/* メタ情報 */}
+          <div className="mt-3 flex items-center gap-4 text-sm text-muted">
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-4 w-4" />
+              {article.readTime}分で読める
+            </div>
+            <span>{article.content.sources.length}つの参考文献</span>
+          </div>
+        </div>
+
+        {/* スクロール可能なコンテンツ */}
+        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
           {/* サマリー */}
           <div>
             <p className="text-base leading-relaxed text-foreground/90">
@@ -90,7 +92,10 @@ export default function ArticleDrawer({
               <span className="text-accent">→</span>
               詳細解説
             </h3>
-            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+            <p
+              className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap"
+              style={{ overflowWrap: "break-word", wordBreak: "normal", lineBreak: "strict" }}
+            >
               {article.content.explanation}
             </p>
           </div>
@@ -129,7 +134,7 @@ export default function ArticleDrawer({
         </div>
 
         {/* 固定CTA（ドロワー下部） */}
-        <div className="mt-12 pt-8 border-t border-border space-y-4">
+        <div className="border-t border-border px-6 py-5 space-y-3 bg-background">
           <p className="text-sm text-muted text-center">
             学んだら、次のステップへ
           </p>

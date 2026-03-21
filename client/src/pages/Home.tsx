@@ -112,7 +112,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      <div id="top" className="min-h-screen bg-background text-foreground overflow-x-hidden">
 
         {/* ── Navigation ──────────────────────────────────────── */}
         <motion.nav
@@ -132,7 +132,7 @@ export default function Home() {
               <span className="text-2xl font-black text-foreground">ProofMark</span>
             </motion.div>
             <motion.a
-              href="#waitlist"
+              href="#waitlist-section"
               className="px-6 py-2 rounded-full bg-primary text-primary-foreground font-bold text-sm"
               style={{ boxShadow: "0 0 16px rgba(108,62,244,0.35)" }}
               whileHover={{ scale: 1.05, boxShadow: "0 0 24px rgba(108,62,244,0.55)" }}
@@ -226,9 +226,7 @@ export default function Home() {
                 animate="visible"
                 transition={{ delay: 0.5 }}
               >
-                あなたの創作の「事実」を、一生消えない証拠に。<br />
-                画像を送信せず、SHA-256でデジタル指紋を生成。<br />
-                タイムスタンプとともに改ざん不能な証拠を残します。
+                 あなたの創作の「事実」を、一生消えない証拠に。画像を送信せず、SHA-256でデジタル指紋を生成。タイムスタンプとともに改ざん不能な証拠を残します。
               </motion.p>
 
               {/* Hero form */}
@@ -345,7 +343,7 @@ export default function Home() {
         </FadeInSection>
 
         {/* ── How It Works ────────────────────────────────────── */}
-        <section className="py-24 relative overflow-hidden">
+        <section id="how-it-works" className="py-24 relative overflow-hidden">
           <GlowOrb color="#6c3ef4" size={400} top="0%" left="70%" opacity={0.08} />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -563,7 +561,7 @@ export default function Home() {
         </section>
 
         {/* ── Pricing ─────────────────────────────────────────── */}
-        <section className="py-24 relative overflow-hidden">
+        <section id="pricing" className="py-24 relative overflow-hidden">
           <GlowOrb color="#6c3ef4" size={500} top="20%" left="45%" opacity={0.07} />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -733,8 +731,7 @@ export default function Home() {
 
               <h2 className="text-4xl font-black mb-4">今すぐ先行登録する</h2>
               <p className="text-muted mb-2">
-                ProofMarkは現在、開発の最終フェーズにあります。初期メンバーとして参加し、<br />
-                AIクリエイターのための新しい基準を一緒に作りませんか？
+                ProofMarkは現在、開発の最終フェーズにあります。初期メンバーとして参加し、AIクリエイターのための新しい基準を一緒に作りませんか？
               </p>
               <p className="text-muted mb-8 text-sm">スパムなし・クレカ不要。いつでも解除できます。</p>
             </FadeInSection>
@@ -830,10 +827,12 @@ export default function Home() {
         </section>
 
         {/* ── Learning Section ─────────────────────────────────── */}
-        <LearningSection onRegisterClick={() => {
-          const el = document.getElementById("waitlist-section");
-          if (el) el.scrollIntoView({ behavior: "smooth" });
-        }} />
+        <div id="learning">
+          <LearningSection onRegisterClick={() => {
+            const el = document.getElementById("waitlist-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }} />
+        </div>
 
         {/* ── Footer ──────────────────────────────────────────── */}
         <PrivacyFooter />

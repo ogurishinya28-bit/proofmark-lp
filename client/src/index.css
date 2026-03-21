@@ -139,11 +139,23 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    /* 日本語テキストの最適な改行設定 */
+    overflow-wrap: break-word;
+    word-break: normal;
+    line-break: strict;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 800;
     letter-spacing: -0.02em;
+    /* 見出しも日本語改行を自然に */
+    overflow-wrap: break-word;
+    word-break: auto-phrase;
+  }
+  p, li, span, label {
+    overflow-wrap: break-word;
+    word-break: normal;
+    line-break: strict;
   }
   h1 {
     font-size: 56px;
