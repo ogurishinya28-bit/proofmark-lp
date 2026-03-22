@@ -37,9 +37,9 @@ const faqItems: FAQItem[] = [
     answer: "C2PA（Coalition for Content Provenance and Authenticity）は、Adobe、Microsoft、Intelなど大手テック企業が設立した国際的な規格です。デジタルコンテンツの『由来』と『真正性』を証明するための標準フォーマットです。ProofMarkはこの規格に準拠しているため、将来的に業界標準となった時点で、あなたの証明書は自動的に高い価値を持つようになります。",
   },
   {
-    id: "free-vs-standard",
-    question: "FreeプランとStandardプランの違いは何ですか？",
-    answer: "Freeプランは月10件までの証明書生成が可能で、基本的なセキュリティ機能を備えています。Standardプランは無制限の証明書生成、PDF証明書のダウンロード、制作工程の記録、全データのエクスポートが可能です。副業で複数の作品を登録する場合は、Standardプランがお勧めです。",
+    id: "free-vs-light",
+    question: "FreeプランとLightプランの違いは何ですか？",
+    answer: "Freeプランは月30件までのWebタイムスタンプ証明が可能で、まずリスクなく試していただけます。Lightプラン（¥480/月）は証明書が無制限で、最大の特徴はPDF証明書のダウンロードが使い放題になる点です。PDF証明書をクライアントへの納品物に添付したい方には、Lightプランが最適です。",
   },
   {
     id: "how-to-use",
@@ -55,6 +55,16 @@ const faqItems: FAQItem[] = [
     id: "ai-tools-compatible",
     question: "どのAIツールの出力に対応していますか？",
     answer: "ProofMarkはすべてのAIツールに対応しています。Midjourney、Stable Diffusion、DALL-E、Adobe Firefly、その他の生成AIツールの出力画像であれば、形式に関わらずSHA-256ハッシュを生成できます。画像形式（JPG、PNG、WebPなど）も問いません。",
+  },
+  {
+    id: "portfolio-use",
+    question: "ProofMarkをポートフォリオでどう活用すればいいですか？",
+    answer: "完成品だけでなく、制作途中のラフや下書き段階でProofMarkに登録することをおすすめします。『制作の過程』からあなたが関わっている客観的な証明となり、ポートフォリオの信頼性が飛躍的に向上します。クラウドソーシングのプロフィールや自身のサイトに証明書リンクを貼るだけで、コンプライアンス意識の高いクリエイターとして差別化できます。",
+  },
+  {
+    id: "client-explanation",
+    question: "クライアントにどう説明すればいいですか？",
+    answer: "納品時にProofMarkのPDF証明書を添付し、『この作品はSHA-256とタイムスタンプにより、私が正当に制作したものであることが証明されています』と伝えてください。技術的な詳細をクライアントが理解しなくても、『第三者機関が発行した証明書』という事実だけで十分な安心感を与えられます。コンプライアンス意識の高いクリエイターとして正当に評価されます。",
   },
 ];
 
@@ -85,9 +95,8 @@ export const FAQAccordion = () => {
               >
                 <span className="font-bold text-foreground pr-4">{item.question}</span>
                 <ChevronDown
-                  className={`w-5 h-5 text-primary flex-shrink-0 transition-transform duration-300 ${
-                    openId === item.id ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 text-primary flex-shrink-0 transition-transform duration-300 ${openId === item.id ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
