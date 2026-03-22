@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Lock, Fingerprint, Database, AlertCircle, Check, Shield, Zap, Award } from "lucide-react";
+import { Lock, Fingerprint, Database, AlertCircle, Check, Shield, Zap, Award, Info } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { CertificateMockup } from "@/components/CertificateMockup";
 import { FAQAccordion } from "@/components/FAQAccordion";
@@ -226,7 +226,7 @@ export default function Home() {
                 animate="visible"
                 transition={{ delay: 0.5 }}
               >
-                 あなたの創作の「事実」を、一生消えない証拠に。画像を送信せず、SHA-256でデジタル指紋を生成。タイムスタンプとともに改ざん不能な証拠を残します。
+                あなたの創作の「事実」を、一生消えない証拠に。画像を送信せず、SHA-256でデジタル指紋を生成。タイムスタンプとともに改ざん不能な証拠を残します。
               </motion.p>
 
               {/* Hero form */}
@@ -576,18 +576,20 @@ export default function Home() {
               >
                 <Award className="w-3 h-3" /> PRICING
               </div>
-              <h2 className="text-4xl font-black mb-4">料金プラン</h2>
-              <p className="text-muted max-w-2xl mx-auto">シンプルで分かりやすい料金体系</p>
+              <h2 className="text-4xl font-black mb-4">描いた証拠を、ワンコインで一生の守りに。</h2>
+              <p className="text-muted max-w-xl mx-auto">
+                まずは大幅増枠した無料プラン（月30件）で、あなたの創作に安心をプラスしませんか？
+              </p>
             </FadeInSection>
 
             <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8"
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8"
               variants={staggerContainer}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
             >
-              {/* Free plan */}
+              {/* ── Free plan ── */}
               <motion.div
                 className="p-8 rounded-2xl border relative overflow-hidden"
                 style={{
@@ -603,30 +605,45 @@ export default function Home() {
                 <div className="text-4xl font-black mb-1">
                   ¥0<span className="text-lg text-muted font-normal">/月</span>
                 </div>
-                <p className="text-sm text-muted mb-6">まずは試してみたい方へ</p>
+                <p className="text-sm text-muted mb-6">まずは試したい方</p>
                 <ul className="space-y-3 mb-8">
-                  {["証明書 10件まで", "SHA-256ハッシュ", "公開ポートフォリオ"].map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-accent flex-shrink-0" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                  <li className="flex items-center gap-2 text-sm text-muted">
-                    <span className="w-4 h-4 text-center">—</span>
-                    <span>PDF証明書</span>
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                    <span>
+                      Webタイムスタンプ証明{" "}
+                      <span
+                        className="ml-1 text-xs font-bold px-2 py-0.5 rounded-full"
+                        style={{
+                          background: "rgba(0,212,170,0.15)",
+                          color: "#00d4aa",
+                          border: "1px solid rgba(0,212,170,0.3)",
+                        }}
+                      >
+                        月30件に増枠！
+                      </span>
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm">
+                    <Check className="w-4 h-4 text-accent flex-shrink-0" />
+                    <span>公開ポートフォリオ機能</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm text-muted/60">
+                    <span className="w-4 h-4 text-center text-muted/40 flex-shrink-0 select-none">—</span>
+                    <span className="line-through">PDF証明書</span>
                   </li>
                 </ul>
-                <motion.button
-                  className="w-full px-6 py-3 rounded-full border font-bold text-sm transition-colors"
+                <motion.a
+                  href="#waitlist-section"
+                  className="block w-full px-6 py-3 rounded-full border font-bold text-sm transition-colors text-center"
                   style={{ borderColor: "rgba(108,62,244,0.4)", color: "#6c3ef4" }}
                   whileHover={{ background: "rgba(108,62,244,0.12)" }}
                   whileTap={{ scale: 0.98 }}
                 >
                   無料で始める
-                </motion.button>
+                </motion.a>
               </motion.div>
 
-              {/* Standard plan */}
+              {/* ── Light plan ── */}
               <motion.div
                 className="p-8 rounded-2xl relative overflow-hidden"
                 style={{
@@ -639,7 +656,7 @@ export default function Home() {
                 whileHover={{ boxShadow: "0 0 60px rgba(108,62,244,0.35)", y: -4 }}
                 transition={{ duration: 0.25 }}
               >
-                {/* Popular badge */}
+                {/* Recommended badge */}
                 <div
                   className="absolute top-4 right-4 text-xs font-black px-3 py-1 rounded-full"
                   style={{
@@ -647,24 +664,31 @@ export default function Home() {
                     color: "#f0f0fa",
                   }}
                 >
-                  先着特典あり
+                  おすすめ
                 </div>
 
-                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Standard</div>
+                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Light</div>
                 <div className="text-4xl font-black mb-1">
-                  ¥980<span className="text-lg text-muted font-normal">/月</span>
+                  ¥480<span className="text-lg text-muted font-normal">/月</span>
                 </div>
                 <p className="text-sm text-muted mb-6">本格的に権利を守りたい方へ</p>
                 <ul className="space-y-3 mb-8">
-                  {["証明書 無制限", "PDF証明書", "C2PAメタデータ読取", "制作工程アップロード", "全データエクスポート"].map((f) => (
+                  {[
+                    "Webタイムスタンプ証明 無制限",
+                    "PDF証明書（無制限）",
+                    "C2PAメタデータ読取",
+                    "制作工程アップロード",
+                    "全データエクスポート",
+                  ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-sm">
                       <Check className="w-4 h-4 text-accent flex-shrink-0" />
                       <span>{f}</span>
                     </li>
                   ))}
                 </ul>
-                <motion.button
-                  className="w-full px-6 py-3 rounded-full font-bold text-sm text-primary-foreground"
+                <motion.a
+                  href="#waitlist-section"
+                  className="block w-full px-6 py-3 rounded-full font-bold text-sm text-primary-foreground text-center"
                   style={{
                     background: "linear-gradient(135deg, #6c3ef4, rgba(108,62,244,0.8))",
                     boxShadow: "0 0 20px rgba(108,62,244,0.4)",
@@ -672,14 +696,21 @@ export default function Home() {
                   whileHover={{ boxShadow: "0 0 32px rgba(108,62,244,0.6)", scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  先行特典を予約
-                </motion.button>
+                  先行特典を予約（Lightプラン）
+                </motion.a>
               </motion.div>
             </motion.div>
 
+            {/* Single-shot plan note */}
             <FadeInSection>
+              <div className="flex items-start justify-center gap-2 mb-4">
+                <Info className="w-4 h-4 text-muted flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-muted">
+                  必要な時だけ、1回100円からPDF証明書を発行できる単発プランも準備中です。
+                </p>
+              </div>
               <p className="text-center text-sm text-muted">
-                ※ 先着100名はStandardプラン3ヶ月無料＋創設者バッジ付き
+                ※ 先着100名はLightプラン3ヶ月無料＋創設者バッジ付き
               </p>
             </FadeInSection>
           </div>
