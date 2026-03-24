@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Lock, Fingerprint, Database, AlertCircle, Check, Shield, Zap, Award, Info } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { CertificateMockup } from "@/components/CertificateMockup";
+import { CertificateUpload } from "@/components/CertificateUpload";
 import { FAQAccordion } from "@/components/FAQAccordion";
 import { SupportedToolsSection } from "@/components/SupportedToolsSection";
 import { DeveloperMessage } from "@/components/DeveloperMessage";
@@ -465,6 +466,32 @@ export default function Home() {
 
             <FadeInSection>
               <CertificateMockup />
+            </FadeInSection>
+
+            {/* ── Upload Demo ────────────────────────────────── */}
+            <FadeInSection delay={0.1} className="mt-12">
+              <div className="text-center mb-6">
+                <div
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold text-primary mb-3"
+                  style={{
+                    background: "rgba(108,62,244,0.1)",
+                    border: "1px solid rgba(108,62,244,0.25)",
+                  }}
+                >
+                  ⬡ 証明書を発行する
+                </div>
+                <h3 className="text-2xl font-black mb-2">作品をアップロードして証明を開始</h3>
+                <p className="text-muted text-sm max-w-lg mx-auto">
+                  ファイルはVercelを経由せずSupabase Storageへ直接転送。SHA-256ハッシュはサーバーサイドで計算されます。
+                </p>
+              </div>
+              <div className="max-w-2xl mx-auto">
+                <CertificateUpload
+                  onUploadComplete={(path) => {
+                    console.info("[ProofMark] アップロード完了:", path);
+                  }}
+                />
+              </div>
             </FadeInSection>
           </div>
         </section>
