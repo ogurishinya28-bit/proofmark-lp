@@ -1,14 +1,5 @@
 /**
  * useDirectUpload — Direct Upload フック（Supabase Storage 署名付きURL経由）
- *
- * フロー:
- *   1. POST /api/upload-url で署名付きURLとストレージパスを取得
- *   2. 取得した signedUrl に対し fetch PUT で直接 Supabase Storage へアップロード
- *   3. アップロード完了後に storagePath（Edge Function が使用）を返す
- *
- * ⚠️ アーキテクチャルール（絶対遵守）:
- *   - 画像ファイルの中身は Vercel API を一切経由しない
- *   - ハッシュ計算はクライアントでは行わない（Edge Function に委ねる）
  */
 
 import { useState, useCallback } from "react";
@@ -26,10 +17,10 @@ interface UploadUrlApiResponse {
 
 export interface DirectUploadState {
   uploading: boolean;
-  /** 0–100 の進捗率（XHR を使わない fetch では完了時に 100 になる） */
+  /** 0–100 の進捗率 */
   progress: number;
   error: string | null;
-  /** アップロード完了後のストレージパス（例: originals/user_id/uuid.png） */
+  /** アップロード完了後のストレージパス */
   storagePath: string | null;
 }
 
@@ -43,6 +34,7 @@ export interface UseDirectUploadReturn extends DirectUploadState {
 // ---------------------------------------------------------------------------
 
 const UPLOAD_URL_ENDPOINT = "/api/upload-url";
+const SAVE_CERT_ENDPOINT = "/api/save-certificate"; // 【追加】保存用APIのエンドポイント
 
 const INITIAL_STATE: DirectUploadState = {
   uploading: false,
@@ -62,12 +54,6 @@ export function useDirectUpload(): UseDirectUploadReturn {
     setState(INITIAL_STATE);
   }, []);
 
-  /**
-   * ファイルを Supabase Storage に Direct Upload する
-   * @param file  アップロード対象のファイル
-   * @param userId  認証済みユーザーのUUID（未認証は "anon"）
-   * @returns アップロード完了後の storagePath、失敗時は null
-   */
   const uploadFile = useCallback(
     async (file: File, userId = "anon"): Promise<string | null> => {
       setState({ uploading: true, progress: 0, error: null, storagePath: null });
@@ -87,15 +73,8 @@ export function useDirectUpload(): UseDirectUploadReturn {
         });
 
         if (!urlRes.ok) {
-          const body: unknown = await urlRes.json().catch(() => ({}));
-          const errorMsg =
-            typeof body === "object" &&
-            body !== null &&
-            "error" in body &&
-            typeof (body as Record<string, unknown>).error === "string"
-              ? (body as Record<string, string>).error
-              : `署名付きURL取得に失敗しました (${urlRes.status})`;
-          throw new Error(errorMsg);
+          const body: any = await urlRes.json().catch(() => ({}));
+          throw new Error(body?.error || `署名付きURL取得に失敗しました (${urlRes.status})`);
         }
 
         const urlData: UploadUrlApiResponse = await urlRes.json();
@@ -107,7 +86,7 @@ export function useDirectUpload(): UseDirectUploadReturn {
         const { signedUrl, storagePath } = urlData;
 
         // ── Step 2: Supabase Storage へ直接 PUT アップロード ─────────
-        setState((prev) => ({ ...prev, progress: 30 }));
+        setState((prev) => ({ ...prev, progress: 40 }));
 
         const putRes = await fetch(signedUrl, {
           method: "PUT",
@@ -116,12 +95,24 @@ export function useDirectUpload(): UseDirectUploadReturn {
         });
 
         if (!putRes.ok) {
-          throw new Error(
-            `Supabase Storage へのアップロードに失敗しました (${putRes.status})`
-          );
+          throw new Error(`ストレージへのアップロードに失敗しました (${putRes.status})`);
         }
 
-        // ── Step 3: 完了 ────────────────────────────────────────────
+        // ── Step 3: 【新規追加】データベースに証明書を保存 ────────────
+        setState((prev) => ({ ...prev, progress: 80 })); // 保存中...
+
+        const saveRes = await fetch(SAVE_CERT_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ storagePath, userId }),
+        });
+
+        if (!saveRes.ok) {
+          const saveBody: any = await saveRes.json().catch(() => ({}));
+          throw new Error(saveBody?.error || `データベースへの保存に失敗しました (${saveRes.status})`);
+        }
+
+        // ── Step 4: 完了 ────────────────────────────────────────────
         setState({
           uploading: false,
           progress: 100,

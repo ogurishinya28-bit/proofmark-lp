@@ -17,6 +17,10 @@
  *   - RESEND_API_KEY: メール送信用
  */
 
+import * as dotenv from 'dotenv';
+import path from 'node:path';
+dotenv.config({ path: path.join(process.cwd(), '.env.local') });
+
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { supabaseAdmin } from "./lib/supabase-admin";
 

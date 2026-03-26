@@ -1,11 +1,8 @@
-import { Heart, Shield, Lock } from "lucide-react";
+import { Heart, Shield, Zap } from "lucide-react"; // LockをZap（武器/加速）に変更
 
 /**
  * DeveloperMessage Component
- * Design: Cyber-Minimalist Security
- * 
- * Shows the human face behind the tool.
- * Builds trust through transparency and genuine belief.
+ * 修正版：実態に即した透明性と、クリエイターの矜持を強調
  */
 
 export const DeveloperMessage = () => {
@@ -15,56 +12,60 @@ export const DeveloperMessage = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-black mb-4">Message from the Developer</h2>
           <p className="text-muted">
-            なぜProofMarkを作ったのか、その想いをお伝えします。
+            ProofMarkに込めた、クリエイターへの想い。
           </p>
         </div>
 
         <div className="p-8 rounded-2xl bg-card border border-border/50">
-          <div className="flex items-start gap-4 mb-4">
+          {/* 想い */}
+          <div className="flex items-start gap-4 mb-8">
             <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
               <Heart className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-1.5">AIクリエイターの権利を守りたい</h3>
+              <h3 className="font-bold text-lg mb-1.5">「どうせAIでしょ？」と言わせないために</h3>
               <div className="text-muted leading-relaxed space-y-2">
                 <p>
-                  AIツールの登場により、クリエイティブの民主化が進みました。しかし同時に、「どうせAIでしょ？」という軽視や、作品の盗用が増えています。
+                  AIは魔法の杖ではありません。あなたが何百回もプロンプトを練り、構図を調整し、魂を込めて仕上げた作品は、立派な「あなたの創作物」です。
                 </p>
                 <p>
-                  あなたが何時間も試行錯誤して作った作品は、あなたの創意工夫の結晶です。AIはツールに過ぎません。その事実を、技術と法律で守りたい。
-                  それがProofMarkです。
+                  世間の軽視や、心ない盗用からあなたの誇りを守りたい。 ProofMarkは、AIと向き合うクリエイターの「創作の事実」を、揺るぎないデジタル証明として刻みます。
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-start gap-4 mb-4">
+          {/* 技術的透明性（重要：ここを実態に合わせました） */}
+          <div className="flex items-start gap-4 mb-8">
             <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
               <Shield className="w-6 h-6 text-accent" />
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-1.5">プライバシーを最優先に</h3>
+              <h3 className="font-bold text-lg mb-1.5">透明性とセキュリティの両立</h3>
               <div className="text-muted leading-relaxed space-y-2">
                 <p>
-                  あなたの作品をサーバーに送信する必要はありません。すべての処理はブラウザ内で完結します。
-                  生成されるのは改ざん不能な「デジタル指紋」だけ。あなたのプライバシーと作品の秘密は、完全に守られます。
+                  あなたの作品は、Vercelサーバーを経由せずSupabase Storageへ直接転送（Direct Upload）されます。
+                </p>
+                <p>
+                  転送後、サーバーサイドで安全にSHA-256ハッシュを計算。この「デジタル指紋」だけをデータベースに記録することで、作品の改ざんを防ぎ、あなたのプライバシーを保護します。
                 </p>
               </div>
             </div>
           </div>
 
+          {/* 未来の武器 */}
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-              <Lock className="w-6 h-6 text-primary" />
+            <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+              <Zap className="w-6 h-6 text-yellow-500" />
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-1.5">クリエイターの「信頼の武器」として</h3>
+              <h3 className="font-bold text-lg mb-1.5">正当な評価を得るための「武器」</h3>
               <div className="text-muted leading-relaxed space-y-2">
                 <p>
-                  ProofMarkは単なる権利保護ツールではありません。AIと向き合うクリエイターが、クライアントから正当に評価され、安心して創作を続けられるための「信頼の武器」です。
+                  ProofMarkは単なる保存ツールではありません。納品物に証明書を添える、ポートフォリオにリンクを貼る。
                 </p>
                 <p>
-                  クラウドソーシングのプロフィールに証明書リンクを貼る、納品物に添付する。そうした小さな習慣が、AI時代の新しいクリエイターの実績証明になると信じています。
+                  そうした「管理された創作」の証明が、クライアントからの信頼を生み、AI時代の新しい実績証明になると信じています。あなたの情熱を、誰にも否定させないために。
                 </p>
               </div>
             </div>
@@ -73,7 +74,7 @@ export const DeveloperMessage = () => {
 
         <div className="mt-8 text-center">
           <p className="text-sm text-muted">
-            一緒に、AI時代の新しい基準を作りませんか？
+            一緒に、クリエイターが報われる新しい基準を作りませんか？
           </p>
         </div>
       </div>

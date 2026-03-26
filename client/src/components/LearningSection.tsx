@@ -29,7 +29,7 @@ export default function LearningSection({
     setSelectedArticleSlug(null);
   };
 
-  const displayArticles = articles.slice(0, 3); // 最初の3つの記事を表示
+  const displayArticles = articles.slice(0, 3);
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-background via-background to-background py-16 md:py-24">
@@ -53,11 +53,11 @@ export default function LearningSection({
               3分で理解：
             </span>
             <br />
-            <span className="text-foreground">創作証明の基礎知識</span>
+            <span className="text-foreground">知識を「武器」に変える</span>
           </h2>
 
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            「SHA-256」「タイムスタンプ」「C2PA」を短時間で押さえると、ProofMarkの"証明の強さ"が腹落ちします。
+            「SHA-256」や「タイムスタンプ」の仕組みを知ることで、ProofMarkがなぜあなたの作品を守る「強力な盾」になり得るのかが腹落ちします。
           </p>
         </div>
 
@@ -72,14 +72,14 @@ export default function LearningSection({
           ))}
         </div>
 
-        {/* CTA */}
+        {/* CTA（行動喚起） */}
         <div className="flex flex-col items-center gap-6 rounded-xl border border-border/50 bg-gradient-to-r from-primary/5 to-accent/5 p-8 text-center backdrop-blur-sm md:p-12">
           <div>
             <h3 className="mb-2 text-2xl font-bold text-foreground">
-              学んだら、先行登録する
+              仕組みに納得したら、次はあなたの番です
             </h3>
             <p className="text-muted-foreground">
-              あなたの創作を今すぐ証明しましょう
+              無料の先行登録で、あなた自身の作品を守る準備を始めましょう。
             </p>
           </div>
 

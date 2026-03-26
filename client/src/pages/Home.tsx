@@ -227,7 +227,7 @@ export default function Home() {
                 animate="visible"
                 transition={{ delay: 0.5 }}
               >
-                あなたの創作の「事実」を、一生消えない証拠に。画像を送信せず、SHA-256でデジタル指紋を生成。タイムスタンプとともに改ざん不能な証拠を残します。
+                あなたの創作の「事実」を、一生消えない証拠に。画像をアプリサーバーに送信せず、ストレージへ直結してデジタル指紋を生成。タイムスタンプとともに改ざん不能な証拠を残します。
               </motion.p>
 
               {/* Hero form */}
@@ -319,7 +319,7 @@ export default function Home() {
               >
                 {[
                   { value: "SHA-256", label: "暗号強度" },
-                  { value: "0MB", label: "サーバー送信量" },
+                  { value: "Direct", label: "ストレージ直結" },
                   { value: "3拠点", label: "分散保存" },
                   { value: "C2PA", label: "業界標準準拠" },
                 ].map((stat) => (
@@ -372,15 +372,15 @@ export default function Home() {
                 {
                   icon: <Lock className="w-8 h-8 text-primary" />,
                   number: "01",
-                  title: "画像はブラウザ内処理",
-                  desc: "データは一切サーバーに送信されません。ローカル環境で安全に処理を完結します。",
+                  title: "セキュアなダイレクト転送",
+                  desc: "アプリサーバー（Webサーバー）を一切経由せず、堅牢なクラウドストレージへ直接かつ安全に暗号化転送します。",
                   glow: "rgba(108,62,244,0.15)",
                 },
                 {
                   icon: <Fingerprint className="w-8 h-8 text-accent" />,
                   number: "02",
                   title: "SHA-256ハッシュ生成",
-                  desc: "作品固有の「デジタル指紋」を不可逆な暗号技術で生成し、改ざんを不可能にします。",
+                  desc: "作品固有の「デジタル指紋」を不可逆な暗号技術でサーバーサイド生成し、改ざんを不可能にします。",
                   glow: "rgba(0,212,170,0.15)",
                 },
                 {
@@ -441,7 +441,7 @@ export default function Home() {
               <div className="flex flex-wrap justify-center gap-3 mb-16">
                 {[
                   { icon: <Check className="w-4 h-4" />, text: "C2PA準拠", color: "accent" },
-                  { icon: <Lock className="w-4 h-4" />, text: "画像非送信", color: "primary" },
+                  { icon: <Lock className="w-4 h-4" />, text: "アプリサーバー非経由", color: "primary" },
                   { icon: <Database className="w-4 h-4" />, text: "3拠点保存", color: "accent" },
                 ].map((badge, i) => (
                   <motion.div
@@ -746,13 +746,21 @@ export default function Home() {
         {/* ── Supported Tools ──────────────────────────────────── */}
         <SupportedToolsSection />
 
+        {/* ── Learning Section (順序を最適化) ──────────────────── */}
+        <div id="learning">
+          <LearningSection onRegisterClick={() => {
+            const el = document.getElementById("waitlist-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }} />
+        </div>
+
         {/* ── FAQ ─────────────────────────────────────────────── */}
         <FAQAccordion />
 
         {/* ── Developer Message ────────────────────────────────── */}
         <DeveloperMessage />
 
-        {/* ── Waitlist CTA ────────────────────────────────────── */}
+        {/* ── Waitlist CTA (最後に強く背中を押す) ───────────────── */}
         <section
           id="waitlist-section"
           className="py-24 relative overflow-hidden border-t border-b border-border/50"
@@ -883,14 +891,6 @@ export default function Home() {
             </FadeInSection>
           </div>
         </section>
-
-        {/* ── Learning Section ─────────────────────────────────── */}
-        <div id="learning">
-          <LearningSection onRegisterClick={() => {
-            const el = document.getElementById("waitlist-section");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-          }} />
-        </div>
 
         {/* ── Footer ──────────────────────────────────────────── */}
         <PrivacyFooter />

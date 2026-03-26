@@ -1,48 +1,31 @@
 /**
  * SupportedToolsSection Component
  * Design: Cyber-Minimalist Security
- * 
- * Displays supported AI tools and formats with grayscale logos.
- * Builds trust through ecosystem compatibility without claiming partnerships.
- * 
- * Design principles:
- * 1. Use grayscale logos to avoid brand dominance
- * 2. Emphasize "Works with" not "Partnered with"
- * 3. Add trademark disclaimer in footer
  */
 
 export const SupportedToolsSection = () => {
   const tools = [
-    {
-      name: "Midjourney",
-      logo: "🎨",
-      description: "AI画像生成",
-    },
-    {
-      name: "Stable Diffusion",
-      logo: "⚡",
-      description: "オープンソースAI",
-    },
-    {
-      name: "DALL-E",
-      logo: "🤖",
-      description: "OpenAI生成",
-    },
-    {
-      name: "Adobe Firefly",
-      logo: "✨",
-      description: "Adobe統合",
-    },
-    {
-      name: "Leonardo.AI",
-      logo: "🎭",
-      description: "クリエイティブAI",
-    },
-    {
-      name: "Runway",
-      logo: "🎬",
-      description: "ビデオ生成",
-    },
+    { name: "Midjourney", logo: "🎨", description: "AI画像生成" },
+    { name: "Stable Diffusion", logo: "⚡", description: "オープンソースAI" },
+    { name: "DALL-E", logo: "🤖", description: "OpenAI生成" },
+    { name: "Adobe Firefly", logo: "✨", description: "Adobe統合" },
+    { name: "Leonardo.AI", logo: "🎭", description: "クリエイティブAI" },
+    { name: "Niji・journey", logo: "🌸", description: "アニメ系AI" },
+  ];
+
+  // 1. 配列から不要なものをコメントアウトして、現在の仕様（画像5種）に合わせる
+  const supportedFormats = [
+    "JPG",
+    "PNG",
+    "WebP",
+    "GIF",
+    "AVIF", // 新規追加
+    /* ── 将来の拡張用（セキュリティ確認後に解除） ──
+    "TIFF", 
+    "BMP", 
+    "SVG", 
+    "PDF" 
+    */
   ];
 
   return (
@@ -51,7 +34,7 @@ export const SupportedToolsSection = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-black mb-3">Supported Formats & AI Tools</h2>
           <p className="text-muted max-w-2xl mx-auto">
-            すべての主要なAIツールの出力に対応。あなたのワークフローをそのまま活かせます。
+            主要なAIツールの出力に対応。あなたのワークフローをそのまま活かせます。
           </p>
         </div>
 
@@ -75,8 +58,9 @@ export const SupportedToolsSection = () => {
         <div className="max-w-3xl mx-auto">
           <div className="p-6 rounded-xl bg-card border border-border">
             <h3 className="font-bold mb-4">対応フォーマット</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {["JPG", "PNG", "WebP", "TIFF", "GIF", "BMP", "SVG", "PDF"].map(
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4"> {/* colを5に調整 */}
+              {/* 2. 定義した supportedFormats を回すように変更 */}
+              {supportedFormats.map(
                 (format) => (
                   <div
                     key={format}

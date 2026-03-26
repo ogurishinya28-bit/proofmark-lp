@@ -1,14 +1,5 @@
 /**
  * CertificateUpload — 作品アップロードUIコンポーネント
- *
- * - ドラッグ&ドロップ + ファイル選択に対応
- * - useDirectUpload フックで Supabase Storage へ Direct Upload
- * - Framer Motion でアップロード中スピナー、完了アニメーション
- * - 成功時 toast.success、エラー時 toast.error
- *
- * ⚠️ アーキテクチャルール（絶対遵守）:
- *   - ハッシュ計算はクライアントで行わない（Edge Function に委ねる）
- *   - ファイルの中身は signedUrl へ直接 PUT され Vercel を経由しない
  */
 
 import { useCallback, useRef, useState } from "react";
@@ -28,7 +19,7 @@ const ALLOWED_MIME_TYPES = [
   "image/gif",
   "image/webp",
   "image/avif",
-  "image/svg+xml",
+  // "image/svg+xml", // 【コメントアウト】将来の拡張用に残す
 ] as const;
 
 const MAX_FILE_SIZE_MB = 50;
@@ -39,11 +30,8 @@ const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 // ---------------------------------------------------------------------------
 
 interface CertificateUploadProps {
-  /** アップロード完了後のコールバック（storagePath を受け取る） */
   onUploadComplete?: (storagePath: string) => void;
-  /** 認証済みユーザーのUUID（未認証時は "anon"） */
   userId?: string;
-  /** 追加の className */
   className?: string;
 }
 
@@ -65,7 +53,7 @@ export function CertificateUpload({
   // ── バリデーション ────────────────────────────────────────────────
   const validateFile = useCallback((file: File): string | null => {
     if (!ALLOWED_MIME_TYPES.includes(file.type as (typeof ALLOWED_MIME_TYPES)[number])) {
-      return `対応していないファイル形式です。JPEG / PNG / GIF / WebP / AVIF / SVG のみ対応しています。`;
+      return `対応していないファイル形式です。JPEG / PNG / GIF / WebP / AVIF のみ対応しています。`;
     }
     if (file.size > MAX_FILE_SIZE_BYTES) {
       return `ファイルサイズが大きすぎます。${MAX_FILE_SIZE_MB}MB 以下のファイルを選択してください。`;
@@ -128,7 +116,6 @@ export function CertificateUpload({
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       void handleFiles(e.target.files);
-      // 同じファイルを再選択できるようにリセット
       e.target.value = "";
     },
     [handleFiles]
@@ -205,8 +192,8 @@ export function CertificateUpload({
               borderColor: isDragOver
                 ? "rgba(108,62,244,0.6)"
                 : uploading
-                ? "rgba(108,62,244,0.4)"
-                : "rgba(42,42,78,0.7)",
+                  ? "rgba(108,62,244,0.4)"
+                  : "rgba(42,42,78,0.7)",
               boxShadow: isDragOver
                 ? "0 0 30px rgba(108,62,244,0.2)"
                 : "none",
@@ -327,8 +314,10 @@ export function CertificateUpload({
                   クリックして選択
                 </span>
               </p>
+
+              {/* 表示テキストから SVG をコメントアウト */}
               <p className="text-xs text-muted/60">
-                JPEG / PNG / GIF / WebP / AVIF / SVG · 最大 {MAX_FILE_SIZE_MB}MB
+                JPEG / PNG / GIF / WebP / AVIF {/* / SVG */} · 最大 {MAX_FILE_SIZE_MB}MB
               </p>
 
               {/* セキュリティバッジ */}
@@ -352,7 +341,6 @@ export function CertificateUpload({
               </div>
             </div>
 
-            {/* 非表示 file input */}
             <input
               ref={inputRef}
               type="file"
