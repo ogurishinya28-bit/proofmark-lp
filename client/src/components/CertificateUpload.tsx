@@ -44,7 +44,8 @@ export function CertificateUpload({
   userId = "anon",
   className = "",
 }: CertificateUploadProps) {
-  const { uploading, progress, error, storagePath, uploadFile, reset } =
+  // 🌟 storagePath の代わりに certificateId を受け取るように変更
+  const { uploading, progress, error, certificateId, uploadFile, reset } =
     useDirectUpload();
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -76,21 +77,25 @@ export function CertificateUpload({
 
       setSelectedFile(file);
 
-      const path = await uploadFile(file, userId);
+      // 🌟 path ではなく certId (証明書ID) を受け取る
+      const certId = await uploadFile(file, userId);
 
-      if (path) {
-        toast.success("🎉 アップロード完了！証明書を生成中です...", {
-          description: "ハッシュの計算が完了次第、証明書が発行されます。",
-          duration: 5000,
+      if (certId) {
+        toast.success("🎉 証明書の発行が完了しました！", {
+          description: "証明書ページへ移動します...",
+          duration: 3000,
         });
-        onUploadComplete?.(path);
+
+        // 🌟 成功したら即座に証明書ページへジャンプ！
+        window.location.href = `/cert/${certId}`;
+
       } else {
         toast.error("アップロードに失敗しました", {
           description: "ネットワーク接続を確認して、再度お試しください。",
         });
       }
     },
-    [uploadFile, userId, validateFile, onUploadComplete]
+    [uploadFile, userId, validateFile]
   );
 
   // ── ドラッグ&ドロップイベント ──────────────────────────────────────
@@ -128,7 +133,8 @@ export function CertificateUpload({
   }, [reset]);
 
   // ── 表示状態 ─────────────────────────────────────────────────────
-  const isCompleted = storagePath !== null;
+  // 🌟 certificateId があれば完了状態とみなす
+  const isCompleted = certificateId !== null;
 
   return (
     <div className={`w-full ${className}`}>
@@ -159,26 +165,10 @@ export function CertificateUpload({
             >
               <CheckCircle2 className="w-8 h-8 text-accent" />
             </motion.div>
-            <h3 className="text-lg font-bold mb-2">アップロード完了！</h3>
-            <p className="text-sm text-muted mb-2">
-              {selectedFile?.name}
+            <h3 className="text-lg font-bold mb-2">証明書ページへ移動中...</h3>
+            <p className="text-sm text-muted mb-6">
+              少々お待ちください。
             </p>
-            <p className="text-xs text-muted/70 mb-6">
-              サーバーサイドでSHA-256ハッシュを計算し、証明書を発行しています...
-            </p>
-            <motion.button
-              onClick={handleReset}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold"
-              style={{
-                borderColor: "rgba(0,212,170,0.35)",
-                color: "#00d4aa",
-              }}
-              whileHover={{ background: "rgba(0,212,170,0.1)", scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <Upload className="w-4 h-4" />
-              別のファイルをアップロード
-            </motion.button>
           </motion.div>
         ) : (
           /* ── アップロードゾーン ── */
@@ -258,10 +248,10 @@ export function CertificateUpload({
                   </div>
 
                   <p className="text-sm font-semibold text-foreground">
-                    アップロード中... {progress}%
+                    処理中... {progress}%
                   </p>
                   <p className="text-xs text-muted mt-1">
-                    Supabase Storage へ直接転送中
+                    安全な環境でハッシュを計算しています
                   </p>
                 </motion.div>
               )}
@@ -315,9 +305,8 @@ export function CertificateUpload({
                 </span>
               </p>
 
-              {/* 表示テキストから SVG をコメントアウト */}
               <p className="text-xs text-muted/60">
-                JPEG / PNG / GIF / WebP / AVIF {/* / SVG */} · 最大 {MAX_FILE_SIZE_MB}MB
+                JPEG / PNG / GIF / WebP / AVIF · 最大 {MAX_FILE_SIZE_MB}MB
               </p>
 
               {/* セキュリティバッジ */}

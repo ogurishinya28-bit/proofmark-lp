@@ -20,11 +20,12 @@ export interface DirectUploadState {
   /** 0–100 の進捗率 */
   progress: number;
   error: string | null;
-  /** アップロード完了後のストレージパス */
-  storagePath: string | null;
+  /** アップロード完了後の証明書ID（storagePathから変更） */
+  certificateId: string | null;
 }
 
 export interface UseDirectUploadReturn extends DirectUploadState {
+  // 返り値を string (証明書ID) に変更
   uploadFile: (file: File, userId?: string) => Promise<string | null>;
   reset: () => void;
 }
@@ -34,13 +35,13 @@ export interface UseDirectUploadReturn extends DirectUploadState {
 // ---------------------------------------------------------------------------
 
 const UPLOAD_URL_ENDPOINT = "/api/upload-url";
-const SAVE_CERT_ENDPOINT = "/api/save-certificate"; // 【追加】保存用APIのエンドポイント
+const SAVE_CERT_ENDPOINT = "/api/save-certificate";
 
 const INITIAL_STATE: DirectUploadState = {
   uploading: false,
   progress: 0,
   error: null,
-  storagePath: null,
+  certificateId: null, // 名前を変更
 };
 
 // ---------------------------------------------------------------------------
@@ -56,7 +57,7 @@ export function useDirectUpload(): UseDirectUploadReturn {
 
   const uploadFile = useCallback(
     async (file: File, userId = "anon"): Promise<string | null> => {
-      setState({ uploading: true, progress: 0, error: null, storagePath: null });
+      setState({ uploading: true, progress: 0, error: null, certificateId: null });
 
       try {
         // ── Step 1: 署名付きURL + ストレージパスを取得 ───────────────
@@ -98,8 +99,8 @@ export function useDirectUpload(): UseDirectUploadReturn {
           throw new Error(`ストレージへのアップロードに失敗しました (${putRes.status})`);
         }
 
-        // ── Step 3: 【新規追加】データベースに証明書を保存 ────────────
-        setState((prev) => ({ ...prev, progress: 80 })); // 保存中...
+        // ── Step 3: データベースに証明書を保存 ────────────
+        setState((prev) => ({ ...prev, progress: 80 }));
 
         const saveRes = await fetch(SAVE_CERT_ENDPOINT, {
           method: "POST",
@@ -107,20 +108,25 @@ export function useDirectUpload(): UseDirectUploadReturn {
           body: JSON.stringify({ storagePath, userId }),
         });
 
-        if (!saveRes.ok) {
-          const saveBody: any = await saveRes.json().catch(() => ({}));
-          throw new Error(saveBody?.error || `データベースへの保存に失敗しました (${saveRes.status})`);
+        const saveData = await saveRes.json(); // 🌟 レスポンスの中身を取得
+
+        if (!saveRes.ok || !saveData.success) {
+          throw new Error(saveData?.error || `データベースへの保存に失敗しました (${saveRes.status})`);
         }
+
+        // 🌟 成功したら、レスポンスから証明書のIDを取り出す
+        const certId = saveData.certificate.id;
 
         // ── Step 4: 完了 ────────────────────────────────────────────
         setState({
           uploading: false,
           progress: 100,
           error: null,
-          storagePath,
+          certificateId: certId, // パスではなくIDを保存
         });
 
-        return storagePath;
+        return certId; // 🌟 パスではなくIDを返す！
+
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "アップロード中に不明なエラーが発生しました";
@@ -128,7 +134,7 @@ export function useDirectUpload(): UseDirectUploadReturn {
           uploading: false,
           progress: 0,
           error: message,
-          storagePath: null,
+          certificateId: null,
         });
         return null;
       }
