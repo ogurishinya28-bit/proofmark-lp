@@ -1,5 +1,5 @@
 /**
- * useDirectUpload — Direct Upload フック（Supabase Storage 署名付きURL経由）
+ * useDirectUpload — Direct Upload フック（Supabase Storage 署名付きURL経由 ＋ ブラウザ内ハッシュ計算）
  */
 
 import { useState, useCallback } from "react";
@@ -17,21 +17,18 @@ interface UploadUrlApiResponse {
 
 export interface DirectUploadState {
   uploading: boolean;
-  /** 0–100 の進捗率 */
   progress: number;
   error: string | null;
-  /** アップロード完了後の証明書ID（storagePathから変更） */
   certificateId: string | null;
 }
 
 export interface UseDirectUploadReturn extends DirectUploadState {
-  // 返り値を string (証明書ID) に変更
   uploadFile: (file: File, userId?: string) => Promise<string | null>;
   reset: () => void;
 }
 
 // ---------------------------------------------------------------------------
-// 定数
+// 定数・ユーティリティ
 // ---------------------------------------------------------------------------
 
 const UPLOAD_URL_ENDPOINT = "/api/upload-url";
@@ -41,8 +38,17 @@ const INITIAL_STATE: DirectUploadState = {
   uploading: false,
   progress: 0,
   error: null,
-  certificateId: null, // 名前を変更
+  certificateId: null,
 };
+
+// 🌟 【新規追加】ブラウザ内で安全にSHA-256ハッシュを計算する関数
+async function calculateSHA256(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer();
+  // Web Crypto API を使用してハッシュを計算（ブラウザ標準機能なので安全・高速）
+  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 // ---------------------------------------------------------------------------
 // フック
@@ -60,8 +66,12 @@ export function useDirectUpload(): UseDirectUploadReturn {
       setState({ uploading: true, progress: 0, error: null, certificateId: null });
 
       try {
+        // ── Step 0: 【新規追加】ブラウザ内でローカルハッシュ計算 ──
+        setState((prev) => ({ ...prev, progress: 5 }));
+        const fileHash = await calculateSHA256(file);
+
         // ── Step 1: 署名付きURL + ストレージパスを取得 ───────────────
-        setState((prev) => ({ ...prev, progress: 10 }));
+        setState((prev) => ({ ...prev, progress: 15 }));
 
         const urlRes = await fetch(UPLOAD_URL_ENDPOINT, {
           method: "POST",
@@ -102,19 +112,19 @@ export function useDirectUpload(): UseDirectUploadReturn {
         // ── Step 3: データベースに証明書を保存 ────────────
         setState((prev) => ({ ...prev, progress: 80 }));
 
+        // 🌟 事前計算した fileHash を一緒にAPIへ送信する！
         const saveRes = await fetch(SAVE_CERT_ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ storagePath, userId }),
+          body: JSON.stringify({ storagePath, userId, fileHash }),
         });
 
-        const saveData = await saveRes.json(); // 🌟 レスポンスの中身を取得
+        const saveData = await saveRes.json();
 
         if (!saveRes.ok || !saveData.success) {
           throw new Error(saveData?.error || `データベースへの保存に失敗しました (${saveRes.status})`);
         }
 
-        // 🌟 成功したら、レスポンスから証明書のIDを取り出す
         const certId = saveData.certificate.id;
 
         // ── Step 4: 完了 ────────────────────────────────────────────
@@ -122,10 +132,10 @@ export function useDirectUpload(): UseDirectUploadReturn {
           uploading: false,
           progress: 100,
           error: null,
-          certificateId: certId, // パスではなくIDを保存
+          certificateId: certId,
         });
 
-        return certId; // 🌟 パスではなくIDを返す！
+        return certId;
 
       } catch (err) {
         const message =

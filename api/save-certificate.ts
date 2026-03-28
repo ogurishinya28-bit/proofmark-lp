@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { createHash } from "node:crypto";
+// 🌟 'node:crypto' のインポートはもう不要なので消しました！
 
 // 環境変数のトリムとスラッシュ削除
 const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "").trim().replace(/\/$/, "");
@@ -23,34 +23,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const { storagePath, userId = "anon" } = req.body;
+        // 🌟 Step 1でブラウザから送られてきた `fileHash` をここで受け取る！
+        const { storagePath, userId = "anon", fileHash } = req.body;
 
-        if (!storagePath) {
-            return res.status(400).json({ success: false, error: "storagePath は必須です" });
+        // fileHash が送られてきていない場合はエラーを返す
+        if (!storagePath || !fileHash) {
+            return res.status(400).json({ success: false, error: "storagePath と fileHash は必須です" });
         }
 
         if (!supabaseUrl || !serviceRoleKey) {
             return res.status(500).json({ success: false, error: "サーバーの設定エラー（環境変数）" });
         }
 
-        const filePath = storagePath.startsWith("originals/")
-            ? storagePath.replace("originals/", "")
-            : storagePath;
-
-        // 1. ファイルをダウンロード
-        const { data: fileData, error: downloadError } = await supabaseAdmin.storage
-            .from("originals")
-            .download(filePath);
-
-        if (downloadError || !fileData) {
-            console.error("[save-certificate] Download error:", downloadError);
-            return res.status(500).json({ success: false, error: "ストレージからのファイル取得に失敗しました" });
-        }
-
-        // 2. サーバーサイドで SHA-256 ハッシュ計算
-        const arrayBuffer = await fileData.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const fileHash = createHash("sha256").update(buffer).digest("hex");
+        // 🌟 以前ここにあった「1. ファイルをダウンロード」「2. ハッシュ計算」の
+        // 重たい処理はすべて削除しました！Vercelの負担が激減します。
 
         // 3. データベース保存
         const safeUserId = userId === "anon" ? null : userId;
@@ -59,7 +45,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .from("certificates")
             .insert({
                 user_id: safeUserId,
-                file_hash: fileHash,
+                file_hash: fileHash, // 🌟 受け取ったハッシュをそのままDBに保存
                 storage_path: storagePath,
             })
             .select()
@@ -76,11 +62,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(500).json({ success: false, error: "データベースへの保存に失敗しました" });
         }
 
-        // 4. 成功レスポンス（フロントエンドで遷移に使う id を含む）
+        // 4. 成功レスポンス
         return res.status(200).json({
             success: true,
             message: "証明書の保存が完了しました",
-            certificate: insertData, // ここに id が入っています
+            certificate: insertData,
         });
 
     } catch (err: any) {

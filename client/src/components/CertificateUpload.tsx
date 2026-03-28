@@ -251,7 +251,7 @@ export function CertificateUpload({
                     処理中... {progress}%
                   </p>
                   <p className="text-xs text-muted mt-1">
-                    安全な環境でハッシュを計算しています
+                    ブラウザ内で安全にローカルハッシュを計算中...
                   </p>
                 </motion.div>
               )}
@@ -313,7 +313,7 @@ export function CertificateUpload({
               <div className="flex flex-wrap justify-center gap-2 mt-5">
                 {[
                   "🔒 Direct Upload（Vercel非経由）",
-                  "🔐 SHA-256 サーバーサイドハッシュ",
+                  "🔐 SHA-256 ブラウザ内ローカルハッシュ",
                 ].map((badge) => (
                   <span
                     key={badge}
