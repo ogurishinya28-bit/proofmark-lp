@@ -73,8 +73,8 @@ export default function CertificatePage() {
                             </p>
                         </div>
                         <div>
-                            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Storage Locations</h2>
-                            <p className="text-lg">Tokyo • Osaka • Singapore</p>
+                            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Storage Location</h2>
+                            <p className="text-lg">Secure Cloud Storage</p>
                         </div>
                     </div>
 

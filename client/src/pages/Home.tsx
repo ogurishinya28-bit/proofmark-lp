@@ -15,7 +15,6 @@ import {
   fadeInVariants,
   slideInVariants,
   staggerContainer,
-  cardHoverVariants,
   buttonVariants,
   heroTextVariants,
 } from "@/lib/animations";
@@ -283,7 +282,7 @@ export default function Home() {
                     </>
                   ) : "無料で先行登録 →"}
                 </motion.button>
-              </motion.form>
+              </form>
 
               <motion.div
                 initial={{ opacity: 0 }}
@@ -320,8 +319,8 @@ export default function Home() {
                 {[
                   { value: "SHA-256", label: "暗号強度" },
                   { value: "Direct", label: "ストレージ直結" },
-                  { value: "3拠点", label: "分散保存" },
-                  { value: "C2PA", label: "業界標準準拠" },
+                  { value: "Secure", label: "クラウド保存" },
+                  { value: "C2PA", label: "対応予定" },
                 ].map((stat) => (
                   <motion.div key={stat.value} className="text-center" variants={slideInVariants}>
                     <div
@@ -372,22 +371,22 @@ export default function Home() {
                 {
                   icon: <Lock className="w-8 h-8 text-primary" />,
                   number: "01",
-                  title: "セキュアなDirect Upload",
-                  desc: "アプリサーバー（Vercel）を一切バイパスし、堅牢なクラウドストレージへ直接暗号化転送。運営側が通信経路で画像に触れることは物理的に不可能です。",
+                  title: "ブラウザ内ハッシュ計算",
+                  desc: "ハッシュ計算はブラウザ内で完結し、サーバーに負荷や情報を渡しません。（※公開ポートフォリオ用の画像のみ、暗号化通信でセキュアクラウドに安全に保管されます）",
                   glow: "rgba(108,62,244,0.15)",
                 },
                 {
                   icon: <Fingerprint className="w-8 h-8 text-accent" />,
                   number: "02",
-                  title: "サーバーサイド・ハッシュ生成",
-                  desc: "ストレージ到達後、セキュアな環境で即座に「デジタル指紋（SHA-256）」を計算。データベースにはこの指紋とタイムスタンプのみが記録されます。",
+                  title: "デジタル指紋（SHA-256）",
+                  desc: "あなたの作品固有の「デジタル指紋」を不可逆な暗号技術で生成。データベースにはこの指紋とタイムスタンプのみが強固に記録されます。",
                   glow: "rgba(0,212,170,0.15)",
                 },
                 {
                   icon: <Database className="w-8 h-8 text-primary" />,
                   number: "03",
-                  title: "3拠点分散タイムスタンプ",
-                  desc: "東京・大阪・シンガポールのセキュアなサーバーに存在証明を分散記録します。",
+                  title: "セキュアクラウド保存",
+                  desc: "国内の高度なセキュリティ要件を満たすクラウドサーバーに、あなたの存在証明とタイムスタンプを改ざん不可能な形で記録します。",
                   glow: "rgba(108,62,244,0.15)",
                 },
               ].map((step, i) => (
@@ -440,9 +439,9 @@ export default function Home() {
             <FadeInSection>
               <div className="flex flex-wrap justify-center gap-3 mb-16">
                 {[
-                  { icon: <Check className="w-4 h-4" />, text: "C2PA準拠", color: "accent" },
-                  { icon: <Lock className="w-4 h-4" />, text: "アプリサーバー非経由", color: "primary" },
-                  { icon: <Database className="w-4 h-4" />, text: "3拠点保存", color: "accent" },
+                  { icon: <Check className="w-4 h-4" />, text: "C2PA対応予定", color: "accent" },
+                  { icon: <Lock className="w-4 h-4" />, text: "ブラウザ内処理", color: "primary" },
+                  { icon: <Database className="w-4 h-4" />, text: "セキュア保存", color: "accent" },
                 ].map((badge, i) => (
                   <motion.div
                     key={i}
@@ -482,7 +481,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-black mb-2">作品をアップロードして証明を開始</h3>
                 <p className="text-muted text-sm max-w-lg mx-auto">
-                  ファイルは運営サーバー（Vercel）を一切経由せず、堅牢なSupabase Storageへ直接暗号化転送されます。プライバシーは最大限保護されます。
+                  ハッシュ計算はブラウザ内で完結します。ポートフォリオ公開用の作品データは、堅牢なクラウドストレージへ直接暗号化転送され、プライバシーは最大限保護されます。
                 </p>
               </div>
               <div className="max-w-2xl mx-auto">
@@ -703,7 +702,7 @@ export default function Home() {
                   {[
                     "Webタイムスタンプ証明 無制限",
                     "PDF証明書（無制限）",
-                    "C2PAメタデータ読取",
+                    "C2PAメタデータ読取（対応予定）",
                     "制作工程アップロード",
                     "全データエクスポート",
                   ].map((f) => (
