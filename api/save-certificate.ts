@@ -40,6 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // 3. データベース保存
         const safeUserId = userId === "anon" ? null : userId;
+        const fileUrl = `${supabaseUrl}/storage/v1/object/public/${storagePath}`;
 
         const { data: insertData, error: dbError } = await supabaseAdmin
             .from("certificates")
@@ -47,6 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 user_id: safeUserId,
                 file_hash: fileHash, // 🌟 受け取ったハッシュをそのままDBに保存
                 storage_path: storagePath,
+                file_url: fileUrl,   // 🌟 ここも1行追加！
             })
             .select()
             .single();

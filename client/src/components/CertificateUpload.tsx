@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Upload, FileImage, CheckCircle2, AlertCircle, X } from "lucide-react";
 import { toast } from "sonner";
 import { useDirectUpload } from "@/hooks/useDirectUpload";
+import { useAuth } from "@/hooks/useAuth"; // 🌟 追加
 
 // ---------------------------------------------------------------------------
 // 定数
@@ -44,6 +45,8 @@ export function CertificateUpload({
   userId = "anon",
   className = "",
 }: CertificateUploadProps) {
+  const { user } = useAuth(); // 🌟 追加
+
   // 🌟 storagePath の代わりに certificateId を受け取るように変更
   const { uploading, progress, error, certificateId, uploadFile, reset } =
     useDirectUpload();
@@ -53,6 +56,11 @@ export function CertificateUpload({
 
   // ── バリデーション ────────────────────────────────────────────────
   const validateFile = useCallback((file: File): string | null => {
+    // 🌟 追加: 未ログインチェック
+    if (!user) {
+      return "証明書を発行するにはログインが必要です。";
+    }
+
     if (!ALLOWED_MIME_TYPES.includes(file.type as (typeof ALLOWED_MIME_TYPES)[number])) {
       return `対応していないファイル形式です。JPEG / PNG / GIF / WebP / AVIF のみ対応しています。`;
     }
@@ -60,7 +68,7 @@ export function CertificateUpload({
       return `ファイルサイズが大きすぎます。${MAX_FILE_SIZE_MB}MB 以下のファイルを選択してください。`;
     }
     return null;
-  }, []);
+  }, [user]); // 🌟 修正: 依存配列に user を追加
 
   // ── ファイル選択/ドロップ処理 ─────────────────────────────────────
   const handleFiles = useCallback(
@@ -77,8 +85,8 @@ export function CertificateUpload({
 
       setSelectedFile(file);
 
-      // 🌟 path ではなく certId (証明書ID) を受け取る
-      const certId = await uploadFile(file, userId);
+      // 🌟 path ではなく certId (証明書ID) を受け取る。userIdは実際のuser.idを渡す。
+      const certId = await uploadFile(file, user?.id);
 
       if (certId) {
         toast.success("🎉 証明書の発行が完了しました！", {
@@ -95,7 +103,7 @@ export function CertificateUpload({
         });
       }
     },
-    [uploadFile, userId, validateFile]
+    [uploadFile, user?.id, validateFile] // 🌟 修正: 依存配列に user?.id を追加
   );
 
   // ── ドラッグ&ドロップイベント ──────────────────────────────────────
@@ -197,7 +205,14 @@ export function CertificateUpload({
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            onClick={() => !uploading && inputRef.current?.click()}
+            onClick={() => {
+              // 🌟 追加: 未ログイン時はエラーを出し、クリックを無効化
+              if (!user) {
+                toast.error("ログインが必要です", { description: "証明書を発行するにはログインしてください。" });
+                return;
+              }
+              if (!uploading) inputRef.current?.click();
+            }}
             role="button"
             aria-label="作品ファイルをドロップまたはクリックして選択"
             tabIndex={0}
@@ -308,6 +323,13 @@ export function CertificateUpload({
               <p className="text-xs text-muted/60">
                 JPEG / PNG / GIF / WebP / AVIF · 最大 {MAX_FILE_SIZE_MB}MB
               </p>
+
+              {/* 🌟 追加: 未ログイン時のUIヒント */}
+              {!user && (
+                <div className="mt-4 px-4 py-2 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-bold">
+                  証明書の発行にはログインが必要です
+                </div>
+              )}
 
               {/* セキュリティバッジ */}
               <div className="flex flex-wrap justify-center gap-2 mt-5">
