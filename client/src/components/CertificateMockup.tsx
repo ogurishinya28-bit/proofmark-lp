@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 /**
  * CertificateMockup Component
  * Design: Cyber-Minimalist Security
- * 
- * Displays an animated certificate with hash generation effect.
+ * * Displays an animated certificate with hash generation effect.
  * Creates a sense of active cryptographic processing.
  */
 
@@ -16,14 +15,14 @@ export const CertificateMockup = () => {
     let iteration = 0;
     const finalHash = "a3f2c891...1e4d";
     const chars = "0123456789abcdef";
-    
+
     const interval = setInterval(() => {
       setHashValue(
         Array.from({ length: 15 })
           .map(() => chars[Math.floor(Math.random() * chars.length)])
           .join("")
       );
-      
+
       if (iteration >= 10) {
         clearInterval(interval);
         setHashValue(finalHash);
@@ -39,7 +38,7 @@ export const CertificateMockup = () => {
       <div className="h-full w-full p-8 rounded-[15px] bg-card/95 backdrop-blur-sm relative">
         {/* Scanline effect */}
         <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none opacity-20"></div>
-        
+
         <div className="flex justify-between items-center mb-6 pb-6 border-b border-border relative z-10">
           <span className="text-sm font-semibold text-primary">ProofMark Digital Certificate</span>
           <span className="text-xs font-mono bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">#PM-0001</span>
@@ -55,15 +54,15 @@ export const CertificateMockup = () => {
             <span className="font-mono">2026-03-16 14:32:19</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted">Storage Locations</span>
-            <span className="font-mono">Tokyo • Osaka • Singapore</span>
+            <span className="text-muted">Storage Location</span>
+            <span className="font-mono">Secure Cloud Storage</span>
           </div>
         </div>
 
         {/* Verification badge */}
         <div className="mt-6 relative z-10">
           <div className="inline-block px-4 py-2 rounded-full bg-accent text-accent-foreground font-bold text-xs">
-            ✓ 3-Location Verified
+            ✓ Securely Verified
           </div>
         </div>
       </div>
