@@ -87,7 +87,7 @@ export default function Auth() {
         <p style={styles.subtitle}>
           {isLogin
             ? "アカウントにログインして、作品を管理しましょう。"
-            : "アカウントを作成して、著作権証明を始めましょう。"}
+            : "アカウントを作成して、AI作品のデジタル存在証明を始めましょう。"}
         </p>
 
         <form onSubmit={handleSubmit} style={styles.form}>

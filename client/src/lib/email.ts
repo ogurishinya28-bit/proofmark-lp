@@ -332,7 +332,7 @@ function generateConfirmationEmailHTML(email: string): string {
       <div class="container">
         <div class="header">
           <div class="logo">⬡ ProofMark</div>
-          <p style="margin: 0; color: #a0a0c0; font-size: 14px;">AI作品の著作権証明サービス</p>
+          <p style="margin: 0; color: #a0a0c0; font-size: 14px;">AI作品のデジタル存在証明サービス</p>
         </div>
 
         <div class="content">

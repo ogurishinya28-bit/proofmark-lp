@@ -133,7 +133,7 @@ async function sendConfirmationEmail(
   <div style="max-width: 600px; margin: 0 auto; background-color: #151d2f; border-radius: 12px; border: 1px solid #2a2a4e; padding: 32px;">
     <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #2a2a4e;">
       <div style="font-size: 32px; font-weight: 900; color: #6c3ef4; margin-bottom: 8px;">⬡ ProofMark</div>
-      <p style="margin: 0; color: #a0a0c0; font-size: 14px;">AI作品の著作権証明サービス</p>
+      <p style="margin: 0; color: #a0a0c0; font-size: 14px;">AI作品のデジタル存在証明サービス</p>
     </div>
 
     <h1 style="font-size: 24px; font-weight: 800; color: #f0f0fa; margin-top: 0;">先行登録ありがとうございます！</h1>

@@ -59,7 +59,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (dbError.code === "23505") {
                 return res.status(409).json({
                     success: false,
-                    error: "この作品は既に著作権証明が発行されています（重複）"
+                    error: "この作品は既にデジタル存在証明が発行されています（重複）"
                 });
             }
             return res.status(500).json({ success: false, error: "データベースへの保存に失敗しました" });
