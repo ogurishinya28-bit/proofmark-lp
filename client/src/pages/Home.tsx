@@ -182,95 +182,95 @@ export default function Home() {
                   <span className="text-sm font-bold text-primary">先着100名限定</span>
                 </motion.div>
 
-              {/* Main heading */}
-              <h1 style={{
-                fontSize: "clamp(40px, 8vw, 64px)",
-                fontWeight: 900,
-                lineHeight: 1.2,
-                letterSpacing: "-1.5px",
-                color: "#F0EFF8",
-                marginBottom: "24px",
-                wordBreak: "keep-all",
-                textAlign: "center"
-              }}>
-                <span style={{ display: "inline-block", whiteSpace: "nowrap" }}>「どうせAIでしょ？」と</span>
-                <br />
-                <span style={{
-                  display: "inline-block",
-                  whiteSpace: "nowrap",
-                  background: "linear-gradient(90deg, #6C3EF4 0%, #00D4AA 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  color: "transparent"
-                }}>言わせない。</span>
-              </h1>
+                {/* Main heading */}
+                <h1 style={{
+                  fontSize: "clamp(40px, 8vw, 64px)",
+                  fontWeight: 900,
+                  lineHeight: 1.2,
+                  letterSpacing: "-2px",
+                  color: "#F0EFF8",
+                  marginBottom: "24px",
+                  wordBreak: "keep-all",
+                  textAlign: "center"
+                }}>
+                  <span style={{ display: "inline-block", whiteSpace: "nowrap" }}>「どうせAIでしょ？」と</span>
+                  <br />
+                  <span style={{
+                    display: "inline-block",
+                    whiteSpace: "nowrap",
+                    background: "linear-gradient(90deg, #6C3EF4 0%, #00D4AA 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    color: "transparent"
+                  }}>言わせない。</span>
+                </h1>
 
-              {/* Subheading */}
-              <motion.p
-                className="text-lg text-muted mb-8 leading-relaxed max-w-xl mx-auto text-center"
-                variants={fadeInVariants}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: 0.5 }}
-              >
-                あなたの創作の「事実」を、一生消えない証拠に。運営のWebサーバーを一切経由しない「Direct Upload」方式を採用。作品データはセキュアなストレージへ直接暗号化転送され、改ざん不能なデジタル指紋を生成します。
-              </motion.p>
-
-              {/* Hero form */}
-              <motion.form
-                onSubmit={handleHeroSubmit}
-                className="flex flex-col sm:flex-row gap-3 mb-6 max-w-md w-full mx-auto"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.65, duration: 0.4 }}
-              >
-                <label htmlFor="hero-email" className="sr-only">メールアドレス</label>
-                <input
-                  id="hero-email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={heroEmail}
-                  onChange={(e) => setHeroEmail(e.target.value)}
-                  disabled={isHeroSubmitting}
-                  className="flex-1 px-6 py-4 rounded-full border transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none"
-                  style={{
-                    background: "rgba(21,29,47,0.85)",
-                    borderColor: "rgba(42,42,78,0.8)",
-                    backdropFilter: "blur(8px)",
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(108,62,244,0.7)";
-                    e.currentTarget.style.boxShadow = "0 0 0 3px rgba(108,62,244,0.15)";
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(42,42,78,0.8)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                  required
-                  aria-label="先行登録用のメールアドレス"
-                />
-                <motion.button
-                  type="submit"
-                  disabled={isHeroSubmitting}
-                  className="px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-70 disabled:cursor-wait"
-                  style={{ boxShadow: "0 0 20px rgba(108,62,244,0.4)" }}
-                  variants={buttonVariants}
-                  initial="rest"
-                  whileHover="hover"
-                  whileTap="tap"
+                {/* Subheading */}
+                <motion.p
+                  className="text-lg text-muted mb-8 leading-relaxed max-w-xl mx-auto text-center"
+                  variants={fadeInVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: 0.5 }}
                 >
-                  {isHeroSubmitting ? (
-                    <>
-                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      暗号化通信中...
-                    </>
-                  ) : "無料で先行登録 →"}
-                </motion.button>
-              </motion.form>
+                  あなたの創作の「事実」を、一生消えない証拠に。運営のWebサーバーを一切経由しない「Direct Upload」方式を採用。作品データはセキュアなストレージへ直接暗号化転送され、改ざん不能なデジタル指紋を生成します。
+                </motion.p>
+
+                {/* Hero form */}
+                <motion.form
+                  onSubmit={handleHeroSubmit}
+                  className="flex flex-col sm:flex-row gap-3 mb-6 max-w-md w-full mx-auto"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.65, duration: 0.4 }}
+                >
+                  <label htmlFor="hero-email" className="sr-only">メールアドレス</label>
+                  <input
+                    id="hero-email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={heroEmail}
+                    onChange={(e) => setHeroEmail(e.target.value)}
+                    disabled={isHeroSubmitting}
+                    className="flex-1 px-6 py-4 rounded-full border transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none"
+                    style={{
+                      background: "rgba(21,29,47,0.85)",
+                      borderColor: "rgba(42,42,78,0.8)",
+                      backdropFilter: "blur(8px)",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(108,62,244,0.7)";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(108,62,244,0.15)";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(42,42,78,0.8)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                    required
+                    aria-label="先行登録用のメールアドレス"
+                  />
+                  <motion.button
+                    type="submit"
+                    disabled={isHeroSubmitting}
+                    className="px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-70 disabled:cursor-wait"
+                    style={{ boxShadow: "0 0 20px rgba(108,62,244,0.4)" }}
+                    variants={buttonVariants}
+                    initial="rest"
+                    whileHover="hover"
+                    whileTap="tap"
+                  >
+                    {isHeroSubmitting ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        暗号化通信中...
+                      </>
+                    ) : "先行アクセスを確保 ➔"}
+                  </motion.button>
+                </motion.form>
 
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -314,12 +314,13 @@ export default function Home() {
                 ].map((stat) => (
                   <motion.div key={stat.value} className="text-center" variants={slideInVariants}>
                     <div
-                      className="text-2xl font-black mb-1"
+                      className="text-2xl font-black mb-1 stats-keyword"
                       style={{
                         backgroundImage: "linear-gradient(135deg, #6c3ef4, #00d4aa)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                         backgroundClip: "text",
+                        transition: "filter 0.3s ease, text-shadow 0.3s ease",
                       }}
                     >
                       {stat.value}
@@ -327,6 +328,13 @@ export default function Home() {
                     <div className="text-xs text-muted">{stat.label}</div>
                   </motion.div>
                 ))}
+                <style>{`
+                  .stats-keyword:hover {
+                    filter: drop-shadow(0 0 8px rgba(0, 212, 170, 0.55)) drop-shadow(0 0 16px rgba(0, 212, 170, 0.30));
+                    -webkit-text-fill-color: transparent;
+                    cursor: default;
+                  }
+                `}</style>
               </motion.div>
             </div>
           </div>
@@ -819,7 +827,7 @@ export default function Home() {
                     {badge.text}
                   </motion.div>
                 ))}
-                
+
                 {/* 創設者バッジを以下に置き換え */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#1A1200", padding: "8px 16px", borderRadius: "100px", border: "1px solid #F0BB38" }}>
                   <img src={founderBadge} alt="Founder Badge" style={{ height: "16px", width: "16px" }} />

@@ -455,7 +455,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "rgba(108, 62, 244, 0.1)",
     padding: "2px 8px",
     borderRadius: 4,
-    fontFamily: "'SF Mono', 'Fira Code', monospace",
+    fontFamily: "'Space Mono', 'SF Mono', 'Fira Code', monospace",
   },
   metaValue: {
     fontSize: 12,

@@ -57,28 +57,28 @@ export default function CertificatePage() {
         <div className="min-h-screen bg-[#0f172a] text-white flex flex-col items-center justify-center p-4 sm:p-8 font-sans">
             {/* ナビゲーションロゴ */}
             <div className="no-print w-full max-w-3xl mb-6" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <a href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
-                <img src={navbarLogo} alt="ProofMark Logo" style={{ height: "28px", width: "auto" }} />
-                <span style={{ fontFamily: "'Syne', sans-serif", fontSize: "20px", fontWeight: 800, color: "#F0EFF8" }}>
-                  Proof<span style={{ color: "#00D4AA" }}>Mark</span>
-                </span>
-              </a>
+                <a href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
+                    <img src={navbarLogo} alt="ProofMark Logo" style={{ height: "28px", width: "auto" }} />
+                    <span style={{ fontFamily: "'Syne', sans-serif", fontSize: "20px", fontWeight: 800, color: "#F0EFF8" }}>
+                        Proof<span style={{ color: "#00D4AA" }}>Mark</span>
+                    </span>
+                </a>
             </div>
             <div className="print-container max-w-3xl w-full bg-[#1e293b] border border-slate-700 rounded-2xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
                 {/* PDF印刷用ブランドロゴ */}
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
-                  <img src={navbarLogo} alt="ProofMark" style={{ height: "24px" }} />
-                  <span style={{ fontFamily: "'Syne', sans-serif", fontSize: "18px", fontWeight: 800, color: "#07061A" }}>ProofMark</span>
+                    <img src={navbarLogo} alt="ProofMark" style={{ height: "24px" }} />
+                    <span style={{ fontFamily: "'Syne', sans-serif", fontSize: "18px", fontWeight: 800, color: "#07061A" }}>ProofMark</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
-                  <h1 style={{ fontSize: "24px", fontWeight: 900, color: "#6C3EF4", margin: 0 }}>
-                    ProofMark Digital Certificate
-                  </h1>
-                  {/* 創設者バッジ（印刷時も表示） */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#1A1200", padding: "4px 10px", borderRadius: "16px", border: "1px solid #F0BB38" }} className="print-badge">
-                    <img src={founderBadge} alt="Founder Badge" style={{ height: "24px", width: "24px" }} />
-                    <span style={{ fontSize: "11px", fontWeight: "bold", color: "#F0BB38", letterSpacing: "1px", textTransform: "uppercase" }}>Founder</span>
-                  </div>
+                    <h1 style={{ fontSize: "24px", fontWeight: 900, color: "#6C3EF4", margin: 0 }}>
+                        ProofMark Digital Certificate
+                    </h1>
+                    {/* 創設者バッジ（印刷時も表示） */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#1A1200", padding: "4px 10px", borderRadius: "16px", border: "1px solid #F0BB38" }} className="print-badge">
+                        <img src={founderBadge} alt="Founder Badge" style={{ height: "24px", width: "24px" }} />
+                        <span style={{ fontSize: "11px", fontWeight: "bold", color: "#F0BB38", letterSpacing: "1px", textTransform: "uppercase" }}>Founder</span>
+                    </div>
                 </div>
                 <p className="text-slate-400 text-sm font-mono border-b border-slate-700 pb-6 mb-8">ID: {cert.id}</p>
 
@@ -104,14 +104,14 @@ export default function CertificatePage() {
                     </div>
 
                     <div className="pt-8 border-t border-slate-700 flex gap-4">
-                        <button 
-                            onClick={() => window.print()} 
+                        <button
+                            onClick={() => window.print()}
                             className="no-print bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-xl font-bold transition-all"
                         >
                             PDFとして保存
                         </button>
-                        <button 
-                            onClick={() => setLocation('/')} 
+                        <button
+                            onClick={() => setLocation('/')}
                             className="no-print bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold transition-all"
                         >
                             トップに戻る
@@ -124,7 +124,7 @@ export default function CertificatePage() {
             <div className="no-print max-w-3xl w-full" style={{ marginTop: "40px", background: "#0D0B24", padding: "24px", borderRadius: "16px", border: "1px solid #1C1A38" }}>
                 <h3 style={{ fontSize: "16px", color: "#00D4AA", marginBottom: "16px" }}>💡 クライアント・提出先向け 説明テンプレート</h3>
                 <p style={{ fontSize: "13px", color: "#A8A0D8", marginBottom: "12px" }}>以下のテキストをコピーして、納品時やSNSでの作品公開時にご活用ください。</p>
-                
+
                 <div style={{ marginBottom: "20px" }}>
                     <p style={{ fontSize: "12px", color: "#F0EFF8", fontWeight: "bold", marginBottom: "8px" }}>▼ 納品時・コンテスト提出時</p>
                     <div style={{ background: "#07061A", padding: "12px", borderRadius: "8px", border: "1px solid #1C1A38", fontSize: "13px", color: "#D4D0F4", userSelect: "all", cursor: "pointer" }}>

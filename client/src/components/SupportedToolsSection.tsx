@@ -5,15 +5,20 @@
 
 export const SupportedToolsSection = () => {
   const tools = [
-    { 
-      name: "Nano Banana Pro", 
+    {
+      name: "Nano Banana Pro",
       logo: (
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style={{ margin: "0 auto" }}>
-          <path d="M12 2L4 6V18L12 22L20 18V6L12 2Z" stroke="#6EE7DF" strokeWidth="2"/>
-          <path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" fill="#6EE7DF"/>
+          <path d="M12 2C16.4183 2 20 5.58172 20 10C20 15.5228 12 22 12 22C12 22 4 15.5228 4 10C4 5.58172 7.58172 2 12 2Z" stroke="url(#nbp-gradient)" strokeWidth="1.5" />
+          <path d="M8 9C8 9 9.5 7.5 12 7.5C14.5 7.5 16 9 16 9" stroke="#00D4AA" strokeWidth="1.5" strokeLinecap="round" />
+          <defs>
+            <linearGradient id="nbp-gradient" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#6C3EF4" /><stop offset="1" stopColor="#00D4AA" />
+            </linearGradient>
+          </defs>
         </svg>
-      ), 
-      description: "プロ仕様の画像生成API、Nano Banana Proをサポート。" 
+      ),
+      description: "次世代のクリエイティブ・ジェネレーティブ・エンジン、Nano Banana Proに完全対応。"
     },
     { name: "Midjourney", logo: "🎨", description: "AI画像生成" },
     { name: "Stable Diffusion", logo: "⚡", description: "オープンソースAI" },

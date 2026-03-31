@@ -1,19 +1,25 @@
 import React from "react";
 import { Link } from "wouter";
 
+const Mono = ({ children }: { children: React.ReactNode }) => (
+  <span style={{ fontFamily: "'Space Mono', 'SF Mono', 'Fira Code', monospace", letterSpacing: "0.02em" }}>
+    {children}
+  </span>
+);
+
 export default function Terms() {
   return (
     <div style={styles.page}>
       <div style={styles.container}>
         <h1 style={styles.title}>利用規約</h1>
-        <p style={styles.date}>最終更新日: 2026年3月</p>
+        <p style={styles.date}>最終更新日: <Mono>2026</Mono>年<Mono>3</Mono>月</p>
         <div style={styles.content}>
           <h2 style={styles.h2}>1. サービスの内容と免責事項</h2>
-          <p style={styles.p}>ProofMark（以下「本サービス」）は、アップロードされたデジタルデータの<span style={{ fontFamily: "'Space Mono', monospace" }}>SHA-256</span>ハッシュ値を計算し、タイムスタンプと共に記録する「デジタル存在証明」サービスです。本サービスは法的な著作権（<span style={{ fontFamily: "'Space Mono', monospace" }}>Copyright</span>）の発生や権利の帰属を公的に保証するものではありません。</p>
+          <p style={styles.p}><Mono>ProofMark</Mono>（以下「本サービス」）は、アップロードされたデジタルデータの<Mono>SHA-256</Mono>ハッシュ値を計算し、タイムスタンプと共に記録する「デジタル存在証明」サービスです。本サービスは法的な著作権（<Mono>Copyright</Mono>）の発生や権利の帰属を公的に保証するものではありません。</p>
           <h2 style={styles.h2}>2. データの取り扱い</h2>
           <p style={styles.p}>ユーザーがアップロードした元データ、および生成されたハッシュ値を利用して、第三者との間で発生した著作権侵害等のいかなる紛争についても、運営者は一切の責任を負いません。証明書の法的有効性については、ユーザー自身の責任において利用するものとします。</p>
           <h2 style={styles.h2}>3. 禁止事項</h2>
-          <p style={styles.p}>他者の著作物を無断でアップロードし、自己の権利として証明書を発行する行為（虚偽の登録）を固く禁じます。</p>
+          <p style={styles.p}>他者の著作物を無断でアップロードし、自己の権利として証明書（<Mono>Certificate</Mono>）を発行する行為（虚偽の登録）を固く禁じます。</p>
         </div>
         <Link href="/" style={styles.backLink}>← トップへ戻る</Link>
       </div>
