@@ -1,6 +1,7 @@
 /**
  * SupportedToolsSection Component
  * Design: Cyber-Minimalist Security
+ * Tools: 8種 / Formats: 6種
  */
 
 export const SupportedToolsSection = () => {
@@ -18,7 +19,7 @@ export const SupportedToolsSection = () => {
           </defs>
         </svg>
       ),
-      description: "次世代のクリエイティブ・ジェネレーティブ・エンジン、Nano Banana Proに完全対応。"
+      description: "次世代生成AIエンジン対応。"
     },
     { name: "Midjourney", logo: "🎨", description: "AI画像生成" },
     { name: "Stable Diffusion", logo: "⚡", description: "オープンソースAI" },
@@ -26,35 +27,40 @@ export const SupportedToolsSection = () => {
     { name: "Adobe Firefly", logo: "✨", description: "Adobe統合" },
     { name: "Leonardo.AI", logo: "🎭", description: "クリエイティブAI" },
     { name: "Niji・journey", logo: "🌸", description: "アニメ系AI" },
+    {
+      name: "NovelAI",
+      logo: (
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F0EFF8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: "0 auto" }}>
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+      ),
+      description: "アニメ・イラスト特化型生成AI。"
+    },
   ];
 
-  // 1. 配列から不要なものをコメントアウトして、現在の仕様（画像5種）に合わせる
+  // 対応フォーマット（6種）
   const supportedFormats = [
     "JPG",
     "PNG",
     "WebP",
     "GIF",
-    "AVIF", // 新規追加
-    /* ── 将来の拡張用（セキュリティ確認後に解除） ──
-    "TIFF", 
-    "BMP", 
-    "SVG", 
-    "PDF" 
-    */
+    "AVIF",
+    "HEIC", // iPhoneデフォルト形式
   ];
 
   return (
     <section className="py-20 bg-secondary/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-black mb-3">Supported Formats & AI Tools</h2>
+          <h2 className="text-3xl font-black mb-3">Supported Formats &amp; AI Tools</h2>
           <p className="text-muted max-w-2xl mx-auto">
             主要なAIツールの出力に対応。あなたのワークフローをそのまま活かせます。
           </p>
         </div>
 
-        {/* Tools Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-4 mb-12">
+        {/* Tools Grid: 2列(SP) → 4列(タブレット以上) × 2段 = 8枠 */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-4 mb-12">
           {tools.map((tool) => (
             <div
               key={tool.name}
@@ -69,22 +75,19 @@ export const SupportedToolsSection = () => {
           ))}
         </div>
 
-        {/* Format Support */}
+        {/* Format Support: 6フォーマット を 3列×2段 or 6列で表示 */}
         <div className="max-w-3xl mx-auto">
           <div className="p-6 rounded-xl bg-card border border-border">
             <h3 className="font-bold mb-4">対応フォーマット</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4"> {/* colを5に調整 */}
-              {/* 2. 定義した supportedFormats を回すように変更 */}
-              {supportedFormats.map(
-                (format) => (
-                  <div
-                    key={format}
-                    className="px-4 py-2 rounded-lg bg-secondary/50 border border-border text-sm font-semibold text-center"
-                  >
-                    {format}
-                  </div>
-                )
-              )}
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              {supportedFormats.map((format) => (
+                <div
+                  key={format}
+                  className="px-4 py-2 rounded-lg bg-secondary/50 border border-border text-sm font-semibold text-center"
+                >
+                  {format}
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -161,12 +161,11 @@ export default function Home() {
           </div>
 
           <motion.div
-            className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24"
+            className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24"
             style={{ y: heroY }}
           >
-            <div className="max-w-2xl">
-              {/* Badge (Centered container start) */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }}>
+            {/* Badge (Centered container start) */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }}>
                 <motion.div
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full border mb-8"
                   style={{
@@ -287,7 +286,6 @@ export default function Home() {
                     クレジットカード不要・いつでも解除OK
                   </p>
                 </motion.div>
-              </div>
             </div>
           </motion.div>
         </section>
@@ -341,147 +339,52 @@ export default function Home() {
         </FadeInSection>
 
         {/* ── How It Works ────────────────────────────────────── */}
-        <section id="how-it-works" className="py-24 relative overflow-hidden">
-          <GlowOrb color="#6c3ef4" size={400} top="0%" left="70%" opacity={0.08} />
+        <section id="how-it-works" style={{ padding: "80px 20px", background: "#0D0B24", borderTop: "1px solid #1C1A38", borderBottom: "1px solid #1C1A38" }}>
+          <div style={{ maxWidth: "1000px", margin: "0 auto", textAlign: "center" }}>
+            <h2 style={{ fontSize: "32px", fontWeight: 800, color: "#F0EFF8", marginBottom: "16px", fontFamily: "'Syne', sans-serif" }}>
+              How it Works
+            </h2>
+            <p style={{ color: "#A8A0D8", marginBottom: "48px" }}>わずか3ステップで、あなたの作品に一生消えない証明を。</p>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <FadeInSection className="text-center mb-16">
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "24px", alignItems: "flex-start" }}>
+              {/* Step 1 */}
+              <div style={{ flex: "1 1 250px", background: "#07061A", padding: "32px 24px", borderRadius: "16px", border: "1px solid #1C1A38", position: "relative" }}>
+                <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(0, 212, 170, 0.1)", color: "#00D4AA", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", fontWeight: "bold", margin: "0 auto 16px" }}>1</div>
+                <h3 style={{ fontSize: "18px", color: "#F0EFF8", marginBottom: "12px", fontWeight: "bold" }}>ブラウザで直接暗号化</h3>
+                <p style={{ fontSize: "14px", color: "#A8A0D8", lineHeight: "1.6" }}>作品データはサーバーに送信されません。お使いの端末内で直接<span style={{ fontFamily: "'Space Mono', monospace", color: "#00D4AA" }}>SHA-256</span>ハッシュを計算します。</p>
+              </div>
+
+              {/* Step 2 */}
+              <div style={{ flex: "1 1 250px", background: "#07061A", padding: "32px 24px", borderRadius: "16px", border: "1px solid #1C1A38", position: "relative" }}>
+                <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(108, 62, 244, 0.1)", color: "#6C3EF4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", fontWeight: "bold", margin: "0 auto 16px" }}>2</div>
+                <h3 style={{ fontSize: "18px", color: "#F0EFF8", marginBottom: "12px", fontWeight: "bold" }}>タイムスタンプ刻印</h3>
+                <p style={{ fontSize: "14px", color: "#A8A0D8", lineHeight: "1.6" }}>計算されたハッシュ値と現在日時を、強固なデータベースに改ざん不能な形で記録します。</p>
+              </div>
+
+              {/* Step 3 */}
+              <div style={{ flex: "1 1 250px", background: "#07061A", padding: "32px 24px", borderRadius: "16px", border: "1px solid #1C1A38", position: "relative" }}>
+                <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(240, 187, 56, 0.1)", color: "#F0BB38", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", fontWeight: "bold", margin: "0 auto 16px" }}>3</div>
+                <h3 style={{ fontSize: "18px", color: "#F0EFF8", marginBottom: "12px", fontWeight: "bold" }}>デジタル証明書の発行</h3>
+                <p style={{ fontSize: "14px", color: "#A8A0D8", lineHeight: "1.6" }}>ワンクリックでクライアント提出用のPDF証明書を発行。公開ポートフォリオとしても活用できます。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Upload Section ───────────────────────────────────── */}
+        <FadeInSection delay={0.1}>
+          <div style={{ padding: "64px 20px", background: "#07061A" }}>
+            <div style={{ maxWidth: "720px", margin: "0 auto", textAlign: "center" }}>
               <div
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold text-accent mb-4"
-                style={{ background: "rgba(0,212,170,0.1)", border: "1px solid rgba(0,212,170,0.25)" }}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold text-primary mb-3"
+                style={{ background: "rgba(108,62,244,0.1)", border: "1px solid rgba(108,62,244,0.25)" }}
               >
-                <Zap className="w-3 h-3" /> HOW IT WORKS
+                ⬡ 証明書を発行する
               </div>
-              <h2 className="text-4xl font-black mb-4">3ステップで「先取権」を確定</h2>
-              <p className="text-muted max-w-2xl mx-auto">
-                あなたの作品を、未来に残る証拠に変える仕組み
+              <h3 className="text-2xl font-black mb-2">作品をアップロードして証明を開始</h3>
+              <p className="text-muted text-sm max-w-lg mx-auto mb-8">
+                ハッシュ計算はブラウザ内で完結します。ログイン不要でSHA-256計算とタイムスタンプを即時確認できます。
               </p>
-            </FadeInSection>
-
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16"
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-60px" }}
-            >
-              {[
-                {
-                  icon: <Lock className="w-8 h-8 text-primary" />,
-                  number: "01",
-                  title: "ブラウザ内ハッシュ計算",
-                  desc: "ハッシュ計算はブラウザ内で完結し、サーバーに負荷や情報を渡しません。（※公開ポートフォリオ用の画像のみ、暗号化通信でセキュアクラウドに安全に保管されます）",
-                  glow: "rgba(108,62,244,0.15)",
-                },
-                {
-                  icon: <Fingerprint className="w-8 h-8 text-accent" />,
-                  number: "02",
-                  title: "デジタル指紋（SHA-256）",
-                  desc: "あなたの作品固有の「デジタル指紋」を不可逆な暗号技術で生成。データベースにはこの指紋とタイムスタンプのみが強固に記録されます。",
-                  glow: "rgba(0,212,170,0.15)",
-                },
-                {
-                  icon: <Database className="w-8 h-8 text-primary" />,
-                  number: "03",
-                  title: "セキュアクラウド保存",
-                  desc: "国内の高度なセキュリティ要件を満たすクラウドサーバーに、あなたの存在証明とタイムスタンプを改ざん不可能な形で記録します。",
-                  glow: "rgba(108,62,244,0.15)",
-                },
-              ].map((step, i) => (
-                <motion.div
-                  key={i}
-                  className="relative p-8 rounded-2xl border overflow-hidden group"
-                  style={{
-                    background: "rgba(21,29,47,0.8)",
-                    backdropFilter: "blur(12px)",
-                    borderColor: "rgba(42,42,78,0.7)",
-                  }}
-                  variants={slideInVariants}
-                  whileHover={{
-                    borderColor: "rgba(108,62,244,0.45)",
-                    boxShadow: `0 0 30px ${step.glow}`,
-                    y: -4,
-                  }}
-                  transition={{ duration: 0.25 }}
-                >
-                  {/* Step number watermark */}
-                  <span
-                    className="absolute top-4 right-6 text-6xl font-black opacity-5 select-none pointer-events-none"
-                    style={{ color: "#6c3ef4" }}
-                  >
-                    {step.number}
-                  </span>
-
-                  <motion.div
-                    className="mb-6 w-16 h-16 rounded-2xl flex items-center justify-center"
-                    style={{ background: "rgba(15,22,41,0.8)", border: "1px solid rgba(42,42,78,0.6)" }}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {step.icon}
-                  </motion.div>
-
-                  <h3 className="text-lg font-bold mb-3">{step.title}</h3>
-                  <p className="text-muted text-sm leading-relaxed">{step.desc}</p>
-
-                  {/* Bottom accent line */}
-                  <div
-                    className="absolute bottom-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    style={{ background: "linear-gradient(90deg, #6c3ef4, #00d4aa)" }}
-                  />
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Badges */}
-            <FadeInSection>
-              <div className="flex flex-wrap justify-center gap-3 mb-16">
-                {[
-                  { icon: <Check className="w-4 h-4" />, text: "C2PA対応予定", color: "accent" },
-                  { icon: <Lock className="w-4 h-4" />, text: "ブラウザ内処理", color: "primary" },
-                  { icon: <Database className="w-4 h-4" />, text: "セキュア保存", color: "accent" },
-                ].map((badge, i) => (
-                  <motion.div
-                    key={i}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold"
-                    style={{
-                      background: "rgba(21,29,47,0.7)",
-                      borderColor: "rgba(42,42,78,0.7)",
-                      backdropFilter: "blur(8px)",
-                    }}
-                    whileHover={{ scale: 1.05, borderColor: "rgba(108,62,244,0.5)" }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <span className={badge.color === "accent" ? "text-accent" : "text-primary"}>
-                      {badge.icon}
-                    </span>
-                    {badge.text}
-                  </motion.div>
-                ))}
-              </div>
-            </FadeInSection>
-
-            <FadeInSection>
-              <CertificateMockup />
-            </FadeInSection>
-
-            {/* ── Upload Demo ────────────────────────────────── */}
-            <FadeInSection delay={0.1} className="mt-12">
-              <div className="text-center mb-6">
-                <div
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold text-primary mb-3"
-                  style={{
-                    background: "rgba(108,62,244,0.1)",
-                    border: "1px solid rgba(108,62,244,0.25)",
-                  }}
-                >
-                  ⬡ 証明書を発行する
-                </div>
-                <h3 className="text-2xl font-black mb-2">作品をアップロードして証明を開始</h3>
-                <p className="text-muted text-sm max-w-lg mx-auto">
-                  ハッシュ計算はブラウザ内で完結します。ポートフォリオ公開用の作品データは、堅牢なクラウドストレージへ直接暗号化転送され、プライバシーは最大限保護されます。
-                </p>
-              </div>
               <div className="max-w-2xl mx-auto">
                 <CertificateUpload
                   onUploadComplete={(path) => {
@@ -489,9 +392,10 @@ export default function Home() {
                   }}
                 />
               </div>
-            </FadeInSection>
+            </div>
           </div>
-        </section>
+        </FadeInSection>
+
 
         {/* ── Pain Points ─────────────────────────────────────── */}
         <section

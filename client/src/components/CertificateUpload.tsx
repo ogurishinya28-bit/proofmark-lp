@@ -1,13 +1,16 @@
 /**
  * CertificateUpload — 作品アップロードUIコンポーネント
+ * ログイン不要でSHA-256ハッシュ計算＆タイムスタンプ表示まで可能。
+ * PDF保存のみログインが必要。
  */
 
 import { useCallback, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileImage, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { Upload, FileImage, CheckCircle2, AlertCircle, X, Lock, Download } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 import { useDirectUpload } from "@/hooks/useDirectUpload";
-import { useAuth } from "@/hooks/useAuth"; // 🌟 追加
+import { Link } from "wouter";
 
 // ---------------------------------------------------------------------------
 // 定数
@@ -20,11 +23,20 @@ const ALLOWED_MIME_TYPES = [
   "image/gif",
   "image/webp",
   "image/avif",
-  // "image/svg+xml", // 【コメントアウト】将来の拡張用に残す
 ] as const;
 
 const MAX_FILE_SIZE_MB = 50;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+// ---------------------------------------------------------------------------
+// ブラウザ内SHA-256計算（ログイン不要）
+// ---------------------------------------------------------------------------
+async function computeSHA256(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer();
+  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 // ---------------------------------------------------------------------------
 // 型定義
@@ -36,6 +48,13 @@ interface CertificateUploadProps {
   className?: string;
 }
 
+interface LocalHashResult {
+  hash: string;
+  timestamp: string;
+  fileName: string;
+  fileSize: number;
+}
+
 // ---------------------------------------------------------------------------
 // コンポーネント
 // ---------------------------------------------------------------------------
@@ -45,22 +64,18 @@ export function CertificateUpload({
   userId = "anon",
   className = "",
 }: CertificateUploadProps) {
-  const { user } = useAuth(); // 🌟 追加
+  const { user } = useAuth();
 
-  // 🌟 storagePath の代わりに certificateId を受け取るように変更
   const { uploading, progress, error, certificateId, uploadFile, reset } =
     useDirectUpload();
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [localResult, setLocalResult] = useState<LocalHashResult | null>(null);
+  const [isHashing, setIsHashing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // ── バリデーション ────────────────────────────────────────────────
+  // ── バリデーション（ログイン不要版）────────────────────────────────
   const validateFile = useCallback((file: File): string | null => {
-    // 🌟 追加: 未ログインチェック
-    if (!user) {
-      return "証明書を発行するにはログインが必要です。";
-    }
-
     if (!ALLOWED_MIME_TYPES.includes(file.type as (typeof ALLOWED_MIME_TYPES)[number])) {
       return `対応していないファイル形式です。JPEG / PNG / GIF / WebP / AVIF のみ対応しています。`;
     }
@@ -68,9 +83,9 @@ export function CertificateUpload({
       return `ファイルサイズが大きすぎます。${MAX_FILE_SIZE_MB}MB 以下のファイルを選択してください。`;
     }
     return null;
-  }, [user]); // 🌟 修正: 依存配列に user を追加
+  }, []);
 
-  // ── ファイル選択/ドロップ処理 ─────────────────────────────────────
+  // ── ファイル選択/ドロップ処理（ログイン前でもハッシュ計算） ─────────
   const handleFiles = useCallback(
     async (files: FileList | null) => {
       if (!files || files.length === 0) return;
@@ -84,26 +99,52 @@ export function CertificateUpload({
       }
 
       setSelectedFile(file);
+      setLocalResult(null);
 
-      // 🌟 path ではなく certId (証明書ID) を受け取る。userIdは実際のuser.idを渡す。
-      const certId = await uploadFile(file, user?.id);
+      // ログイン済みの場合は通常フロー（サーバー保存）
+      if (user) {
+        const certId = await uploadFile(file, user.id);
+        if (certId) {
+          toast.success("🎉 証明書の発行が完了しました！", {
+            description: "証明書ページへ移動します...",
+            duration: 3000,
+          });
+          window.location.href = `/cert/${certId}`;
+        } else {
+          toast.error("アップロードに失敗しました", {
+            description: "ネットワーク接続を確認して、再度お試しください。",
+          });
+        }
+        return;
+      }
 
-      if (certId) {
-        toast.success("🎉 証明書の発行が完了しました！", {
-          description: "証明書ページへ移動します...",
-          duration: 3000,
+      // ── ログイン前：ブラウザ内でのみSHA-256計算 ──
+      setIsHashing(true);
+      try {
+        const hash = await computeSHA256(file);
+        const now = new Date();
+        const timestamp = now.toLocaleString("ja-JP", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          timeZoneName: "short",
         });
-
-        // 🌟 成功したら即座に証明書ページへジャンプ！
-        window.location.href = `/cert/${certId}`;
-
-      } else {
-        toast.error("アップロードに失敗しました", {
-          description: "ネットワーク接続を確認して、再度お試しください。",
+        setLocalResult({
+          hash,
+          timestamp,
+          fileName: file.name,
+          fileSize: file.size,
         });
+      } catch {
+        toast.error("ハッシュ計算に失敗しました。");
+      } finally {
+        setIsHashing(false);
       }
     },
-    [uploadFile, user?.id, validateFile] // 🌟 修正: 依存配列に user?.id を追加
+    [uploadFile, user, validateFile]
   );
 
   // ── ドラッグ&ドロップイベント ──────────────────────────────────────
@@ -137,17 +178,17 @@ export function CertificateUpload({
   const handleReset = useCallback(() => {
     reset();
     setSelectedFile(null);
+    setLocalResult(null);
     if (inputRef.current) inputRef.current.value = "";
   }, [reset]);
 
   // ── 表示状態 ─────────────────────────────────────────────────────
-  // 🌟 certificateId があれば完了状態とみなす
   const isCompleted = certificateId !== null;
 
   return (
     <div className={`w-full ${className}`}>
       <AnimatePresence mode="wait">
-        {/* ── 完了状態 ── */}
+        {/* ── サーバー保存完了状態（ログイン済みユーザー） ── */}
         {isCompleted ? (
           <motion.div
             key="completed"
@@ -174,9 +215,117 @@ export function CertificateUpload({
               <CheckCircle2 className="w-8 h-8 text-accent" />
             </motion.div>
             <h3 className="text-lg font-bold mb-2">証明書ページへ移動中...</h3>
-            <p className="text-sm text-muted mb-6">
-              少々お待ちください。
-            </p>
+            <p className="text-sm text-muted mb-6">少々お待ちください。</p>
+          </motion.div>
+        ) : localResult ? (
+          /* ── ローカルハッシュ結果表示（未ログイン） ── */
+          <motion.div
+            key="local-result"
+            className="relative rounded-2xl overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, rgba(108,62,244,0.12) 0%, rgba(21,29,47,0.95) 60%)",
+              border: "2px solid rgba(108,62,244,0.4)",
+              boxShadow: "0 0 32px rgba(108,62,244,0.15)",
+              backdropFilter: "blur(12px)",
+            }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="p-8">
+              {/* ヘッダー */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: "rgba(0,212,170,0.15)", border: "1px solid rgba(0,212,170,0.3)" }}
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-accent">ハッシュ計算完了</p>
+                    <p className="text-xs text-muted">ブラウザ内でローカル処理</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleReset}
+                  className="text-muted hover:text-foreground transition-colors"
+                  aria-label="リセット"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* ファイル情報 */}
+              <div
+                className="rounded-xl p-4 mb-4"
+                style={{ background: "rgba(15,22,41,0.7)", border: "1px solid rgba(42,42,78,0.6)" }}
+              >
+                <p className="text-xs text-muted mb-1">ファイル名</p>
+                <p className="text-sm font-semibold truncate">{localResult.fileName}</p>
+                <p className="text-xs text-muted mt-1">
+                  {(localResult.fileSize / 1024 / 1024).toFixed(2)} MB
+                </p>
+              </div>
+
+              {/* SHA-256ハッシュ */}
+              <div
+                className="rounded-xl p-4 mb-4"
+                style={{ background: "rgba(15,22,41,0.7)", border: "1px solid rgba(42,42,78,0.6)" }}
+              >
+                <p className="text-xs text-muted mb-2">SHA-256 デジタル指紋</p>
+                <p
+                  className="text-xs font-mono break-all leading-relaxed"
+                  style={{ color: "#00D4AA", fontFamily: "'Space Mono', monospace" }}
+                >
+                  {localResult.hash}
+                </p>
+              </div>
+
+              {/* タイムスタンプ */}
+              <div
+                className="rounded-xl p-4 mb-6"
+                style={{ background: "rgba(15,22,41,0.7)", border: "1px solid rgba(42,42,78,0.6)" }}
+              >
+                <p className="text-xs text-muted mb-2">計算日時（ローカル）</p>
+                <p className="text-sm font-semibold" style={{ fontFamily: "'Space Mono', monospace" }}>
+                  {localResult.timestamp}
+                </p>
+              </div>
+
+              {/* PDF保存ボタン（ログインへ誘導） */}
+              <div
+                className="rounded-xl p-4 mb-4 text-center"
+                style={{
+                  background: "rgba(108,62,244,0.08)",
+                  border: "1px dashed rgba(108,62,244,0.35)",
+                }}
+              >
+                <Lock className="w-4 h-4 text-primary mx-auto mb-2" />
+                <p className="text-xs text-muted mb-3">
+                  PDF証明書として保存・改ざん防止クラウド記録にはログインが必要です
+                </p>
+                <Link href="/auth">
+                  <motion.button
+                    className="w-full px-6 py-3 rounded-full font-bold text-sm text-primary-foreground flex items-center justify-center gap-2"
+                    style={{
+                      background: "linear-gradient(135deg, #6c3ef4, rgba(108,62,244,0.85))",
+                      boxShadow: "0 0 20px rgba(108,62,244,0.4)",
+                    }}
+                    whileHover={{ boxShadow: "0 0 32px rgba(108,62,244,0.6)", scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Download className="w-4 h-4" />
+                    ログインしてPDF証明書を保存
+                  </motion.button>
+                </Link>
+              </div>
+
+              <p className="text-center text-xs text-muted">
+                ※ このハッシュはブラウザ内でのみ計算されており、サーバーには送信されていません。
+              </p>
+            </div>
           </motion.div>
         ) : (
           /* ── アップロードゾーン ── */
@@ -189,7 +338,7 @@ export function CertificateUpload({
                 : "rgba(21,29,47,0.6)",
               borderColor: isDragOver
                 ? "rgba(108,62,244,0.6)"
-                : uploading
+                : isHashing || uploading
                   ? "rgba(108,62,244,0.4)"
                   : "rgba(42,42,78,0.7)",
               boxShadow: isDragOver
@@ -206,26 +355,21 @@ export function CertificateUpload({
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => {
-              // 🌟 追加: 未ログイン時はエラーを出し、クリックを無効化
-              if (!user) {
-                toast.error("ログインが必要です", { description: "証明書を発行するにはログインしてください。" });
-                return;
-              }
-              if (!uploading) inputRef.current?.click();
+              if (!isHashing && !uploading) inputRef.current?.click();
             }}
             role="button"
             aria-label="作品ファイルをドロップまたはクリックして選択"
             tabIndex={0}
             onKeyDown={(e) => {
-              if ((e.key === "Enter" || e.key === " ") && !uploading) {
+              if ((e.key === "Enter" || e.key === " ") && !isHashing && !uploading) {
                 e.preventDefault();
                 inputRef.current?.click();
               }
             }}
           >
-            {/* ── アップロード中オーバーレイ ── */}
+            {/* ── ハッシュ計算中 / アップロード中オーバーレイ ── */}
             <AnimatePresence>
-              {uploading && (
+              {(isHashing || uploading) && (
                 <motion.div
                   className="absolute inset-0 z-10 flex flex-col items-center justify-center"
                   style={{
@@ -246,24 +390,23 @@ export function CertificateUpload({
                     animate={{ rotate: 360 }}
                     transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
                   />
-
-                  {/* プログレスバー */}
-                  <div
-                    className="w-48 h-1.5 rounded-full overflow-hidden mb-3"
-                    style={{ background: "rgba(42,42,78,0.7)" }}
-                  >
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{
-                        background: "linear-gradient(90deg, #6c3ef4, #00d4aa)",
-                      }}
-                      animate={{ width: `${progress}%` }}
-                      transition={{ duration: 0.3 }}
-                    />
-                  </div>
-
+                  {uploading && (
+                    <div
+                      className="w-48 h-1.5 rounded-full overflow-hidden mb-3"
+                      style={{ background: "rgba(42,42,78,0.7)" }}
+                    >
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{
+                          background: "linear-gradient(90deg, #6c3ef4, #00d4aa)",
+                        }}
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    </div>
+                  )}
                   <p className="text-sm font-semibold text-foreground">
-                    処理中... {progress}%
+                    {isHashing ? "SHA-256を計算中..." : `処理中... ${progress}%`}
                   </p>
                   <p className="text-xs text-muted mt-1">
                     ブラウザ内で安全にローカルハッシュを計算中...
@@ -320,19 +463,26 @@ export function CertificateUpload({
                 </span>
               </p>
 
-              <p className="text-xs text-muted/60">
+              <p className="text-xs text-muted/60 mb-4">
                 JPEG / PNG / GIF / WebP / AVIF · 最大 {MAX_FILE_SIZE_MB}MB
               </p>
 
-              {/* 🌟 追加: 未ログイン時のUIヒント */}
-              {!user && (
-                <div className="mt-4 px-4 py-2 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-bold">
-                  証明書の発行にはログインが必要です
+              {/* ログイン状態別ヒント */}
+              {!user ? (
+                <div
+                  className="px-4 py-2 rounded-xl text-xs text-center mb-2"
+                  style={{
+                    background: "rgba(0,212,170,0.08)",
+                    border: "1px solid rgba(0,212,170,0.2)",
+                    color: "#00D4AA",
+                  }}
+                >
+                  ログイン不要でSHA-256ハッシュ計算＆タイムスタンプを確認できます
                 </div>
-              )}
+              ) : null}
 
               {/* セキュリティバッジ */}
-              <div className="flex flex-wrap justify-center gap-2 mt-5">
+              <div className="flex flex-wrap justify-center gap-2 mt-3">
                 {[
                   "🔒 Direct Upload（Vercel非経由）",
                   "🔐 SHA-256 ブラウザ内ローカルハッシュ",
