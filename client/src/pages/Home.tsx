@@ -276,7 +276,7 @@ export default function Home() {
                     </>
                   ) : "先行アクセスを確保 ➔"}
                 </motion.button>
-              </form>
+              </motion.form>
 
               <motion.div
                 initial={{ opacity: 0 }}
