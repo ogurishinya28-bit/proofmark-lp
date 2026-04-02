@@ -75,7 +75,7 @@ export default function CertificatePage() {
                         ProofMark Digital Certificate
                     </h1>
                     {/* 創設者バッジ（印刷時も表示） */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#1A1200", padding: "4px 10px", borderRadius: "16px", border: "1px solid #F0BB38" }} className="print-badge">
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#1A1200", padding: "4px 16px", borderRadius: "16px", border: "1px solid #F0BB38", whiteSpace: "nowrap" }} className="print-badge">
                         <img src={founderBadge} alt="Founder Badge" style={{ height: "24px", width: "24px" }} />
                         <span style={{ fontSize: "11px", fontWeight: "bold", color: "#F0BB38", letterSpacing: "1px", textTransform: "uppercase" }}>Founder</span>
                     </div>

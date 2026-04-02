@@ -181,40 +181,47 @@ export default function Home() {
                 <span className="text-sm font-bold text-primary">先着100名限定</span>
               </motion.div>
 
-              {/* Main heading */}
-              <h1 style={{
-                fontSize: "clamp(40px, 8vw, 64px)",
-                fontWeight: 900,
-                lineHeight: 1.2,
-                letterSpacing: "-2px",
-                color: "#F0EFF8",
-                marginBottom: "24px",
-                wordBreak: "keep-all",
-                textAlign: "center"
-              }}>
-                <span style={{ display: "inline-block", whiteSpace: "nowrap" }}>「どうせAIでしょ？」と</span>
-                <br />
-                <span style={{
-                  display: "inline-block",
-                  whiteSpace: "nowrap",
-                  background: "linear-gradient(90deg, #6C3EF4 0%, #00D4AA 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  color: "transparent"
-                }}>言わせない。</span>
+              {/* Main heading - 迫力とレスポンシブの完全両立 */}
+              <h1 className="font-black leading-[1.1] tracking-tight text-center mb-8" style={{ color: "#F0EFF8" }}>
+                {/* 1行目：カギカッコ部分（スマホでもギリギリまで大きく） */}
+                <span className="block text-[34px] sm:text-[52px] md:text-[64px] mb-1 sm:mb-2 whitespace-nowrap">
+                  「どうせAIでしょ？」
+                </span>
+
+                {/* 2行目：強調メッセージ */}
+                <span className="block text-[42px] sm:text-[60px] md:text-[72px] mt-2">
+                  {/* 「と、」は助詞なので少し小さくしてメリハリをつける */}
+                  <span className="text-[24px] sm:text-[36px] md:text-[40px] inline-block align-middle mr-1 sm:mr-2 opacity-80">
+                    と、
+                  </span>
+                  {/* 「言わせない。」を最大化 */}
+                  <span style={{
+                    background: "linear-gradient(90deg, #6C3EF4 0%, #00D4AA 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    color: "transparent"
+                  }}>
+                    言わせない。
+                  </span>
+                </span>
               </h1>
 
-              {/* Subheading */}
-              <motion.p
-                className="text-lg text-muted mb-8 leading-relaxed max-w-xl mx-auto text-center"
+              {/* Subheading (UX改善版：段落を分けて読みやすく) */}
+              <motion.div
+                className="mb-10 px-2 text-center"
                 variants={fadeInVariants}
                 initial="hidden"
                 animate="visible"
                 transition={{ delay: 0.5 }}
               >
-                あなたの創作の「事実」を、一生消えない証拠に。運営のWebサーバーを一切経由しない「Direct Upload」方式を採用。作品データはセキュアなストレージへ直接暗号化転送され、改ざん不能なデジタル指紋を生成します。
-              </motion.p>
+                <p className="text-lg md:text-xl font-bold text-white mb-3">
+                  あなたの創作の「事実」を、一生消えない証拠に。
+                </p>
+                <p className="text-sm md:text-base text-[#A8A0D8] leading-relaxed max-w-xl mx-auto break-words">
+                  運営のWebサーバーを一切経由しない「Direct Upload」方式を採用。作品データはセキュアなストレージへ直接暗号化転送され、改ざん不能なデジタル指紋を生成します。
+                </p>
+              </motion.div>
 
               {/* Hero form */}
               <motion.form
@@ -269,7 +276,7 @@ export default function Home() {
                     </>
                   ) : "先行アクセスを確保 ➔"}
                 </motion.button>
-              </motion.form>
+              </form>
 
               <motion.div
                 initial={{ opacity: 0 }}
@@ -338,37 +345,75 @@ export default function Home() {
           </div>
         </FadeInSection>
 
-        {/* How it Works Section - Premium Design Restored */}
+        {/* How it Works Section - Premium Design Restored & Upgraded */}
         <section className="relative py-24 bg-[#07061A] border-y border-[#1C1A38] overflow-hidden">
           {/* 背景の微かなGlow効果 */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#6C3EF4] opacity-[0.05] blur-[120px] rounded-full pointer-events-none"></div>
 
           <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
+            {/* バッジ追加で視線誘導 */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold text-[#00D4AA] mb-4" style={{ background: "rgba(0,212,170,0.1)", border: "1px solid rgba(0,212,170,0.25)" }}>
+              <Zap className="w-3 h-3" /> HOW IT WORKS
+            </div>
+
             <h2 className="text-4xl md:text-5xl font-extrabold text-[#F0EFF8] mb-4 tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-              How it Works
+              3ステップで「先取権」を確定
             </h2>
-            <p className="text-[#A8A0D8] mb-16 text-lg">わずか3ステップで、あなたの作品に一生消えない証明を。</p>
+            <p className="text-[#A8A0D8] mb-16 text-lg">あなたの作品を、未来に残る証拠に変える仕組み</p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-              {/* Step 1 */}
-              <div className="group bg-[#0D0B24] border border-[#1C1A38] hover:border-[#00D4AA]/50 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(0,212,170,0.1)]">
-                <div className="w-14 h-14 rounded-xl bg-[#00D4AA]/10 text-[#00D4AA] flex items-center justify-center text-2xl font-bold mb-6 group-hover:scale-110 transition-transform duration-300">1</div>
-                <h3 className="text-xl font-bold text-[#F0EFF8] mb-4">ブラウザで直接暗号化</h3>
-                <p className="text-[#A8A0D8] leading-relaxed text-sm md:text-base">作品データはサーバーに送信されません。お使いの端末内で直接<span className="font-mono text-[#00D4AA] ml-1">SHA-256</span>ハッシュを計算します。</p>
+              {/* Step 1: ブラウザ内ハッシュ計算 */}
+              <div className="group relative bg-[#0D0B24] border border-[#1C1A38] hover:border-[#00D4AA]/50 p-8 rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(0,212,170,0.15)] overflow-hidden">
+                {/* 背景の透かし数字 (アイコン版のリッチさを踏襲) */}
+                <div className="absolute -right-4 -top-8 text-[120px] font-black text-white/[0.02] group-hover:text-[#00D4AA]/[0.05] transition-colors duration-500 pointer-events-none select-none" style={{ fontFamily: "'Syne', sans-serif" }}>
+                  01
+                </div>
+
+                {/* 数字＋アイコンのハイブリッドバッジ */}
+                <div className="relative z-10 w-16 h-16 rounded-2xl mb-6 flex items-center justify-center border border-[#00D4AA]/20 bg-gradient-to-br from-[#00D4AA]/10 to-transparent group-hover:from-[#00D4AA]/20 transition-all duration-500">
+                  {/* 左上に小さく数字、中央にアイコン */}
+                  <span className="absolute top-1 left-2 text-xs font-bold text-[#00D4AA]/60 font-mono">1</span>
+                  <Lock className="w-7 h-7 text-[#00D4AA] group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_8px_rgba(0,212,170,0.5)]" />
+                </div>
+
+                <h3 className="relative z-10 text-xl font-bold text-[#F0EFF8] mb-4 group-hover:text-[#00D4AA] transition-colors">ブラウザ内ハッシュ計算</h3>
+                <p className="relative z-10 text-[#A8A0D8] leading-relaxed text-sm md:text-base">
+                  ハッシュ計算はブラウザ内で完結し、サーバーに負荷や情報を渡しません。<span className="text-[#00D4AA] opacity-80 text-xs block mt-2">（※公開ポートフォリオ用の画像のみ、暗号化通信でセキュアクラウドに安全に保管されます）</span>
+                </p>
               </div>
 
-              {/* Step 2 */}
-              <div className="group bg-[#0D0B24] border border-[#1C1A38] hover:border-[#6C3EF4]/50 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(108,62,244,0.1)]">
-                <div className="w-14 h-14 rounded-xl bg-[#6C3EF4]/10 text-[#6C3EF4] flex items-center justify-center text-2xl font-bold mb-6 group-hover:scale-110 transition-transform duration-300">2</div>
-                <h3 className="text-xl font-bold text-[#F0EFF8] mb-4">タイムスタンプ刻印</h3>
-                <p className="text-[#A8A0D8] leading-relaxed text-sm md:text-base">計算されたハッシュ値と現在日時を、強固なデータベースに改ざん不能な形で記録します。</p>
+              {/* Step 2: タイムスタンプ刻印 */}
+              <div className="group relative bg-[#0D0B24] border border-[#1C1A38] hover:border-[#6C3EF4]/50 p-8 rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(108,62,244,0.15)] overflow-hidden">
+                <div className="absolute -right-4 -top-8 text-[120px] font-black text-white/[0.02] group-hover:text-[#6C3EF4]/[0.05] transition-colors duration-500 pointer-events-none select-none" style={{ fontFamily: "'Syne', sans-serif" }}>
+                  02
+                </div>
+
+                <div className="relative z-10 w-16 h-16 rounded-2xl mb-6 flex items-center justify-center border border-[#6C3EF4]/20 bg-gradient-to-br from-[#6C3EF4]/10 to-transparent group-hover:from-[#6C3EF4]/20 transition-all duration-500">
+                  <span className="absolute top-1 left-2 text-xs font-bold text-[#6C3EF4]/60 font-mono">2</span>
+                  <Database className="w-7 h-7 text-[#6C3EF4] group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_8px_rgba(108,62,244,0.5)]" />
+                </div>
+
+                <h3 className="relative z-10 text-xl font-bold text-[#F0EFF8] mb-4 group-hover:text-[#6C3EF4] transition-colors">タイムスタンプ刻印</h3>
+                <p className="relative z-10 text-[#A8A0D8] leading-relaxed text-sm md:text-base">
+                  計算されたハッシュ値と現在日時を、強固なデータベースに改ざん不能な形で記録し、デジタル存在証明を確立します。
+                </p>
               </div>
 
-              {/* Step 3 */}
-              <div className="group bg-[#0D0B24] border border-[#1C1A38] hover:border-[#F0BB38]/50 p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(240,187,56,0.1)]">
-                <div className="w-14 h-14 rounded-xl bg-[#F0BB38]/10 text-[#F0BB38] flex items-center justify-center text-2xl font-bold mb-6 group-hover:scale-110 transition-transform duration-300">3</div>
-                <h3 className="text-xl font-bold text-[#F0EFF8] mb-4">デジタル証明書の発行</h3>
-                <p className="text-[#A8A0D8] leading-relaxed text-sm md:text-base">ワンクリックでクライアント提出用のPDF証明書を発行。公開ポートフォリオとしても活用できます。</p>
+              {/* Step 3: デジタル証明書の発行 */}
+              <div className="group relative bg-[#0D0B24] border border-[#1C1A38] hover:border-[#F0BB38]/50 p-8 rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(240,187,56,0.15)] overflow-hidden">
+                <div className="absolute -right-4 -top-8 text-[120px] font-black text-white/[0.02] group-hover:text-[#F0BB38]/[0.05] transition-colors duration-500 pointer-events-none select-none" style={{ fontFamily: "'Syne', sans-serif" }}>
+                  03
+                </div>
+
+                <div className="relative z-10 w-16 h-16 rounded-2xl mb-6 flex items-center justify-center border border-[#F0BB38]/20 bg-gradient-to-br from-[#F0BB38]/10 to-transparent group-hover:from-[#F0BB38]/20 transition-all duration-500">
+                  <span className="absolute top-1 left-2 text-xs font-bold text-[#F0BB38]/60 font-mono">3</span>
+                  <Award className="w-7 h-7 text-[#F0BB38] group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_8px_rgba(240,187,56,0.5)]" />
+                </div>
+
+                <h3 className="relative z-10 text-xl font-bold text-[#F0EFF8] mb-4 group-hover:text-[#F0BB38] transition-colors">デジタル証明書の発行</h3>
+                <p className="relative z-10 text-[#A8A0D8] leading-relaxed text-sm md:text-base">
+                  ワンクリックでクライアント提出用のPDF証明書を発行。公開ポートフォリオとしても機能し、SNSでの無断転載を抑止します。
+                </p>
               </div>
             </div>
           </div>

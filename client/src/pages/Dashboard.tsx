@@ -97,27 +97,36 @@ export default function Dashboard() {
 
   return (
     <div style={styles.page}>
-      {/* Header */}
-      <header style={styles.header}>
-        <div style={styles.headerLeft}>
+      {/* Header (レスポンシブ対応版) */}
+      <header style={{ ...styles.header, padding: "12px 16px" }}>
+        {/* 左側：ロゴ ＋ Founderバッジ */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <a href="/" style={styles.logoLink}>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <img src={navbarLogo} alt="ProofMark Logo" style={{ height: "28px", width: "auto" }} />
-              <span style={{ fontFamily: "'Syne', sans-serif", fontSize: "20px", fontWeight: 800, color: "#F0EFF8" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <img src={navbarLogo} alt="ProofMark Logo" style={{ height: "24px", width: "auto" }} />
+              {/* 🌟 iPhone SEなどの極小画面では文字を隠し、ロゴマークのみにする */}
+              <span className="hidden sm:block" style={{ fontFamily: "'Syne', sans-serif", fontSize: "18px", fontWeight: 800, color: "#F0EFF8" }}>
                 Proof<span style={{ color: "#00D4AA" }}>Mark</span>
               </span>
             </div>
           </a>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#1A1200", padding: "4px 12px", borderRadius: "20px", border: "1px solid #F0BB38" }}>
-            <img src={founderBadge} alt="Founder" style={{ height: "20px", width: "20px" }} />
-            <span style={{ fontSize: "12px", fontWeight: "bold", color: "#F0BB38" }}>Founder</span>
+
+          {/* 🌟 Founderバッジを左寄せのグループに移動し、少しコンパクトに */}
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", background: "#1A1200", padding: "4px 8px", borderRadius: "20px", border: "1px solid #F0BB38" }}>
+            <img src={founderBadge} alt="Founder" style={{ height: "16px", width: "16px" }} />
+            <span style={{ fontSize: "11px", fontWeight: "bold", color: "#F0BB38", whiteSpace: "nowrap" }}>Founder</span>
           </div>
-          <span style={{ color: "#A8A0D8", fontSize: "14px" }}>{user?.email}</span>
+        </div>
+
+        {/* 右側：メールアドレス ＋ ログアウト */}
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          {/* 🌟 スマホ（smサイズ未満）ではメールアドレスを非表示にする */}
+          <span className="hidden sm:block" style={{ color: "#A8A0D8", fontSize: "14px" }}>
+            {user?.email}
+          </span>
           <button
             onClick={signOut}
-            style={{ background: "transparent", border: "1px solid #48456A", color: "#F0EFF8", padding: "6px 16px", borderRadius: "6px", cursor: "pointer", fontSize: "13px", transition: "background 0.2s" }}
+            style={{ background: "transparent", border: "1px solid #48456A", color: "#F0EFF8", padding: "6px 12px", borderRadius: "6px", cursor: "pointer", fontSize: "12px", transition: "background 0.2s", whiteSpace: "nowrap" }}
             className="hover:bg-[#1C1A38]"
           >
             ログアウト
@@ -154,7 +163,7 @@ export default function Dashboard() {
         ) : (
           <div style={styles.grid}>
             {certs.map((cert) => (
-              <div key={cert.id} style={styles.card}>
+              <div key={cert.id} style={styles.card} className="pm-card">
                 {/* Thumbnail */}
                 <div style={styles.thumbWrap}>
                   {cert.thumbnail_url || cert.file_url ? (
@@ -393,8 +402,8 @@ const styles: Record<string, React.CSSProperties> = {
     left: 0,
     width: "100%",
     height: "100%",
-    objectFit: "contain" as const, // 🌟 cover を contain に変更
-    padding: "8px", // 🌟 画像が端にくっつかないように余白を追加
+    objectFit: "contain" as const,
+    padding: "8px",
   },
   thumbPlaceholder: {
     position: "absolute" as const,
