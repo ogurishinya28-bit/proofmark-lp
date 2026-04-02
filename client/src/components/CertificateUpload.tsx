@@ -23,6 +23,8 @@ const ALLOWED_MIME_TYPES = [
   "image/gif",
   "image/webp",
   "image/avif",
+  "image/heic",
+  "image/heif",
 ] as const;
 
 const MAX_FILE_SIZE_MB = 50;
@@ -77,7 +79,7 @@ export function CertificateUpload({
   // ── バリデーション（ログイン不要版）────────────────────────────────
   const validateFile = useCallback((file: File): string | null => {
     if (!ALLOWED_MIME_TYPES.includes(file.type as (typeof ALLOWED_MIME_TYPES)[number])) {
-      return `対応していないファイル形式です。JPEG / PNG / GIF / WebP / AVIF のみ対応しています。`;
+      return `対応していないファイル形式です。JPEG / PNG / GIF / WebP / AVIF / HEIC のみ対応しています。`;
     }
     if (file.size > MAX_FILE_SIZE_BYTES) {
       return `ファイルサイズが大きすぎます。${MAX_FILE_SIZE_MB}MB 以下のファイルを選択してください。`;
@@ -464,7 +466,7 @@ export function CertificateUpload({
               </p>
 
               <p className="text-xs text-muted/60 mb-4">
-                JPEG / PNG / GIF / WebP / AVIF · 最大 {MAX_FILE_SIZE_MB}MB
+                JPEG / PNG / GIF / WebP / AVIF / HEIC · 最大 {MAX_FILE_SIZE_MB}MB
               </p>
 
               {/* ログイン状態別ヒント */}

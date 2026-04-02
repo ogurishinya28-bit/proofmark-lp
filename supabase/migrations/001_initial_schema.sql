@@ -154,7 +154,7 @@ VALUES (
   'originals',
   false,
   52428800,   -- 50MB
-  ARRAY['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf']
+  ARRAY['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'image/heic', 'image/heif']
 ) ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)

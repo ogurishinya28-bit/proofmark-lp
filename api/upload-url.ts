@@ -21,7 +21,9 @@ const ALLOWED_CONTENT_TYPES = new Set([
   "image/png",
   "image/gif",
   "image/webp",
-  "image/avif"
+  "image/avif",
+  "image/heic",
+  "image/heif"
 ]);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
