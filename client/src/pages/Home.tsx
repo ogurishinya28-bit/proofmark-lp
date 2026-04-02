@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
-import { Lock, Fingerprint, Database, AlertCircle, Check, Shield, Zap, Award, Info } from "lucide-react";
+import { Lock, Database, AlertCircle, Check, Shield, Zap, Award, Info } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { CertificateMockup } from "@/components/CertificateMockup";
 import { CertificateUpload } from "@/components/CertificateUpload";
@@ -19,7 +19,6 @@ import {
   slideInVariants,
   staggerContainer,
   buttonVariants,
-  heroTextVariants,
 } from "@/lib/animations";
 
 // ── Reusable scroll-triggered wrapper ──────────────────────────
@@ -71,9 +70,6 @@ const GlowOrb = ({
   />
 );
 
-/**
- * ProofMark Landing Page — Manus-style Rich Dark Theme
- */
 export default function Home() {
   const [heroEmail, setHeroEmail] = useState("");
   const [waitlistEmail, setWaitlistEmail] = useState("");
@@ -117,14 +113,21 @@ export default function Home() {
     <>
       <div id="top" className="min-h-screen bg-background text-foreground overflow-x-hidden">
 
-        {/* ── Navigation ──────────────────────────────────────── */}
-        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid #1C1A38", background: "#07061A", flexWrap: "wrap", gap: "10px" }}>
+        {/* ── Navigation (グローバルナビ追加) ────────────────── */}
+        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid #1C1A38", background: "rgba(7, 6, 26, 0.9)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 50, flexWrap: "wrap", gap: "10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <img src={navbarLogo} alt="ProofMark Logo" style={{ height: "24px", width: "auto" }} />
             <span style={{ fontFamily: "'Syne', sans-serif", fontSize: "20px", fontWeight: 800, letterSpacing: "-0.5px", color: "#F0EFF8" }}>
               Proof<span style={{ color: "#00D4AA" }}>Mark</span>
             </span>
           </div>
+
+          <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-[#A8A0D8]">
+            <a href="#how-it-works" className="hover:text-[#00D4AA] transition-colors">仕組み</a>
+            <a href="#pricing" className="hover:text-[#F0BB38] transition-colors">料金プラン</a>
+            <a href="#learning" className="hover:text-[#6C3EF4] transition-colors">AIと著作権</a>
+          </nav>
+
           <div>
             <Link href="/auth" style={{ background: "#6C3EF4", color: "#FFF", padding: "8px 16px", borderRadius: "8px", textDecoration: "none", fontWeight: "bold", fontSize: "12px", transition: "opacity 0.2s", whiteSpace: "nowrap" }}>
               ログイン / 登録
@@ -134,12 +137,10 @@ export default function Home() {
 
         {/* ── Hero Section ────────────────────────────────────── */}
         <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-          {/* Background orbs */}
           <GlowOrb color="#6c3ef4" size={520} top="-10%" left="-8%" opacity={0.18} />
           <GlowOrb color="#00d4aa" size={380} top="50%" left="60%" opacity={0.12} />
           <GlowOrb color="#6c3ef4" size={260} top="70%" left="10%" opacity={0.1} />
 
-          {/* Mesh grid overlay */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
@@ -149,7 +150,6 @@ export default function Home() {
             }}
           />
 
-          {/* Hero image (low opacity) */}
           <div className="absolute inset-0 opacity-20">
             <img
               src="https://d2xsxph8kpxj0f.cloudfront.net/310519663365821234/UaD7q9pZxZRGqrDfYC425T/proofmark-hero-bg-JMfzwFshajssXPcJshrNUg.webp"
@@ -164,7 +164,6 @@ export default function Home() {
             className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24"
             style={{ y: heroY }}
           >
-            {/* Badge (Centered container start) */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }}>
               <motion.div
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full border mb-8"
@@ -183,18 +182,13 @@ export default function Home() {
 
               {/* Main heading - 迫力とレスポンシブの完全両立 */}
               <h1 className="font-black leading-[1.1] tracking-tight text-center mb-8" style={{ color: "#F0EFF8" }}>
-                {/* 1行目：カギカッコ部分（スマホでもギリギリまで大きく） */}
                 <span className="block text-[34px] sm:text-[52px] md:text-[64px] mb-1 sm:mb-2 whitespace-nowrap">
                   「どうせAIでしょ？」
                 </span>
-
-                {/* 2行目：強調メッセージ */}
                 <span className="block text-[42px] sm:text-[60px] md:text-[72px] mt-2">
-                  {/* 「と、」は助詞なので少し小さくしてメリハリをつける */}
                   <span className="text-[24px] sm:text-[36px] md:text-[40px] inline-block align-middle mr-1 sm:mr-2 opacity-80">
                     と、
                   </span>
-                  {/* 「言わせない。」を最大化 */}
                   <span style={{
                     background: "linear-gradient(90deg, #6C3EF4 0%, #00D4AA 100%)",
                     WebkitBackgroundClip: "text",
@@ -207,7 +201,7 @@ export default function Home() {
                 </span>
               </h1>
 
-              {/* Subheading (UX改善版：段落を分けて読みやすく) */}
+              {/* Subheading */}
               <motion.div
                 className="mb-10 px-2 text-center"
                 variants={fadeInVariants}
@@ -219,7 +213,7 @@ export default function Home() {
                   あなたの創作の「事実」を、一生消えない証拠に。
                 </p>
                 <p className="text-sm md:text-base text-[#A8A0D8] leading-relaxed max-w-xl mx-auto break-words">
-                  運営のWebサーバーを一切経由しない「Direct Upload」方式を採用。作品データはセキュアなストレージへ直接暗号化転送され、改ざん不能なデジタル指紋を生成します。
+                  作品のハッシュ計算はブラウザ内で完結。運営側すらあなたの原画を見られない「完全プライベート空間」で、改ざん不能なデジタル指紋とタイムスタンプを即時生成します。
                 </p>
               </motion.div>
 
@@ -293,6 +287,21 @@ export default function Home() {
                   クレジットカード不要・いつでも解除OK
                 </p>
               </motion.div>
+
+              {/* ヒーロー画像：証明書モックアップ */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0, duration: 0.8, ease: "easeOut" }}
+                className="mt-16 w-full max-w-2xl mx-auto relative group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-[#6C3EF4] to-[#00D4AA] opacity-20 blur-3xl rounded-full group-hover:opacity-40 transition-opacity duration-700 pointer-events-none" />
+                <div
+                  className="relative border border-[#1C1A38] rounded-xl overflow-hidden bg-[#0D0B24] transition-all duration-700 hover:shadow-[0_0_60px_rgba(108,62,244,0.2)]"
+                >
+                  <CertificateMockup />
+                </div>
+              </motion.div>
             </div>
           </motion.div>
         </section>
@@ -325,7 +334,7 @@ export default function Home() {
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                         backgroundClip: "text",
-                        transition: "filter 0.3s ease, text-shadow 0.3s ease",
+                        transition: "filter 0.3s ease",
                       }}
                     >
                       {stat.value}
@@ -345,14 +354,15 @@ export default function Home() {
           </div>
         </FadeInSection>
 
-        {/* How it Works Section - Premium Design Restored & Upgraded */}
-        <section className="relative py-24 bg-[#07061A] border-y border-[#1C1A38] overflow-hidden">
-          {/* 背景の微かなGlow効果 */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#6C3EF4] opacity-[0.05] blur-[120px] rounded-full pointer-events-none"></div>
+        {/* ── How it Works Section - 数字＋アイコンのハイブリッドUI ── */}
+        <section id="how-it-works" className="relative py-24 bg-[#07061A] border-y border-[#1C1A38] overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#6C3EF4] opacity-[0.05] blur-[120px] rounded-full pointer-events-none" />
 
           <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
-            {/* バッジ追加で視線誘導 */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold text-[#00D4AA] mb-4" style={{ background: "rgba(0,212,170,0.1)", border: "1px solid rgba(0,212,170,0.25)" }}>
+            <div
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold text-[#00D4AA] mb-4"
+              style={{ background: "rgba(0,212,170,0.1)", border: "1px solid rgba(0,212,170,0.25)" }}
+            >
               <Zap className="w-3 h-3" /> HOW IT WORKS
             </div>
 
@@ -362,54 +372,45 @@ export default function Home() {
             <p className="text-[#A8A0D8] mb-16 text-lg">あなたの作品を、未来に残る証拠に変える仕組み</p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-              {/* Step 1: ブラウザ内ハッシュ計算 */}
+              {/* Step 1 */}
               <div className="group relative bg-[#0D0B24] border border-[#1C1A38] hover:border-[#00D4AA]/50 p-8 rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(0,212,170,0.15)] overflow-hidden">
-                {/* 背景の透かし数字 (アイコン版のリッチさを踏襲) */}
                 <div className="absolute -right-4 -top-8 text-[120px] font-black text-white/[0.02] group-hover:text-[#00D4AA]/[0.05] transition-colors duration-500 pointer-events-none select-none" style={{ fontFamily: "'Syne', sans-serif" }}>
                   01
                 </div>
-
-                {/* 数字＋アイコンのハイブリッドバッジ */}
                 <div className="relative z-10 w-16 h-16 rounded-2xl mb-6 flex items-center justify-center border border-[#00D4AA]/20 bg-gradient-to-br from-[#00D4AA]/10 to-transparent group-hover:from-[#00D4AA]/20 transition-all duration-500">
-                  {/* 左上に小さく数字、中央にアイコン */}
                   <span className="absolute top-1 left-2 text-xs font-bold text-[#00D4AA]/60 font-mono">1</span>
                   <Lock className="w-7 h-7 text-[#00D4AA] group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_8px_rgba(0,212,170,0.5)]" />
                 </div>
-
                 <h3 className="relative z-10 text-xl font-bold text-[#F0EFF8] mb-4 group-hover:text-[#00D4AA] transition-colors">ブラウザ内ハッシュ計算</h3>
                 <p className="relative z-10 text-[#A8A0D8] leading-relaxed text-sm md:text-base">
                   ハッシュ計算はブラウザ内で完結し、サーバーに負荷や情報を渡しません。<span className="text-[#00D4AA] opacity-80 text-xs block mt-2">（※公開ポートフォリオ用の画像のみ、暗号化通信でセキュアクラウドに安全に保管されます）</span>
                 </p>
               </div>
 
-              {/* Step 2: タイムスタンプ刻印 */}
+              {/* Step 2 */}
               <div className="group relative bg-[#0D0B24] border border-[#1C1A38] hover:border-[#6C3EF4]/50 p-8 rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(108,62,244,0.15)] overflow-hidden">
                 <div className="absolute -right-4 -top-8 text-[120px] font-black text-white/[0.02] group-hover:text-[#6C3EF4]/[0.05] transition-colors duration-500 pointer-events-none select-none" style={{ fontFamily: "'Syne', sans-serif" }}>
                   02
                 </div>
-
                 <div className="relative z-10 w-16 h-16 rounded-2xl mb-6 flex items-center justify-center border border-[#6C3EF4]/20 bg-gradient-to-br from-[#6C3EF4]/10 to-transparent group-hover:from-[#6C3EF4]/20 transition-all duration-500">
                   <span className="absolute top-1 left-2 text-xs font-bold text-[#6C3EF4]/60 font-mono">2</span>
                   <Database className="w-7 h-7 text-[#6C3EF4] group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_8px_rgba(108,62,244,0.5)]" />
                 </div>
-
                 <h3 className="relative z-10 text-xl font-bold text-[#F0EFF8] mb-4 group-hover:text-[#6C3EF4] transition-colors">タイムスタンプ刻印</h3>
                 <p className="relative z-10 text-[#A8A0D8] leading-relaxed text-sm md:text-base">
                   計算されたハッシュ値と現在日時を、強固なデータベースに改ざん不能な形で記録し、デジタル存在証明を確立します。
                 </p>
               </div>
 
-              {/* Step 3: デジタル証明書の発行 */}
+              {/* Step 3 */}
               <div className="group relative bg-[#0D0B24] border border-[#1C1A38] hover:border-[#F0BB38]/50 p-8 rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_8px_32px_rgba(240,187,56,0.15)] overflow-hidden">
                 <div className="absolute -right-4 -top-8 text-[120px] font-black text-white/[0.02] group-hover:text-[#F0BB38]/[0.05] transition-colors duration-500 pointer-events-none select-none" style={{ fontFamily: "'Syne', sans-serif" }}>
                   03
                 </div>
-
                 <div className="relative z-10 w-16 h-16 rounded-2xl mb-6 flex items-center justify-center border border-[#F0BB38]/20 bg-gradient-to-br from-[#F0BB38]/10 to-transparent group-hover:from-[#F0BB38]/20 transition-all duration-500">
                   <span className="absolute top-1 left-2 text-xs font-bold text-[#F0BB38]/60 font-mono">3</span>
                   <Award className="w-7 h-7 text-[#F0BB38] group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_8px_rgba(240,187,56,0.5)]" />
                 </div>
-
                 <h3 className="relative z-10 text-xl font-bold text-[#F0EFF8] mb-4 group-hover:text-[#F0BB38] transition-colors">デジタル証明書の発行</h3>
                 <p className="relative z-10 text-[#A8A0D8] leading-relaxed text-sm md:text-base">
                   ワンクリックでクライアント提出用のPDF証明書を発行。公開ポートフォリオとしても機能し、SNSでの無断転載を抑止します。
@@ -443,7 +444,6 @@ export default function Home() {
             </div>
           </div>
         </FadeInSection>
-
 
         {/* ── Pain Points ─────────────────────────────────────── */}
         <section
@@ -510,7 +510,6 @@ export default function Home() {
                   }}
                   transition={{ duration: 0.25 }}
                 >
-                  {/* Tag */}
                   <span
                     className="inline-block text-xs font-bold px-3 py-1 rounded-full mb-4"
                     style={{
@@ -521,11 +520,9 @@ export default function Home() {
                   >
                     {pain.tag}
                   </span>
-
                   <div className="text-4xl mb-4">{pain.emoji}</div>
                   <h3 className="text-lg font-bold mb-3 leading-snug">{pain.title}</h3>
                   <p className="text-muted text-sm leading-relaxed">{pain.desc}</p>
-
                   <div
                     className="absolute bottom-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{ background: "linear-gradient(90deg, #6c3ef4, #00d4aa)" }}
@@ -633,7 +630,6 @@ export default function Home() {
                 whileHover={{ boxShadow: "0 0 60px rgba(108,62,244,0.35)", y: -4 }}
                 transition={{ duration: 0.25 }}
               >
-                {/* Recommended badge */}
                 <div
                   className="absolute top-4 right-4 text-xs font-black px-3 py-1 rounded-full"
                   style={{
@@ -643,7 +639,6 @@ export default function Home() {
                 >
                   おすすめ
                 </div>
-
                 <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Light</div>
                 <div className="text-4xl font-black mb-1">
                   ¥480<span className="text-lg text-muted font-normal">/月</span>
@@ -678,7 +673,6 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            {/* Single-shot plan note */}
             <FadeInSection>
               <div className="flex items-start justify-center gap-2 mb-4">
                 <Info className="w-4 h-4 text-muted flex-shrink-0 mt-0.5" />
@@ -696,7 +690,7 @@ export default function Home() {
         {/* ── Supported Tools ──────────────────────────────────── */}
         <SupportedToolsSection />
 
-        {/* ── Learning Section (順序を最適化) ──────────────────── */}
+        {/* ── Learning Section ─────────────────────────────────── */}
         <div id="learning">
           <LearningSection onRegisterClick={() => {
             const el = document.getElementById("waitlist-section");
@@ -710,7 +704,7 @@ export default function Home() {
         {/* ── Developer Message ────────────────────────────────── */}
         <DeveloperMessage />
 
-        {/* ── Waitlist CTA (最後に強く背中を押す) ───────────────── */}
+        {/* ── Waitlist CTA ─────────────────────────────────────── */}
         <section
           id="waitlist-section"
           className="py-24 relative overflow-hidden border-t border-b border-border/50"
@@ -718,8 +712,6 @@ export default function Home() {
         >
           <GlowOrb color="#6c3ef4" size={600} top="50%" left="50%" opacity={0.08} />
           <GlowOrb color="#00d4aa" size={300} top="10%" left="10%" opacity={0.06} />
-
-          {/* Mesh grid */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
@@ -779,8 +771,6 @@ export default function Home() {
                     {badge.text}
                   </motion.div>
                 ))}
-
-                {/* 創設者バッジを以下に置き換え */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#1A1200", padding: "8px 16px", borderRadius: "100px", border: "1px solid #F0BB38" }}>
                   <img src={founderBadge} alt="Founder Badge" style={{ height: "16px", width: "16px" }} />
                   <span style={{ fontSize: "14px", fontWeight: "bold", color: "#F0BB38", whiteSpace: "nowrap" }}>Founderバッジ</span>
