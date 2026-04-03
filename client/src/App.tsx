@@ -8,8 +8,8 @@ import Home from "./pages/Home";
 import CertificatePage from './pages/CertificatePage';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
+import Terms from "./pages/TermsPage";
+import Privacy from "./pages/PrivacyPage";
 import Security from "./pages/Security";
 import Footer from "./components/Footer";
 

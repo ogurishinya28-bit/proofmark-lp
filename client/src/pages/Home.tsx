@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import { Lock, Database, AlertCircle, Check, Shield, Zap, Award, Info } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { CertificateMockup } from "@/components/CertificateMockup";
+
 import { CertificateUpload } from "@/components/CertificateUpload";
 import { FAQAccordion } from "@/components/FAQAccordion";
 import { SupportedToolsSection } from "@/components/SupportedToolsSection";
@@ -288,19 +288,18 @@ export default function Home() {
                 </p>
               </motion.div>
 
-              {/* ヒーロー画像：証明書モックアップ */}
+              {/* ヒーロー画像：証明書モックアップ（/mockup.avif に置き換え） */}
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.0, duration: 0.8, ease: "easeOut" }}
-                className="mt-16 w-full max-w-2xl mx-auto relative group"
+                className="w-full"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-[#6C3EF4] to-[#00D4AA] opacity-20 blur-3xl rounded-full group-hover:opacity-40 transition-opacity duration-700 pointer-events-none" />
-                <div
-                  className="relative border border-[#1C1A38] rounded-xl overflow-hidden bg-[#0D0B24] transition-all duration-700 hover:shadow-[0_0_60px_rgba(108,62,244,0.2)]"
-                >
-                  <CertificateMockup />
-                </div>
+                <img 
+                  src="/mockup.avif" 
+                  alt="ProofMark Mockup" 
+                  className="w-full max-w-3xl mx-auto mt-12 rounded-2xl shadow-[0_0_50px_rgba(108,62,244,0.2)] border border-[#1C1A38] transform perspective-1000 rotate-x-12 hover:rotate-0 transition-transform duration-700" 
+                />
               </motion.div>
             </div>
           </motion.div>
