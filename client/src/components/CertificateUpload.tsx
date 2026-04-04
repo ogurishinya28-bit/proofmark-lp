@@ -4,7 +4,7 @@
  * PDF保存のみログインが必要。
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, FileImage, CheckCircle2, AlertCircle, X, Lock, Download } from "lucide-react";
 import { toast } from "sonner";
@@ -97,6 +97,19 @@ export function CertificateUpload({
   const [localResult, setLocalResult] = useState<LocalHashResult | null>(null);
   const [isHashing, setIsHashing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // 💡 【追記】iOSのスワイプバック（bfcache）復帰時に状態をリセットする
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      // event.persisted が true の場合、キャッシュから画面が復元されたことを意味します
+      if (event.persisted) {
+        handleReset(); // 下の方で定義されているリセット関数を呼ぶ
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [handleReset]);
 
   // ── バリデーション（ログイン不要版）────────────────────────────────
   const validateFile = useCallback((file: File): string | null => {
