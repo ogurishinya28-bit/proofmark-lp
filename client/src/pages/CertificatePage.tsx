@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { createClient } from '@supabase/supabase-js';
 import { QRCodeSVG } from 'qrcode.react';
-import { CheckCircle, Clock, ShieldCheck, Image as ImageIcon, Copy } from 'lucide-react';
+import { CheckCircle, Clock, ShieldCheck, Image as ImageIcon, Copy, Check } from 'lucide-react';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
 import founderBadge from '../assets/logo/badges/proofmark-badge-founder.svg';
 
@@ -125,7 +125,8 @@ export default function CertificatePage() {
 
     const [cert, setCert] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [copied, setCopied] = useState(false);
+    const [isHashCopied, setIsHashCopied] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
 
     useEffect(() => {
         async function fetchCertificate() {
@@ -147,11 +148,21 @@ export default function CertificatePage() {
         fetchCertificate();
     }, [id]);
 
-    const handleCopy = () => {
+    const handleHashCopy = () => {
         if (cert?.file_hash) {
             navigator.clipboard.writeText(cert.file_hash);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
+            setIsHashCopied(true);
+            setTimeout(() => setIsHashCopied(false), 2000);
+        }
+    };
+
+    const handleCopy = async (textToCopy: string) => {
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
+        } catch (err) {
+            console.error("コピーに失敗しました", err);
         }
     };
 
@@ -248,10 +259,10 @@ export default function CertificatePage() {
                                     </div>
                                     <p className="print-data font-mono text-[#F0EFF8] text-[10px] sm:text-xs break-all pr-8 leading-relaxed">{cert.file_hash}</p>
                                     <button
-                                        onClick={handleCopy}
+                                        onClick={handleHashCopy}
                                         className="no-print absolute top-1/2 -translate-y-1/2 right-3 p-2 rounded-lg bg-[#00D4AA]/10 hover:bg-[#00D4AA]/20 transition-colors"
                                     >
-                                        {copied ? <CheckCircle className="w-4 h-4 text-[#00D4AA]" /> : <Copy className="w-4 h-4 text-[#00D4AA]" />}
+                                        {isHashCopied ? <CheckCircle className="w-4 h-4 text-[#00D4AA]" /> : <Copy className="w-4 h-4 text-[#00D4AA]" />}
                                     </button>
                                 </div>
 
@@ -313,8 +324,21 @@ export default function CertificatePage() {
                     <div className="space-y-6">
                         <div>
                             <p className="text-sm text-white font-bold mb-2">▼ 納品時・コンテスト提出時</p>
-                            <div className="bg-[#07061A] p-4 rounded-xl border border-[#1C1A38] text-sm text-[#D4D0F4] leading-relaxed cursor-text">
-                                納品データ一式をお送りいたします。本作品は、AIによる生成過程から当方での加筆修正を含め、制作日時とオリジナルデータを『ProofMark』にて保全・証明しております。証明書URL: {verifyUrl}
+                            <div className="relative p-4 rounded-lg bg-[#0f1629] border border-[#2a2a4e] mt-4 no-print">
+                                <button
+                                    onClick={() => handleCopy(`納品データ一式をお送りいたします。本作品は、AIによる生成過程から当方での加筆修正を含め、制作日時とオリジナルデータを『ProofMark』にて保全・証明しております。証明書URL: ${verifyUrl}`)}
+                                    className="absolute top-3 right-3 p-2 rounded-md bg-[#1a233a] hover:bg-[#2a3655] transition-colors flex items-center gap-2 text-xs font-bold text-white border border-[#2a2a4e]"
+                                >
+                                    {isCopied ? (
+                                        <><Check className="w-4 h-4 text-[#00d4aa]" /> コピー完了！</>
+                                    ) : (
+                                        <><Copy className="w-4 h-4 text-[#6c3ef4]" /> コピーする</>
+                                    )}
+                                </button>
+                                
+                                <p className="text-sm text-gray-300 whitespace-pre-wrap pr-24">
+                                    納品データ一式をお送りいたします。本作品は、AIによる生成過程から当方での加筆修正を含め、制作日時とオリジナルデータを『ProofMark』にて保全・証明しております。証明書URL: {verifyUrl}
+                                </p>
                             </div>
                         </div>
                     </div>
