@@ -3,6 +3,7 @@
  */
 
 import { useState, useCallback } from "react";
+import { useAuth } from "./useAuth";
 
 // ---------------------------------------------------------------------------
 // 型定義
@@ -56,6 +57,7 @@ async function calculateSHA256(file: File): Promise<string> {
 
 export function useDirectUpload(): UseDirectUploadReturn {
   const [state, setState] = useState<DirectUploadState>(INITIAL_STATE);
+  const { user } = useAuth();
 
   const reset = useCallback(() => {
     setState(INITIAL_STATE);
@@ -116,7 +118,13 @@ export function useDirectUpload(): UseDirectUploadReturn {
         const saveRes = await fetch(SAVE_CERT_ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ storagePath, userId, fileHash, filename: file.name }), // 🌟 filename: file.name を追加！
+          body: JSON.stringify({
+            storagePath,
+            userId,
+            fileHash,
+            filename: file.name,
+            username: user?.user_metadata?.username || 'sinn'
+          }),
         });
 
         const saveData = await saveRes.json();
