@@ -133,13 +133,28 @@ export default function Home() {
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <Link href={`/u/${user.user_metadata?.username || 'sinn'}`}>
-                  <span className="text-sm font-bold text-[#00D4AA] cursor-pointer">My Portfolio</span>
+                <Link href={`/u/${user.user_metadata?.username || user.email?.split('@')[0] || 'sinn'}`}>
+                  <span className="flex items-center gap-2 text-sm font-bold text-[#00D4AA] hover:text-white transition-colors cursor-pointer">
+                    My Portfolio
+                  </span>
                 </Link>
-                <button onClick={signOut} className="text-sm text-[#A8A0D8]">ログアウト</button>
+                <button onClick={signOut} className="text-sm text-[#A8A0D8] hover:text-white transition-colors">
+                  ログアウト
+                </button>
               </>
             ) : (
-              <Link href="/auth"><button className="bg-[#6C3EF4] px-5 py-2 rounded-full text-sm font-bold">無料で始める</button></Link>
+              <div className="flex items-center gap-5">
+                <Link href="/auth">
+                  <span className="text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer">
+                    ログイン
+                  </span>
+                </Link>
+                <Link href="/auth">
+                  <button className="bg-gradient-to-r from-[#6C3EF4] to-[#8B61FF] text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-[0_0_15px_rgba(108,62,244,0.3)] hover:scale-105 transition-all flex items-center justify-center">
+                    無料で始める
+                  </button>
+                </Link>
+              </div>
             )}
           </div>
         </header>

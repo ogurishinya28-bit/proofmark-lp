@@ -234,8 +234,8 @@ export function CertificateUpload({
                   証明書を確認する
                 </button>
               </Link>
-              <Link href={`/u/${user?.user_metadata?.username || 'sinn'}`}>
-                <button className="bg-[#151D2F] border border-[#1C1A38] text-white px-6 py-3 rounded-full font-bold text-sm">
+              <Link href={`/u/${user?.user_metadata?.username || user?.email?.split('@')[0] || 'sinn'}`}>
+                <button className="w-full sm:w-auto bg-[#151D2F] border border-[#1C1A38] text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-[#1C263E] transition-all flex items-center justify-center gap-2">
                   ポートフォリオを見る
                 </button>
               </Link>

@@ -122,7 +122,7 @@ export function useDirectUpload(): UseDirectUploadReturn {
             userId,
             fileHash,
             filename: file.name,
-            username: user?.user_metadata?.username || 'sinn'
+            username: user?.user_metadata?.username || user?.email?.split('@')[0] || 'sinn'
           }),
         });
 
