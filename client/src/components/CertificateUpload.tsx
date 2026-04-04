@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useDirectUpload } from "@/hooks/useDirectUpload";
 import { Link } from "wouter";
-import HashWorker from '../../workers/hashWorker?worker';
+import HashWorker from '../workers/hashWorker?worker';
 
 // ---------------------------------------------------------------------------
 // 定数
