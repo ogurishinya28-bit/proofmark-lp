@@ -168,7 +168,24 @@ export default function CertificatePage() {
                                         <FileText className="w-3 h-3" /> Protected Asset
                                     </p>
                                     <p className="font-medium text-sm sm:text-base text-white print:text-black">
-                                        {cert.file_name || 'Verified_Digital_Artwork'}
+                                        {(() => {
+                                            // 1. DBにちゃんとしたファイル名 (file_name) があればそれを優先表示
+                                            if (cert.file_name && cert.file_name !== 'Untitled') return cert.file_name;
+
+                                            // 2. なければ、storage_path（例: "cert_1712345678/image.png"）から抽出
+                                            if (cert.storage_path) {
+                                                // スラッシュで分割して一番後ろ（ファイル名部分）を取得
+                                                const parts = cert.storage_path.split('/');
+                                                let rawName = parts[parts.length - 1] || 'Verified_Digital_Artwork';
+
+                                                // "file_1775299275556.png" のような余計なタイムスタンプを除去する処理
+                                                // 例: "file_1775..._オリジナル名.png" などの場合、綺麗にする
+                                                rawName = rawName.replace(/^file_\d+_?/, '');
+
+                                                return rawName;
+                                            }
+                                            return 'Verified_Digital_Artwork';
+                                        })()}
                                     </p>
                                 </div>
 
