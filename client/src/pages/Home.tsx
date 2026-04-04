@@ -125,7 +125,7 @@ export default function Home() {
           <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-[#A8A0D8]">
             <a href="#how-it-works" className="hover:text-[#00D4AA] transition-colors">仕組み</a>
             <a href="#pricing" className="hover:text-[#F0BB38] transition-colors">料金プラン</a>
-            <a href="#learning" className="hover:text-[#6C3EF4] transition-colors">AIと著作権</a>
+            <Link href="/blog" className="hover:text-[#6C3EF4] transition-colors">ブログ</Link>
           </nav>
 
           <div>

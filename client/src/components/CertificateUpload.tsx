@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useDirectUpload } from "@/hooks/useDirectUpload";
 import { Link } from "wouter";
+import HashWorker from '../../workers/hashWorker?worker';
 
 // ---------------------------------------------------------------------------
 // 定数
@@ -31,13 +32,34 @@ const MAX_FILE_SIZE_MB = 50;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 // ---------------------------------------------------------------------------
-// ブラウザ内SHA-256計算（ログイン不要）
+// ブラウザ内SHA-256計算（Workerを使用した非同期フリーズ回避版）
 // ---------------------------------------------------------------------------
-async function computeSHA256(file: File): Promise<string> {
-  const buffer = await file.arrayBuffer();
-  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+function computeSHA256WithWorker(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // 1. Workerをインスタンス化
+    const worker = new HashWorker();
+
+    // 2. Workerから返事が来た時の処理
+    worker.onmessage = (e) => {
+      const { success, hash, error } = e.data;
+      worker.terminate(); // 終わったら即解雇（メモリ解放）
+
+      if (success) {
+        resolve(hash); // 成功：ハッシュ値を返す
+      } else {
+        reject(new Error(error));
+      }
+    };
+
+    // Worker自体がエラーで落ちた時の処理
+    worker.onerror = (err) => {
+      worker.terminate();
+      reject(err);
+    };
+
+    // 3. Workerにファイルを渡して計算スタート
+    worker.postMessage(file);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -123,7 +145,7 @@ export function CertificateUpload({
       // ── ログイン前：ブラウザ内でのみSHA-256計算 ──
       setIsHashing(true);
       try {
-        const hash = await computeSHA256(file);
+        const hash = await computeSHA256WithWorker(file);
         const now = new Date();
         const timestamp = now.toLocaleString("ja-JP", {
           year: "numeric",

@@ -11,6 +11,10 @@ import Dashboard from './pages/Dashboard';
 import Terms from "./pages/TermsPage";
 import Privacy from "./pages/PrivacyPage";
 import Security from "./pages/Security";
+import BlogIndex from "./pages/BlogIndex";
+import ArticleCopyright from "./pages/ArticleCopyright";
+import ArticleMonetization from "./pages/ArticleMonetization";
+import PublicProfile from "./pages/PublicProfile";
 import Footer from "./components/Footer";
 
 function Router() {
@@ -23,6 +27,15 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/security" component={Security} />
+
+      {/* Public Profile Routes */}
+      <Route path="/u/:username" component={PublicProfile} />
+
+      {/* Blog Routes */}
+      <Route path="/blog" component={BlogIndex} />
+      <Route path="/blog/copyright" component={ArticleCopyright} />
+      <Route path="/blog/monetization" component={ArticleMonetization} />
+
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -30,17 +43,10 @@ function Router() {
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-      // switchable
-      >
+      <ThemeProvider>
         <TooltipProvider>
           <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
             <Toaster />

@@ -63,12 +63,12 @@ export const PrivacyFooter = () => {
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => scrollTo("learning")}
-                  className="text-sm text-muted hover:text-primary transition-colors text-left"
+                <Link
+                  href="/blog"
+                  className="text-sm text-muted hover:text-primary transition-colors text-left block"
                 >
                   ブログ
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
