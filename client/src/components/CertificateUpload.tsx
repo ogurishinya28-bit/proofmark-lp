@@ -127,17 +127,17 @@ export function CertificateUpload({
 
       // ログイン済みの場合は通常フロー（サーバー保存）
       if (user) {
-        const certId = await uploadFile(file, user.id);
+        const displayUsername = user?.user_metadata?.username || user?.email?.split('@')[0] || 'sinn';
+        // 🌟 第3引数に displayUsername を追加して呼び出す
+        const certId = await uploadFile(file, user.id, displayUsername);
         if (certId) {
           toast.success("🎉 証明書の発行が完了しました！", {
-            description: "証明書ページへ移動します...",
+            description: "下のボタンからポートフォリオを確認できます",
             duration: 3000,
           });
-          window.location.href = `/cert/${certId}`;
+          // 🚨 注意：window.location.href による自動遷移は完全に削除済み
         } else {
-          toast.error("アップロードに失敗しました", {
-            description: "ネットワーク接続を確認して、再度お試しください。",
-          });
+          toast.error("アップロードに失敗しました");
         }
         return;
       }

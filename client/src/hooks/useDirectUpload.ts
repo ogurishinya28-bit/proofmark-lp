@@ -24,7 +24,7 @@ export interface DirectUploadState {
 }
 
 export interface UseDirectUploadReturn extends DirectUploadState {
-  uploadFile: (file: File, userId?: string) => Promise<string | null>;
+  uploadFile: (file: File, userId?: string, username?: string) => Promise<string | null>;
   reset: () => void;
 }
 
@@ -64,17 +64,18 @@ export function useDirectUpload(): UseDirectUploadReturn {
   }, []);
 
   const uploadFile = useCallback(
-    async (file: File, userId = "anon"): Promise<string | null> => {
-      setState({ uploading: true, progress: 0, error: null, certificateId: null });
+    async (file: File, userId = "anon", username = "sinn"): Promise<string | null> => {
+      setState((prev) => ({
+        ...prev,
+        uploading: true,
+        progress: 0,
+        error: null,
+        certificateId: null,
+      }));
 
       try {
-        // ── Step 0: 【新規追加】ブラウザ内でローカルハッシュ計算 ──
-        setState((prev) => ({ ...prev, progress: 5 }));
-        const fileHash = await calculateSHA256(file);
-
-        // ── Step 1: 署名付きURL + ストレージパスを取得 ───────────────
-        setState((prev) => ({ ...prev, progress: 15 }));
-
+        // 🌟 Step 1: 署名付きURLを取得
+        setState((prev) => ({ ...prev, progress: 10 }));
         const urlRes = await fetch(UPLOAD_URL_ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -85,31 +86,28 @@ export function useDirectUpload(): UseDirectUploadReturn {
           }),
         });
 
-        if (!urlRes.ok) {
-          const body: any = await urlRes.json().catch(() => ({}));
-          throw new Error(body?.error || `署名付きURL取得に失敗しました (${urlRes.status})`);
-        }
-
         const urlData: UploadUrlApiResponse = await urlRes.json();
-
-        if (!urlData.success || !urlData.signedUrl || !urlData.storagePath) {
-          throw new Error(urlData.error ?? "署名付きURL のレスポンスが不正です");
+        if (!urlRes.ok || !urlData.signedUrl || !urlData.storagePath) {
+          throw new Error(urlData.error || "署名付きURLの取得に失敗しました。");
         }
 
         const { signedUrl, storagePath } = urlData;
 
-        // ── Step 2: Supabase Storage へ直接 PUT アップロード ─────────
-        setState((prev) => ({ ...prev, progress: 40 }));
-
-        const putRes = await fetch(signedUrl, {
+        // 🌟 Step 2: S3 (Supabase Storage) へ直接アップロード
+        setState((prev) => ({ ...prev, progress: 30 }));
+        const uploadRes = await fetch(signedUrl, {
           method: "PUT",
           headers: { "Content-Type": file.type },
           body: file,
         });
 
-        if (!putRes.ok) {
-          throw new Error(`ストレージへのアップロードに失敗しました (${putRes.status})`);
+        if (!uploadRes.ok) {
+          throw new Error("ファイルのアップロードに失敗しました。");
         }
+
+        // ブラウザ側でハッシュ計算（整合性チェック & DB保存用）
+        setState((prev) => ({ ...prev, progress: 60 }));
+        const fileHash = await calculateSHA256(file);
 
         // ── Step 3: データベースに証明書を保存 ────────────
         setState((prev) => ({ ...prev, progress: 80 }));
@@ -117,13 +115,7 @@ export function useDirectUpload(): UseDirectUploadReturn {
         const saveRes = await fetch(SAVE_CERT_ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            storagePath,
-            userId,
-            fileHash,
-            filename: file.name,
-            username: user?.user_metadata?.username || user?.email?.split('@')[0] || 'sinn'
-          }),
+          body: JSON.stringify({ storagePath, userId, fileHash, filename: file.name, username }),
         });
 
         const saveData = await saveRes.json();
