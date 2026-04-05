@@ -73,6 +73,16 @@ export default function Settings() {
       if (updateError) {
         toast.error("アバターURLの保存に失敗しました");
       } else {
+        // 🌟 公開プロファイルテーブルにも同期保存
+        await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            username: username,
+            avatar_url: publicUrl,
+            updated_at: new Date().toISOString()
+          });
+
         toast.success('アバター画像を更新しました！');
         // 🌟 確実な反映のため、Reactの状態だけでなく画面自体をハードリロードする
         setTimeout(() => {
@@ -102,6 +112,18 @@ export default function Settings() {
 
       if (error) throw error;
       
+      // 🌟 公開プロファイルテーブルにも同期保存
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          username: username,
+          avatar_url: avatarUrl,
+          updated_at: new Date().toISOString()
+        });
+
+      if (profileError) throw profileError;
+
       toast.success('プロフィールを保存しました！', {
         description: '変更を反映するためページをリロードします。',
       });
