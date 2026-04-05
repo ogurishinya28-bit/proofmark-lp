@@ -70,10 +70,9 @@ export default function Auth() {
   const searchParams = new URLSearchParams(window.location.search);
   const queryMode = searchParams.get('mode');
   
-  // 状態管理
   const [isLogin, setIsLogin] = useState(queryMode !== 'signup');
   const [isResetMode, setIsResetMode] = useState(false);
-  const [isRecoveryMode, setIsRecoveryMode] = useState(false); // ★これを最優先で判定する
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false); // ★ここが最優先
   
   const [username, setUsername] = useState(searchParams.get('username') || "");
   const [email, setEmail] = useState("");
@@ -86,28 +85,34 @@ export default function Auth() {
   const { signIn, signUp, resetPassword, user, loading } = useAuth();
   const [, navigate] = useLocation();
 
-  // ハッシュ（#access_token）とクエリパラメータの監視
+  // ★ PKCEフロー対応：SupabaseのAuthイベントを直接監視する
   useEffect(() => {
-    // 1. まずURLハッシュをチェック（パスワードリセットからの帰還時）
-    const hash = window.location.hash;
-    const isRecovery = hash.includes("type=recovery") || hash.includes("access_token=");
-    
-    if (isRecovery) {
-      setIsRecoveryMode(true);
-      setIsLogin(false);
+    let isMounted = true;
+
+    // 1. まず現在のURLのクエリパラメータによる初期状態を設定（リカバリー以外）
+    if (!isRecoveryMode) {
+      setIsLogin(queryMode !== 'signup');
       setIsResetMode(false);
-      toast.info("新しいパスワードを設定してください");
-      return; // リカバリーモードなら以降のパラメータチェックは無視
+      if (searchParams.get('username')) {
+        setUsername(searchParams.get('username') || "");
+      }
     }
 
-    // 2. リカバリーモードでなければ通常のクエリチェック
-    setIsRecoveryMode(false);
-    setIsLogin(queryMode !== 'signup');
-    setIsResetMode(false);
-    if (searchParams.get('username')) {
-      setUsername(searchParams.get('username') || "");
-    }
-  }, [window.location.hash, queryMode]); // ★依存配列に window.location.hash を追加
+    // 2. Supabaseの認証イベントを監視（パスワードリセットリンクを踏んだ時）
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' && isMounted) {
+        setIsRecoveryMode(true);
+        setIsLogin(false);
+        setIsResetMode(false);
+        toast.info("新しいパスワードを設定してください");
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [queryMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
