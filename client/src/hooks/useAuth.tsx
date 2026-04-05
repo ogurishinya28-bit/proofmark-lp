@@ -26,19 +26,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCurrentSession().then((session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+    let isMounted = true;
+
+    // 1. 初回マウント時に、確実にセッションをストレージから待機する
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        
+        if (isMounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false); // ⚠️ ストレージの読み込みが完全に終わってから初めて待機を解除する
+        }
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    // 2. 状態変化のリスナー（別タブでのログインやログアウトを検知）
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (isMounted) {
+        setSession(session);
+        setUser(session?.user ?? null);
+        // ⚠️ ここでは setLoading(false) を呼ばない！初回ロードの邪魔をさせないため。
+      }
     });
 
-    const unsubscribe = onAuthStateChange((user, session) => {
-      setUser(user);
-      setSession(session);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, username?: string) => {
