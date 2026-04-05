@@ -5,7 +5,8 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { useAuth } from "./hooks/useAuth";
+// 変更箇所: useAuth の代わりに AuthProvider をインポート
+import { AuthProvider } from "./hooks/useAuth"; 
 import Home from "./pages/Home";
 import CertificatePage from './pages/CertificatePage';
 import Auth from './pages/Auth';
@@ -31,35 +32,30 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/security" component={Security} />
-
-      {/* Public Profile Routes */}
       <Route path="/u/:username" component={PublicProfile} />
-
-      {/* Blog Routes */}
       <Route path="/blog" component={BlogIndex} />
       <Route path="/blog/copyright" component={ArticleCopyright} />
       <Route path="/blog/monetization" component={ArticleMonetization} />
-
       <Route path="/404" component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
 }
 
 function App() {
-  const { user } = useAuth(); // ← Appのレンダリング時にセッションを復元・監視させる
-
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <TooltipProvider>
-          <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-            <Toaster />
-            <Router />
-            <Footer />
-          </div>
-        </TooltipProvider>
+        {/* 追加箇所: アプリ全体を AuthProvider でラップする */}
+        <AuthProvider>
+          <TooltipProvider>
+            <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+              <Toaster />
+              <Router />
+              <Footer />
+            </div>
+          </TooltipProvider>
+        </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

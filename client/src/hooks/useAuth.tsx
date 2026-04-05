@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { supabase } from "../lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
+import { getCurrentSession, onAuthStateChange } from "../lib/auth";
 
 interface AuthState {
   session: Session | null;
@@ -15,22 +16,22 @@ interface AuthActions {
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
 }
 
-import { getCurrentSession, onAuthStateChange } from "../lib/auth";
+type AuthContextType = AuthState & AuthActions;
 
-export function useAuth(): AuthState & AuthActions {
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // マウント時に現在のセッションを確認してStateに反映
     getCurrentSession().then((session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // 認証状態の変化を監視（提供されたヘルパーを使用）
     const unsubscribe = onAuthStateChange((user, session) => {
       setUser(user);
       setSession(session);
@@ -42,20 +43,13 @@ export function useAuth(): AuthState & AuthActions {
 
   const signUp = useCallback(async (email: string, password: string, username?: string) => {
     const { error } = await supabase.auth.signUp({ 
-      email, 
-      password,
-      options: {
-        data: { username }
-      }
+      email, password, options: { data: { username } }
     });
     return { error: error ? new Error(error.message) : null };
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error ? new Error(error.message) : null };
   }, []);
 
@@ -70,5 +64,17 @@ export function useAuth(): AuthState & AuthActions {
     return { error: error ? new Error(error.message) : null };
   }, []);
 
-  return { session, user, loading, signUp, signIn, signOut, resetPassword };
+  return (
+    <AuthContext.Provider value={{ session, user, loading, signUp, signIn, signOut, resetPassword }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 }
