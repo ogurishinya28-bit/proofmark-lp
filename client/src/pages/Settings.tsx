@@ -97,6 +97,25 @@ export default function Settings() {
     }
   };
 
+  // ── 開発者/管理者用：プラン切り替え関数 ──
+  const handlePlanChange = async (newPlan: string) => {
+    try {
+      setSaving(true);
+      const { error } = await supabase.auth.updateUser({
+        data: { plan_type: newPlan }
+      });
+      if (error) throw error;
+      toast.success(`検証モード: ${newPlan.toUpperCase()} に変更しました`);
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      toast.error('プラン変更失敗');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const currentPlan = user?.user_metadata?.plan_type || 'free';
+
   if (loading) return <div className="min-h-screen bg-[#07061A] flex justify-center items-center text-[#00D4AA] tracking-widest font-bold">LOADING...</div>;
 
   return (
@@ -172,6 +191,29 @@ export default function Settings() {
               {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
               {saving ? '保存中...' : '変更を保存する'}
             </button>
+          </div>
+
+          {/* ── 開発者検証用パネル ── */}
+          <div className="mt-12 p-6 border border-[#F0BB38]/30 bg-[#F0BB38]/5 rounded-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-1 h-full bg-[#F0BB38]" />
+            <h3 className="text-[#F0BB38] text-xs font-black mb-4 uppercase tracking-widest flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4" /> Admin Verification Mode
+            </h3>
+            <p className="text-[#A8A0D8] text-xs mb-4">
+              現在のプラン: <strong className="text-white uppercase">{currentPlan}</strong>
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {['free', 'light', 'admin'].map((p) => (
+                <button
+                  key={p}
+                  onClick={() => handlePlanChange(p)}
+                  disabled={saving || currentPlan === p}
+                  className="px-4 py-2 text-xs font-bold rounded-lg border border-[#1C1A38] text-[#A8A0D8] hover:text-white hover:border-[#F0BB38] hover:bg-[#F0BB38]/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {p.toUpperCase()} モード
+                </button>
+              ))}
+            </div>
           </div>
 
         </div>
