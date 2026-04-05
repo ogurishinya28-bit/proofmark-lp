@@ -51,7 +51,10 @@ export default function Settings() {
       // avatarsバケットへアップロード（※Supabase側でavatarsバケットの作成が必要）
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          upsert: true,          // 🌟 必須：既存のファイルを強制的に上書きする
+          cacheControl: '0'      // 🌟 キャッシュをさせない
+        });
 
       if (uploadError) throw uploadError;
 
@@ -71,8 +74,10 @@ export default function Settings() {
         toast.error("アバターURLの保存に失敗しました");
       } else {
         toast.success('アバター画像を更新しました！');
-        // 変更を即座に反映させるためリロード
-        setTimeout(() => window.location.reload(), 1000);
+        // 🌟 確実な反映のため、Reactの状態だけでなく画面自体をハードリロードする
+        setTimeout(() => {
+          window.location.href = window.location.pathname; 
+        }, 1000);
       }
       
     } catch (error: any) {

@@ -9,32 +9,32 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
   return (
     <div className="w-full border-b border-[#1C1A38] bg-[#0D0B24]/90 backdrop-blur-xl sticky top-0 z-50 no-print">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 text-decoration-none">
+        <Link href="/" className="flex items-center gap-2 sm:gap-3 text-decoration-none">
           <img src={navbarLogo} alt="ProofMark" className="h-6 w-auto" />
-          <span className="font-['Syne'] text-lg font-extrabold text-[#F0EFF8]">
+          <span className="font-['Syne'] text-lg font-extrabold text-[#F0EFF8] hidden sm:inline-block">
             Proof<span className="text-[#00D4AA]">Mark</span>
           </span>
         </Link>
 
-        <div className="flex items-center gap-2 sm:gap-5">
+        <div className="flex items-center gap-1 sm:gap-4">
           {user ? (
             <>
               <Link href="/dashboard">
-                <span className="min-w-[44px] min-h-[44px] p-3 sm:min-w-0 sm:min-h-0 sm:p-2 flex items-center justify-center gap-1.5 text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
+                <span className="min-w-[44px] min-h-[44px] p-2 sm:p-0 flex items-center justify-center gap-1.5 text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
                   <LayoutDashboard className="w-6 h-6 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">管理画面</span>
                 </span>
               </Link>
               <Link href={`/u/${displayUsername}`}>
-                <span className="min-w-[44px] min-h-[44px] p-3 sm:min-w-0 sm:min-h-0 sm:p-2 flex items-center justify-center gap-1.5 text-sm font-bold text-[#00D4AA] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
+                <span className="min-w-[44px] min-h-[44px] p-2 sm:p-0 flex items-center justify-center gap-1.5 text-sm font-bold text-[#00D4AA] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
                   <ImageIcon className="w-6 h-6 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">公開ギャラリー</span>
                 </span>
               </Link>
               <Link href="/settings">
-                <span className="min-w-[44px] min-h-[44px] p-3 sm:min-w-0 sm:min-h-0 sm:p-2 flex items-center justify-center gap-1.5 text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
+                <span className="min-w-[44px] min-h-[44px] p-2 sm:p-0 flex items-center justify-center gap-1.5 text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
                   <Settings className="w-6 h-6 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">設定</span>
                 </span>
               </Link>
-              <button onClick={signOut} className="min-w-[44px] min-h-[44px] p-3 sm:min-w-0 sm:min-h-0 sm:p-2 flex items-center justify-center gap-1.5 text-sm text-[#A8A0D8] hover:text-white transition-colors whitespace-nowrap">
+              <button onClick={signOut} className="min-w-[44px] min-h-[44px] p-2 sm:p-0 flex items-center justify-center gap-1.5 text-sm text-[#A8A0D8] hover:text-white transition-colors whitespace-nowrap">
                 <LogOut className="w-6 h-6 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">ログアウト</span>
               </button>
             </>
