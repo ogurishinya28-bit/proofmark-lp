@@ -69,14 +69,16 @@ export default function Auth() {
   const [location] = useLocation();
   const searchParams = new URLSearchParams(window.location.search);
   const queryMode = searchParams.get('mode');
+  
+  // 状態管理
   const [isLogin, setIsLogin] = useState(queryMode !== 'signup');
   const [isResetMode, setIsResetMode] = useState(false);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false); // ★これを最優先で判定する
   
   const [username, setUsername] = useState(searchParams.get('username') || "");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -84,26 +86,28 @@ export default function Auth() {
   const { signIn, signUp, resetPassword, user, loading } = useAuth();
   const [, navigate] = useLocation();
 
-  // URLパラメータやハッシュの状態を監視
+  // ハッシュ（#access_token）とクエリパラメータの監視
   useEffect(() => {
+    // 1. まずURLハッシュをチェック（パスワードリセットからの帰還時）
+    const hash = window.location.hash;
+    const isRecovery = hash.includes("type=recovery") || hash.includes("access_token=");
+    
+    if (isRecovery) {
+      setIsRecoveryMode(true);
+      setIsLogin(false);
+      setIsResetMode(false);
+      toast.info("新しいパスワードを設定してください");
+      return; // リカバリーモードなら以降のパラメータチェックは無視
+    }
+
+    // 2. リカバリーモードでなければ通常のクエリチェック
+    setIsRecoveryMode(false);
     setIsLogin(queryMode !== 'signup');
     setIsResetMode(false);
     if (searchParams.get('username')) {
       setUsername(searchParams.get('username') || "");
     }
-
-    // パスワードリセットのハッシュを確認 (#access_token=...&type=recovery)
-    const hash = window.location.hash;
-    if (hash && (hash.includes("type=recovery") || hash.includes("access_token="))) {
-      setIsRecoveryMode(true);
-      toast.info("新しいパスワードを設定してください");
-    }
-  }, [queryMode, searchParams.get('username')]);
-
-  if (!loading && user) {
-    navigate("/dashboard");
-    return null;
-  }
+  }, [window.location.hash, queryMode]); // ★依存配列に window.location.hash を追加
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
