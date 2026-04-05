@@ -12,6 +12,7 @@ import Terms from "./pages/TermsPage";
 import Privacy from "./pages/PrivacyPage";
 import Security from "./pages/Security";
 import BlogIndex from "./pages/BlogIndex";
+import Settings from "./pages/Settings";
 import ArticleCopyright from "./pages/ArticleCopyright";
 import ArticleMonetization from "./pages/ArticleMonetization";
 import PublicProfile from "./pages/PublicProfile";
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/cert/:id" component={CertificatePage} />
       <Route path="/auth" component={Auth} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/settings" component={Settings} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/security" component={Security} />
