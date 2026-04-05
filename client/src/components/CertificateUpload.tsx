@@ -11,7 +11,13 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useDirectUpload } from "@/hooks/useDirectUpload";
 import { Link } from "wouter";
+import { Crown, Sparkles } from "lucide-react";
+import { createClient } from '@supabase/supabase-js';
 import HashWorker from '../workers/hashWorker?worker';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // ---------------------------------------------------------------------------
 // 定数
@@ -97,6 +103,31 @@ export function CertificateUpload({
   const [localResult, setLocalResult] = useState<LocalHashResult | null>(null);
   const [isHashing, setIsHashing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // ── ペイウォール用ステート ──
+  const [certCount, setCertCount] = useState<number>(0);
+  const [checkingLimit, setCheckingLimit] = useState(false);
+
+  const planType = user?.user_metadata?.plan_type || 'free';
+  const FREE_LIMIT = 3;
+  const isLimitReached = planType === 'free' && certCount >= FREE_LIMIT;
+
+  useEffect(() => {
+    async function checkUsage() {
+      if (!user) return;
+      setCheckingLimit(true);
+      const { count, error } = await supabase
+        .from('certificates')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+      
+      if (!error && count !== null) {
+        setCertCount(count);
+      }
+      setCheckingLimit(false);
+    }
+    checkUsage();
+  }, [user]);
 
   // ── バリデーション（ログイン不要版）────────────────────────────────
   const validateFile = useCallback((file: File): string | null => {
@@ -224,8 +255,37 @@ export function CertificateUpload({
   return (
     <div className={`w-full ${className}`}>
       <AnimatePresence mode="wait">
-        {/* ── サーバー保存完了状態（ログイン済みユーザー） ── */}
-        {isCompleted ? (
+        {/* ── 利用状況チェック中 ── */}
+        {checkingLimit ? (
+          <motion.div key="checking" className="p-10 text-center text-[#00D4AA] font-bold tracking-widest animate-pulse">
+            Checking access level...
+          </motion.div>
+        ) : 
+
+        /* ── ペイウォール（制限到達時） ── */
+        isLimitReached && !isCompleted ? (
+          <motion.div
+            key="paywall"
+            className="relative rounded-[2rem] border border-[#F0BB38]/30 bg-gradient-to-b from-[#1A1200] to-[#0D0B24] p-10 text-center overflow-hidden shadow-[0_0_50px_rgba(240,187,56,0.1)]"
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+          >
+            <div className="absolute -top-20 -left-20 w-64 h-64 bg-[#F0BB38] opacity-10 blur-[80px] rounded-full pointer-events-none" />
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#F0BB38] to-[#D97706] rounded-2xl flex items-center justify-center mb-6 shadow-lg border border-[#F0BB38]/50">
+              <Crown className="w-10 h-10 text-[#1A1200]" />
+            </div>
+            <h3 className="text-2xl font-extrabold text-white mb-3 tracking-tight">Freeプランの上限に達しました</h3>
+            <p className="text-[#A8A0D8] text-sm max-w-md mx-auto mb-8 leading-relaxed">
+              無料プランでのデジタル存在証明は<strong className="text-white">累計3作品</strong>までとなります。Lightプランにアップグレードして、あなたのアートワークを無制限に保護・証明しましょう。
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button className="bg-gradient-to-r from-[#F0BB38] to-[#D97706] text-[#1A1200] px-8 py-3.5 rounded-full font-black text-sm hover:scale-105 transition-all flex items-center gap-2 uppercase">
+                <Sparkles className="w-4 h-4" /> Lightプランへアップグレード
+              </button>
+            </div>
+          </motion.div>
+        ) : 
+
+        isCompleted ? (
           <div className="relative rounded-2xl border p-8 text-center bg-[#0D0B24]">
             <h3 className="text-xl font-bold text-white mb-6">証明書の発行が完了しました</h3>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
