@@ -148,9 +148,9 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
               </button>
             )}
 
-            <div className="text-center pt-4 border-t border-[#1C1A38]">
+            <div className="text-center pt-4 border-t border-[#1C1A38] relative z-50 bg-[#0D0B24] py-4 -mx-6 mt-4">
               <p className="text-[10px] text-[#A8A0D8] flex items-center justify-center gap-1.5 font-bold">
-                <Info className="w-3 h-3" /> ProofMark V1.2.0 - Certified by AI
+                © 2026 ProofMark. All rights reserved.
               </p>
             </div>
           </div>

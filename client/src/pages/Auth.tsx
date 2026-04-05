@@ -75,6 +75,8 @@ export default function Auth() {
   const [username, setUsername] = useState(searchParams.get('username') || "");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -82,12 +84,19 @@ export default function Auth() {
   const { signIn, signUp, resetPassword, user, loading } = useAuth();
   const [, navigate] = useLocation();
 
-  // URLパラメータが変更されたらモードを同期
+  // URLパラメータやハッシュの状態を監視
   useEffect(() => {
     setIsLogin(queryMode !== 'signup');
     setIsResetMode(false);
     if (searchParams.get('username')) {
       setUsername(searchParams.get('username') || "");
+    }
+
+    // パスワードリセットのハッシュを確認 (#access_token=...&type=recovery)
+    const hash = window.location.hash;
+    if (hash && (hash.includes("type=recovery") || hash.includes("access_token="))) {
+      setIsRecoveryMode(true);
+      toast.info("新しいパスワードを設定してください");
     }
   }, [queryMode, searchParams.get('username')]);
 
@@ -103,7 +112,17 @@ export default function Auth() {
     setSubmitting(true);
 
     try {
-      if (isResetMode) {
+      if (isRecoveryMode) {
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) {
+          setError(error.message);
+          toast.error("パスワードの更新に失敗しました");
+        } else {
+          setSuccessMsg("パスワードを更新しました。ダッシュボードに移動します。");
+          toast.success("パスワードを更新しました");
+          setTimeout(() => navigate("/dashboard"), 1500);
+        }
+      } else if (isResetMode) {
         const { error } = await resetPassword(email);
         if (error) {
           setError(error.message);
@@ -232,19 +251,27 @@ export default function Auth() {
 
           <div className="mb-10">
             <h2 className="text-3xl font-black text-white mb-3 tracking-tight">
-              {isResetMode ? "パスワードを忘れた方" : isLogin ? "Welcome back" : "Create identity"}
+              {isRecoveryMode 
+                ? "パスワードの再設定" 
+                : isResetMode 
+                  ? "パスワードを忘れた方" 
+                  : isLogin 
+                    ? "Welcome back" 
+                    : "Create identity"}
             </h2>
             <p className="text-[#A8A0D8] text-sm font-medium">
-              {isResetMode 
-                ? "登録したメールアドレスを入力してください。再設定用のリンクをお送りします。"
-                : isLogin 
-                  ? "アカウントにログインして、作品の証明履歴を確認しましょう。" 
-                  : "わずか30秒で、あなたのデジタル存在証明を始められます。"}
+              {isRecoveryMode
+                ? "新しい強力なパスワードを入力して、アカウントを保護してください。"
+                : isResetMode 
+                  ? "登録したメールアドレスを入力してください。再設定用のリンクをお送りします。"
+                  : isLogin 
+                    ? "アカウントにログインして、作品の証明履歴を確認しましょう。" 
+                    : "わずか30秒で、あなたのデジタル存在証明を始められます。"}
             </p>
           </div>
 
           {/* Tab Switcher - Only in Auth Mode */}
-          {!isResetMode && (
+          {!isResetMode && !isRecoveryMode && (
             <div className="flex p-1.5 bg-[#0D0B24] border border-[#1C1A38] rounded-2xl mb-8">
               <button 
                 onClick={() => { setIsLogin(true); setError(null); setIsResetMode(false); }}
@@ -262,44 +289,66 @@ export default function Auth() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {!isLogin && !isResetMode && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                <label className="text-xs font-black text-[#A8A0D8] uppercase tracking-widest pl-1" htmlFor="username">ユーザー名（ID）</label>
+            {isRecoveryMode ? (
+              <div className="space-y-2">
+                <label className="text-xs font-black text-[#A8A0D8] uppercase tracking-widest pl-1" htmlFor="newPassword">新しいパスワード</label>
                 <div className="relative group">
                   <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
-                    placeholder="your_id"
+                    id="newPassword"
+                    name="newPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="••••••••"
                     required
-                    className="w-full bg-[#0D0B24]/50 border border-[#1C1A38] focus:border-[#6C3EF4]/50 rounded-2xl px-5 py-4 text-white placeholder-[#A8A0D8]/30 outline-none transition-all group-hover:border-[#1C1A38]/80 capitalize-none"
+                    minLength={6}
+                    className="w-full bg-[#0D0B24]/50 border border-[#1C1A38] focus:border-[#6C3EF4]/50 rounded-2xl px-5 py-4 text-white placeholder-[#A8A0D8]/30 outline-none transition-all group-hover:border-[#1C1A38]/80"
                   />
-                  <div className="text-[10px] text-[#A8A0D8]/50 mt-2 pl-1 leading-relaxed">
-                    ※ 半角英数字、アンダースコア、ハイフンが使用可能です
-                  </div>
                 </div>
               </div>
+            ) : (
+              <>
+                {!isLogin && !isResetMode && (
+                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <label className="text-xs font-black text-[#A8A0D8] uppercase tracking-widest pl-1" htmlFor="username">ユーザー名（ID）</label>
+                    <div className="relative group">
+                      <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                        placeholder="your_id"
+                        required
+                        className="w-full bg-[#0D0B24]/50 border border-[#1C1A38] focus:border-[#6C3EF4]/50 rounded-2xl px-5 py-4 text-white placeholder-[#A8A0D8]/30 outline-none transition-all group-hover:border-[#1C1A38]/80 capitalize-none"
+                      />
+                      <div className="text-[10px] text-[#A8A0D8]/50 mt-2 pl-1 leading-relaxed">
+                        ※ 半角英数字、アンダースコア、ハイフンが使用可能です
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <label className="text-xs font-black text-[#A8A0D8] uppercase tracking-widest pl-1" htmlFor="email">メールアドレス</label>
+                  <div className="relative group">
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email username"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@email.com"
+                      required
+                      className="w-full bg-[#0D0B24]/50 border border-[#1C1A38] focus:border-[#6C3EF4]/50 rounded-2xl px-5 py-4 text-white placeholder-[#A8A0D8]/30 outline-none transition-all group-hover:border-[#1C1A38]/80"
+                    />
+                  </div>
+                </div>
+              </>
             )}
-            <div className="space-y-2">
-              <label className="text-xs font-black text-[#A8A0D8] uppercase tracking-widest pl-1" htmlFor="email">メールアドレス</label>
-              <div className="relative group">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email username"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@email.com"
-                  required
-                  className="w-full bg-[#0D0B24]/50 border border-[#1C1A38] focus:border-[#6C3EF4]/50 rounded-2xl px-5 py-4 text-white placeholder-[#A8A0D8]/30 outline-none transition-all group-hover:border-[#1C1A38]/80"
-                />
-              </div>
-            </div>
 
-            {!isResetMode && (
+            {!isResetMode && !isRecoveryMode && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between pl-1">
                   <label className="text-xs font-black text-[#A8A0D8] uppercase tracking-widest" htmlFor="password">パスワード</label>
@@ -353,11 +402,13 @@ export default function Auth() {
               <span className="relative z-10 flex items-center justify-center gap-2">
                 {submitting 
                   ? "Processing..." 
-                  : isResetMode 
-                    ? "リセットメールを送信" 
-                    : isLogin 
-                      ? "ログインする" 
-                      : "無料でアカウントを作成"
+                  : isRecoveryMode 
+                    ? "パスワードを更新する" 
+                    : isResetMode 
+                      ? "リセットメールを送信" 
+                      : isLogin 
+                        ? "ログインする" 
+                        : "無料でアカウントを作成"
                 }
                 {!submitting && <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
               </span>
