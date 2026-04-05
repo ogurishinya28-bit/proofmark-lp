@@ -1,34 +1,44 @@
 import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { 
-  ShieldCheck, 
   Zap, 
   Lock, 
   CheckCircle2, 
   ArrowLeft,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Mail,
+  User as UserIcon
 } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "../hooks/useAuth";
+import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
 
 export default function Auth() {
   const [location] = useLocation();
-  const queryMode = new URLSearchParams(window.location.search).get('mode');
+  const searchParams = new URLSearchParams(window.location.search);
+  const queryMode = searchParams.get('mode');
   const [isLogin, setIsLogin] = useState(queryMode !== 'signup');
+  const [isResetMode, setIsResetMode] = useState(false);
   
+  const [username, setUsername] = useState(searchParams.get('username') || "");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   
-  const { signIn, signUp, user, loading } = useAuth();
+  const { signIn, signUp, resetPassword, user, loading } = useAuth();
   const [, navigate] = useLocation();
 
   // URLパラメータが変更されたらモードを同期
   useEffect(() => {
     setIsLogin(queryMode !== 'signup');
-  }, [queryMode]);
+    setIsResetMode(false);
+    if (searchParams.get('username')) {
+      setUsername(searchParams.get('username') || "");
+    }
+  }, [queryMode, searchParams.get('username')]);
 
   if (!loading && user) {
     navigate("/dashboard");
@@ -42,14 +52,33 @@ export default function Auth() {
     setSubmitting(true);
 
     try {
-      if (isLogin) {
+      if (isResetMode) {
+        const { error } = await resetPassword(email);
+        if (error) {
+          setError(error.message);
+          toast.error("リセットメールの送信に失敗しました");
+        } else {
+          setSuccessMsg("パスワード再設定用のメールを送信しました。");
+          toast.success("リセットメールを送信しました");
+        }
+      } else if (isLogin) {
         const { error } = await signIn(email, password);
-        if (error) setError(error.message);
-        else navigate("/dashboard");
+        if (error) {
+          setError(error.message);
+          toast.error("ログインに失敗しました");
+        } else {
+          navigate("/dashboard");
+          toast.success("おかえりなさい！");
+        }
       } else {
-        const { error } = await signUp(email, password);
-        if (error) setError(error.message);
-        else setSuccessMsg("確認メールを送信しました。メールを確認して有効化してください。");
+        const { error } = await signUp(email, password, username);
+        if (error) {
+          setError(error.message);
+          toast.error("アカウント作成に失敗しました");
+        } else {
+          setSuccessMsg("確認メールを送信しました。メールを確認して有効化してください。");
+          toast.success("確認メールを送信しました");
+        }
       }
     } catch (err: any) {
       setError(err.message || "予期せぬエラーが発生しました");
@@ -67,7 +96,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#07061A] font-sans selection:bg-[#6C3EF4]/30 selection:text-white">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#07061A] font-sans selection:bg-[#6C3EF4]/30 selection:text-white transition-colors duration-500">
       
       {/* ── Branding Panel (Left/Top) ────────────────────────── */}
       <div className="hidden lg:flex relative overflow-hidden flex-col justify-between p-12 lg:p-16 xl:p-24 bg-gradient-to-br from-[#0D0B24] to-[#07061A]">
@@ -77,8 +106,9 @@ export default function Auth() {
         
         {/* Header Logo Component */}
         <Link href="/" className="relative z-10 flex items-center gap-3 group transition-all hover:scale-105 active:scale-95 w-fit">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6C3EF4] to-[#8B61FF] flex items-center justify-center shadow-[0_8px_20px_rgba(108,62,244,0.3)] group-hover:shadow-[0_12px_30px_rgba(108,62,244,0.5)] transition-all">
-            <ShieldCheck className="w-6 h-6 text-white" />
+          <div className="relative">
+            <div className="absolute inset-0 bg-[#00D4AA]/20 blur-lg rounded-full group-hover:bg-[#00D4AA]/40 transition-all opacity-0 group-hover:opacity-100" />
+            <img src={navbarLogo} alt="ProofMark" className="h-10 w-auto relative z-10 transition-all group-hover:rotate-6" />
           </div>
           <span className="text-2xl font-black text-white tracking-tighter">ProofMark</span>
         </Link>
@@ -112,61 +142,98 @@ export default function Auth() {
           </div>
         </div>
         
-        {/* Footer Meta info */}
+        {/* Footer Meta info - HONEST SOCIAL PROOF */}
         <div className="relative z-10">
-          <p className="text-[#A8A0D8]/40 text-xs font-mono tracking-widest uppercase mb-4">Trusted by 10,000+ AI Creators</p>
+          <p className="text-[#A8A0D8]/40 text-xs font-mono tracking-widest uppercase mb-4">BETA ACCESS : アーリーアダプターとして参加</p>
           <div className="flex -space-x-3">
-             <div className="w-8 h-8 rounded-full border-2 border-[#07061A] bg-slate-800" />
-             <div className="w-8 h-8 rounded-full border-2 border-[#07061A] bg-slate-700" />
-             <div className="w-8 h-8 rounded-full border-2 border-[#07061A] bg-slate-600" />
-             <div className="w-8 h-8 rounded-full border-2 border-[#07061A] bg-[#6C3EF4] flex items-center justify-center text-[10px] font-bold">+9k</div>
+             {[1, 2, 3].map((i) => (
+               <div key={i} className="w-8 h-8 rounded-full border-2 border-[#07061A] bg-[#1C1A38] flex items-center justify-center overflow-hidden">
+                 <UserIcon className="w-4 h-4 text-[#A8A0D8]/20" />
+               </div>
+             ))}
+             <div className="w-8 h-8 rounded-full border-2 border-[#07061A] bg-[#0D0B24] flex items-center justify-center text-[10px] font-bold text-[#A8A0D8]">...</div>
           </div>
         </div>
       </div>
 
       {/* ── Form Panel (Right/Bottom) ─────────────────────────── */}
-      <div className="flex flex-col items-center justify-center p-8 lg:p-16 xl:p-24 relative">
+      <div className="flex flex-col items-center justify-center p-8 lg:p-16 xl:p-24 relative overflow-hidden transition-all duration-300">
         <Link href="/" className="lg:hidden absolute top-8 left-8 flex items-center gap-2 text-[#A8A0D8] hover:text-white transition-colors">
           <ArrowLeft className="w-4 h-4" /> Home
         </Link>
 
-        <div className="w-full max-w-md">
+        {/* Back button for Reset Mode */}
+        {isResetMode && (
+          <button 
+            onClick={() => { setIsResetMode(false); setError(null); setSuccessMsg(null); }}
+            className="absolute top-8 left-8 lg:left-16 flex items-center gap-2 text-[#A8A0D8] hover:text-[#6C3EF4] transition-all font-bold text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" /> 戻る
+          </button>
+        )}
+
+        <div className="w-full max-w-md relative z-10">
           {/* Mobile Logo Only */}
           <div className="lg:hidden mb-12 flex flex-col items-center">
-            <div className="w-12 h-12 rounded-xl bg-[#6C3EF4] flex items-center justify-center mb-4 shadow-xl">
-              <ShieldCheck className="w-8 h-8 text-white" />
+            <div className="relative">
+              <div className="absolute inset-x-0 bottom-0 h-4 bg-[#6C3EF4]/30 blur-xl" />
+              <img src={navbarLogo} alt="ProofMark" className="h-10 w-auto relative z-10" />
             </div>
-            <h2 className="text-2xl font-black text-white tracking-tighter">ProofMark</h2>
+            <h2 className="text-2xl font-black text-white tracking-tighter mt-2">ProofMark</h2>
           </div>
 
           <div className="mb-10">
             <h2 className="text-3xl font-black text-white mb-3 tracking-tight">
-              {isLogin ? "Welcome back" : "Create identity"}
+              {isResetMode ? "パスワードを忘れた方" : isLogin ? "Welcome back" : "Create identity"}
             </h2>
             <p className="text-[#A8A0D8] text-sm font-medium">
-              {isLogin 
-                ? "アカウントにログインして、作品の証明履歴を確認しましょう。" 
-                : "わずか30秒で、あなたのデジタル存在証明を始められます。"}
+              {isResetMode 
+                ? "登録したメールアドレスを入力してください。再設定用のリンクをお送りします。"
+                : isLogin 
+                  ? "アカウントにログインして、作品の証明履歴を確認しましょう。" 
+                  : "わずか30秒で、あなたのデジタル存在証明を始められます。"}
             </p>
           </div>
 
-          {/* Tab Switcher */}
-          <div className="flex p-1.5 bg-[#0D0B24] border border-[#1C1A38] rounded-2xl mb-8">
-            <button 
-              onClick={() => { setIsLogin(true); setError(null); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${isLogin ? 'bg-[#1C1A38] text-white shadow-lg' : 'text-[#A8A0D8] hover:text-white'}`}
-            >
-              ログイン
-            </button>
-            <button 
-              onClick={() => { setIsLogin(false); setError(null); }}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${!isLogin ? 'bg-[#1C1A38] text-white shadow-lg' : 'text-[#A8A0D8] hover:text-white'}`}
-            >
-              新規登録
-            </button>
-          </div>
+          {/* Tab Switcher - Only in Auth Mode */}
+          {!isResetMode && (
+            <div className="flex p-1.5 bg-[#0D0B24] border border-[#1C1A38] rounded-2xl mb-8">
+              <button 
+                onClick={() => { setIsLogin(true); setError(null); setIsResetMode(false); }}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${isLogin ? 'bg-[#1C1A38] text-white shadow-lg' : 'text-[#A8A0D8] hover:text-white'}`}
+              >
+                ログイン
+              </button>
+              <button 
+                onClick={() => { setIsLogin(false); setError(null); setIsResetMode(false); }}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${!isLogin ? 'bg-[#1C1A38] text-white shadow-lg' : 'text-[#A8A0D8] hover:text-white'}`}
+              >
+                新規登録
+              </button>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {!isLogin && !isResetMode && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <label className="text-xs font-black text-[#A8A0D8] uppercase tracking-widest pl-1" htmlFor="username">ユーザー名（ID）</label>
+                <div className="relative group">
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                    placeholder="your_id"
+                    required
+                    className="w-full bg-[#0D0B24]/50 border border-[#1C1A38] focus:border-[#6C3EF4]/50 rounded-2xl px-5 py-4 text-white placeholder-[#A8A0D8]/30 outline-none transition-all group-hover:border-[#1C1A38]/80 capitalize-none"
+                  />
+                  <div className="text-[10px] text-[#A8A0D8]/50 mt-2 pl-1 leading-relaxed">
+                    ※ 半角英数字、アンダースコア、ハイフンが使用可能です
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="space-y-2">
               <label className="text-xs font-black text-[#A8A0D8] uppercase tracking-widest pl-1" htmlFor="email">メールアドレス</label>
               <div className="relative group">
@@ -174,7 +241,7 @@ export default function Auth() {
                   id="email"
                   name="email"
                   type="email"
-                  autoComplete={isLogin ? "username" : "email"}
+                  autoComplete={isResetMode ? "email" : isLogin ? "username" : "email"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@email.com"
@@ -184,26 +251,36 @@ export default function Auth() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between pl-1">
-                <label className="text-xs font-black text-[#A8A0D8] uppercase tracking-widest" htmlFor="password">パスワード</label>
-                {isLogin && <button type="button" className="text-[10px] font-bold text-[#6C3EF4] hover:text-[#8B61FF] transition-colors">Forgot password?</button>}
+            {!isResetMode && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between pl-1">
+                  <label className="text-xs font-black text-[#A8A0D8] uppercase tracking-widest" htmlFor="password">パスワード</label>
+                  {isLogin && (
+                    <button 
+                      type="button" 
+                      onClick={() => { setIsResetMode(true); setError(null); setSuccessMsg(null); }}
+                      className="text-[10px] font-bold text-[#6C3EF4] hover:text-[#8B61FF] transition-colors"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <div className="relative group">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete={isLogin ? "current-password" : "new-password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    minLength={6}
+                    className="w-full bg-[#0D0B24]/50 border border-[#1C1A38] focus:border-[#6C3EF4]/50 rounded-2xl px-5 py-4 text-white placeholder-[#A8A0D8]/30 outline-none transition-all group-hover:border-[#1C1A38]/80"
+                  />
+                </div>
               </div>
-              <div className="relative group">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete={isLogin ? "current-password" : "new-password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  minLength={6}
-                  className="w-full bg-[#0D0B24]/50 border border-[#1C1A38] focus:border-[#6C3EF4]/50 rounded-2xl px-5 py-4 text-white placeholder-[#A8A0D8]/30 outline-none transition-all group-hover:border-[#1C1A38]/80"
-                />
-              </div>
-            </div>
+            )}
 
             {error && (
               <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 flex gap-3 animate-in fade-in slide-in-from-top-2">
@@ -226,7 +303,14 @@ export default function Auth() {
             >
               <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
               <span className="relative z-10 flex items-center justify-center gap-2">
-                {submitting ? "Processing..." : isLogin ? "ログインする" : "無料でアカウントを作成"}
+                {submitting 
+                  ? "Processing..." 
+                  : isResetMode 
+                    ? "リセットメールを送信" 
+                    : isLogin 
+                      ? "ログインする" 
+                      : "無料でアカウントを作成"
+                }
                 {!submitting && <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
               </span>
             </button>

@@ -9,9 +9,10 @@ interface AuthState {
 }
 
 interface AuthActions {
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, username?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: Error | null }>;
 }
 
 export function useAuth(): AuthState & AuthActions {
@@ -39,8 +40,14 @@ export function useAuth(): AuthState & AuthActions {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+  const signUp = useCallback(async (email: string, password: string, username?: string) => {
+    const { error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: { username }
+      }
+    });
     return { error: error ? new Error(error.message) : null };
   }, []);
 
@@ -56,5 +63,12 @@ export function useAuth(): AuthState & AuthActions {
     await supabase.auth.signOut();
   }, []);
 
-  return { session, user, loading, signUp, signIn, signOut };
+  const resetPassword = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+    return { error: error ? new Error(error.message) : null };
+  }, []);
+
+  return { session, user, loading, signUp, signIn, signOut, resetPassword };
 }
