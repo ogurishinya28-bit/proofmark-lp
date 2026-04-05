@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { createClient } from '@supabase/supabase-js';
-import { Camera, Save, User, ArrowLeft, Loader2, ShieldCheck } from 'lucide-react';
+import { Camera, Save, User, Loader2, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
@@ -120,11 +120,13 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans pb-24">
-      {/* 簡易ヘッダー（※Navbarの下に表示されるコンテンツエリアのヘッダー） */}
+      {/* 簡易ヘッダー */}
       <div className="max-w-4xl mx-auto px-6 pt-12 pb-8">
-        <button onClick={() => setLocation('/dashboard')} className="flex items-center gap-2 text-sm font-bold text-[#A8A0D8] hover:text-[#00D4AA] transition-colors mb-6">
-          <ArrowLeft className="w-4 h-4" /> ダッシュボードへ戻る
-        </button>
+        <Link href={`/u/${username}`}>
+          <span className="inline-flex items-center gap-2 text-sm font-bold text-[#00D4AA] hover:text-white transition-colors cursor-pointer mb-6 bg-[#00D4AA]/10 hover:bg-[#00D4AA]/20 border border-[#00D4AA]/20 px-4 py-2 rounded-full">
+            👤 公開ギャラリーを確認する
+          </span>
+        </Link>
         <h1 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
           <User className="w-8 h-8 text-[#6C3EF4]" /> プロフィール設定
         </h1>

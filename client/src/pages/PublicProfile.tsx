@@ -146,8 +146,12 @@ export default function PublicProfile() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-10">
         <div className="flex flex-col md:flex-row items-center gap-8 bg-[#0D0B24] border border-[#1C1A38] rounded-[2rem] p-8 shadow-[0_0_40px_rgba(108,62,244,0.05)]">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6C3EF4] to-[#00D4AA] flex items-center justify-center shadow-[0_0_30px_rgba(108,62,244,0.3)]">
-              <span className="text-4xl font-extrabold text-white">{username.charAt(0).toUpperCase()}</span>
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6C3EF4] to-[#00D4AA] flex items-center justify-center shadow-[0_0_30px_rgba(108,62,244,0.3)] overflow-hidden">
+              {certs[0]?.metadata?.avatar_url ? (
+                <img src={certs[0].metadata.avatar_url as string} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-4xl font-extrabold text-white">{username.charAt(0).toUpperCase()}</span>
+              )}
             </div>
           </div>
           <div className="flex-1 text-center md:text-left">
