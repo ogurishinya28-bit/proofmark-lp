@@ -20,22 +20,22 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
           {user ? (
             <>
               <Link href="/dashboard">
-                <span className="flex items-center gap-1.5 text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
-                  <LayoutDashboard className="w-4 h-4" /> <span className="hidden sm:inline">管理画面</span>
+                <span className="min-w-[44px] min-h-[44px] p-3 sm:min-w-0 sm:min-h-0 sm:p-2 flex items-center justify-center gap-1.5 text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
+                  <LayoutDashboard className="w-6 h-6 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">管理画面</span>
                 </span>
               </Link>
               <Link href={`/u/${displayUsername}`}>
-                <span className="flex items-center gap-1.5 text-sm font-bold text-[#00D4AA] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
-                  <ImageIcon className="w-4 h-4" /> <span className="hidden sm:inline">公開ギャラリー</span>
+                <span className="min-w-[44px] min-h-[44px] p-3 sm:min-w-0 sm:min-h-0 sm:p-2 flex items-center justify-center gap-1.5 text-sm font-bold text-[#00D4AA] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
+                  <ImageIcon className="w-6 h-6 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">公開ギャラリー</span>
                 </span>
               </Link>
               <Link href="/settings">
-                <span className="flex items-center gap-1.5 text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
-                  <Settings className="w-4 h-4" /> <span className="hidden sm:inline">設定</span>
+                <span className="min-w-[44px] min-h-[44px] p-3 sm:min-w-0 sm:min-h-0 sm:p-2 flex items-center justify-center gap-1.5 text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer whitespace-nowrap">
+                  <Settings className="w-6 h-6 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">設定</span>
                 </span>
               </Link>
-              <button onClick={signOut} className="flex items-center gap-1.5 text-sm text-[#A8A0D8] hover:text-white transition-colors whitespace-nowrap">
-                <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">ログアウト</span>
+              <button onClick={signOut} className="min-w-[44px] min-h-[44px] p-3 sm:min-w-0 sm:min-h-0 sm:p-2 flex items-center justify-center gap-1.5 text-sm text-[#A8A0D8] hover:text-white transition-colors whitespace-nowrap">
+                <LogOut className="w-6 h-6 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">ログアウト</span>
               </button>
             </>
           ) : (

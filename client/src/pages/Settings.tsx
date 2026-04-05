@@ -57,10 +57,12 @@ export default function Settings() {
 
       // パブリックURLの取得
       const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      const publicUrl = publicUrlData.publicUrl;
+      
+      // 🌟 追加: URLの末尾に「?t=現在時刻」を付与してブラウザのキャッシュを強制的に無効化する
+      const publicUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`;
       setAvatarUrl(publicUrl);
 
-      // 🌟 AuthのメタデータにURLを書き込む（これが抜けていたためポートフォリオ等に反映されなかった）
+      // 🌟 AuthのメタデータにURLを書き込む
       const { error: updateError } = await supabase.auth.updateUser({
         data: { avatar_url: publicUrl }
       });
