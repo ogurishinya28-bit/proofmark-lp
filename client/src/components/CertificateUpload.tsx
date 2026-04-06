@@ -92,10 +92,34 @@ export default function CertificateUpload() {
 
       setProcessStatus('完了しました。証明書ページへリダイレクトします...');
       
-      // 4. リダイレクト
+      // API経由と直接DB経由、どちらのレスポンスパターンでもIDを確実に拾う
+      const issuedId = certData?.id || certData?.certificate?.id || (certData as any)?.[0]?.id;
+
+      if (!issuedId) {
+          console.error("Certificate Data:", certData);
+          throw new Error("証明書のIDが取得できませんでした。");
+      }
+
+      const targetUrl = `/cert/${issuedId}`;
+      console.log("✅ 証明書発行成功。遷移先:", targetUrl);
+
+      // 4. 確実なリダイレクト処理（保険付き）
       setTimeout(() => {
-        setLocation(`/cert/${certData.id}`);
-      }, 1000);
+        try {
+          // まずはSPAルーティングを試みる
+          setLocation(targetUrl);
+        } catch (e) {
+          console.warn("wouter routing failed:", e);
+        }
+        
+        // フォールバック: 800ms後にURLが変わっていなければブラウザレベルで強制遷移
+        setTimeout(() => {
+          if (!window.location.pathname.includes(issuedId)) {
+            console.log("🔄 強制遷移を実行します...");
+            window.location.href = targetUrl;
+          }
+        }, 800);
+      }, 500);
 
     } catch (error) {
       console.error("Process failed:", error);
