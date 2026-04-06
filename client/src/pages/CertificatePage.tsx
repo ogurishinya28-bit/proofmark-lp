@@ -79,6 +79,13 @@ export default function CertificatePage() {
         }
     };
 
+    const shareOnX = () => {
+        const text = encodeURIComponent("AI作品のデジタル存在証明を『ProofMark』で取得しました。\n無断転載・自作発言を防止し、作品のオリジナリティを保護しています。");
+        const url = encodeURIComponent(window.location.href);
+        const hashtags = "ProofMark,AIart,デジタル存在証明";
+        window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}&hashtags=${hashtags}`, '_blank');
+    };
+
     if (loading) {
         return <div className="min-h-screen bg-[#07061A] text-[#00D4AA] flex justify-center items-center font-bold tracking-widest print:bg-white print:text-black">VERIFYING...</div>;
     }
@@ -258,20 +265,27 @@ export default function CertificatePage() {
 
                 {/* --- 🚫 ここから下は印刷時すべて非表示 (print:hidden) --- */}
 
-                <div className="print:hidden w-full max-w-5xl mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-                    <button
-                        onClick={() => window.print()}
-                        className="bg-gradient-to-r from-[#6C3EF4] to-[#8B61FF] hover:from-[#5A2BD4] hover:to-[#7948FF] text-white px-8 py-4 rounded-full font-bold transition-all shadow-[0_0_20px_rgba(108,62,244,0.4)] hover:scale-105"
-                    >
-                        PDFとして保存・印刷
-                    </button>
-                    <button
-                        onClick={() => setLocation('/')}
-                        className="bg-[#151D2F] border border-[#1C1A38] hover:bg-[#1C263E] text-white px-8 py-4 rounded-full font-bold transition-all"
-                    >
-                        トップに戻る
-                    </button>
-                </div>
+                <div className="pt-8 border-t border-slate-700 flex flex-wrap gap-4">
+                        <button
+                            onClick={shareOnX}
+                            className="no-print bg-[#0f1419] hover:bg-[#272c30] text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 border border-slate-700"
+                        >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5 fill-current"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 3.827H5.078z"></path></svg>
+                            Xで証明をシェア
+                        </button>
+                        <button
+                            onClick={() => window.print()}
+                            className="no-print bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-xl font-bold transition-all"
+                        >
+                            PDFとして保存
+                        </button>
+                        <button
+                            onClick={() => setLocation('/')}
+                            className="no-print bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold transition-all"
+                        >
+                            トップに戻る
+                        </button>
+                    </div>
 
                 {/* 💡 2パターンの強力なテンプレート */}
                 <div className="print:hidden w-full max-w-5xl mt-16 bg-[#0D0B24] p-6 sm:p-8 rounded-2xl border border-[#1C1A38] mb-20">
