@@ -182,7 +182,7 @@ async function sendConfirmationEmail(
 
 export default async function handler(
   req: VercelRequest,
-  res: VercelResponse<RegisterResponse>
+  res: VercelResponse
 ) {
   // POST のみ許可
   if (req.method !== "POST") {
