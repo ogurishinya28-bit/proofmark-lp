@@ -11,8 +11,9 @@ import Home from "./pages/Home";
 import CertificatePage from './pages/CertificatePage';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
-import Terms from "./pages/TermsPage";
-import Privacy from "./pages/PrivacyPage";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Tokushoho from "./pages/Tokushoho";
 import Security from "./pages/Security";
 import BlogIndex from "./pages/BlogIndex";
 import Settings from "./pages/Settings";
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/settings" component={Settings} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
+      <Route path="/tokushoho" component={Tokushoho} />
       <Route path="/security" component={Security} />
       <Route path="/u/:username" component={PublicProfile} />
       <Route path="/blog" component={BlogIndex} />

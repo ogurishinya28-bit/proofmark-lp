@@ -129,6 +129,14 @@ export const PrivacyFooter = () => {
               </li>
               <li>
                 <Link
+                  href="/tokushoho"
+                  className="text-sm text-muted hover:text-primary transition-colors text-left"
+                >
+                  特定商取引法
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/security"
                   className="text-sm text-muted hover:text-primary transition-colors text-left block"
                 >

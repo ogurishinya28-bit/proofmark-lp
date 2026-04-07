@@ -7,6 +7,7 @@ export default function Footer() {
       <div style={styles.links}>
         <Link href="/terms" style={styles.link}>利用規約</Link>
         <Link href="/privacy" style={styles.link}>プライバシーポリシー</Link>
+        <Link href="/tokushoho" style={styles.link}>特定商取引法</Link>
         <Link href="/security" style={styles.link}>セキュリティの透明性</Link>
       </div>
       <p style={styles.copy}>© 2026 ProofMark. All rights reserved.</p>
