@@ -1,9 +1,5 @@
 import { ImageResponse } from '@vercel/og';
 
-export const config = {
-  runtime: 'edge',
-};
-
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
 
@@ -18,14 +14,14 @@ export default async function handler(request: Request) {
       (
         <div tw="flex flex-col items-center justify-center w-full h-full bg-[#07061A] text-white p-12 border-4 border-[#6C3EF4]/30">
           <div tw="flex flex-col items-center">
-             <div tw="text-7xl font-bold text-[#F0EFF8] mb-4">ProofMark</div>
-             <div tw="text-3xl text-[#00D4AA] tracking-[10px] uppercase font-bold">Digital Existence Proven</div>
-             <div tw="mt-12 flex items-center px-6 py-3 rounded-full bg-[#6C3EF4]/20 border border-[#6C3EF4]/40 text-[#6C3EF4] text-xl font-bold">
-               VERIFY ORIGINALITY
-             </div>
+            <div tw="text-7xl font-bold text-[#F0EFF8] mb-4">ProofMark</div>
+            <div tw="text-3xl text-[#00D4AA] tracking-[10px] uppercase font-bold">Digital Existence Proven</div>
+            <div tw="mt-12 flex items-center px-6 py-3 rounded-full bg-[#6C3EF4]/20 border border-[#6C3EF4]/40 text-[#6C3EF4] text-xl font-bold">
+              VERIFY ORIGINALITY
+            </div>
           </div>
           <div tw="absolute bottom-12 flex text-[#A8A0D8] text-xl">
-             proofmark.com
+            proofmark.com
           </div>
         </div>
       ),
@@ -74,8 +70,8 @@ export default async function handler(request: Request) {
           <div tw="flex w-1/2 h-full pr-5">
             <div tw="flex flex-col w-full h-full rounded-2xl border border-[#1C1A38] bg-[#0D0B24] overflow-hidden items-center justify-center relative">
               {cert.public_image_url ? (
-                <img 
-                  src={cert.public_image_url} 
+                <img
+                  src={cert.public_image_url}
                   tw="w-full h-full"
                   style={{ objectFit: 'cover' }}
                 />
@@ -99,7 +95,7 @@ export default async function handler(request: Request) {
               <div tw="flex items-center self-start px-4 py-1.5 bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-[#00D4AA] text-sm font-black tracking-widest uppercase rounded-full mb-6">
                 VERIFIED DIGITAL ASSET
               </div>
-              
+
               <div tw="text-5xl font-black text-white leading-tight mb-8">
                 CERTIFICATE OF<br />AUTHENTICITY
               </div>
