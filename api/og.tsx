@@ -2,6 +2,9 @@ import { ImageResponse } from '@vercel/og';
 
 // 意図的に runtime: 'edge' を記述しません。
 // Middlewareが存在しないため、安定したNode.js環境で爆速稼働します。
+export const config = {
+  runtime: 'edge',
+};
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
