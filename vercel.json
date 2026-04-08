@@ -3,6 +3,10 @@
   "public": true,
   "rewrites": [
     {
+      "source": "/api/og",
+      "destination": "/api/og"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
