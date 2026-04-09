@@ -22,6 +22,8 @@ import ArticleMonetization from "./pages/ArticleMonetization";
 import PublicProfile from "./pages/PublicProfile";
 import Faq from "./pages/Faq";
 import WhatItProves from "./pages/WhatItProves";
+import HowItWorks from "./pages/HowItWorks";
+import CompareC2PA from "./pages/CompareC2PA";
 import Footer from "./components/Footer";
 
 function Router() {
@@ -38,6 +40,8 @@ function Router() {
       <Route path="/security" component={Security} />
       <Route path="/faq" component={Faq} />
       <Route path="/what-it-proves" component={WhatItProves} />
+      <Route path="/how-it-works" component={HowItWorks} />
+      <Route path="/compare-c2pa" component={CompareC2PA} />
       <Route path="/u/:username" component={PublicProfile} />
       <Route path="/blog" component={BlogIndex} />
       <Route path="/blog/copyright" component={ArticleCopyright} />

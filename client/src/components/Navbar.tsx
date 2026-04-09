@@ -10,7 +10,9 @@ import {
   FileText, 
   Shield, 
   Info,
-  ExternalLink 
+  ExternalLink,
+  Zap,
+  Scale
 } from 'lucide-react';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
 import { useAuth } from '../hooks/useAuth';
@@ -53,6 +55,15 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
         </Link>
 
         {/* Desktop Navigation */}
+        <div className="hidden lg:flex items-center gap-4 mr-auto ml-8">
+          <Link href="/how-it-works">
+            <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/how-it-works' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>仕組み</span>
+          </Link>
+          <Link href="/compare-c2pa">
+            <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/compare-c2pa' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>C2PA比較</span>
+          </Link>
+        </div>
+
         <div className="hidden lg:flex items-center gap-2">
           {user ? (
             <>
@@ -122,6 +133,18 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
 
             <div className="grid grid-cols-1 gap-2">
               <p className="text-[10px] font-black text-[#6C3EF4] tracking-[0.2em] uppercase mb-1">Resources</p>
+              <Link href="/how-it-works">
+                <span onClick={closeMenu} className="flex items-center gap-3 p-4 hover:bg-white/5 rounded-2xl transition-all">
+                  <Zap className="w-5 h-5 text-[#ffd966]" />
+                  <span className="text-sm font-bold text-[#A8A0D8]">ProofMarkの仕組み</span>
+                </span>
+              </Link>
+              <Link href="/compare-c2pa">
+                <span onClick={closeMenu} className="flex items-center gap-3 p-4 hover:bg-white/5 rounded-2xl transition-all">
+                  <Scale className="w-5 h-5 text-[#00D4AA]" />
+                  <span className="text-sm font-bold text-[#A8A0D8]">C2PAとの比較</span>
+                </span>
+              </Link>
               <Link href="/blog">
                 <span onClick={closeMenu} className="flex items-center justify-between p-4 bg-[#151D2F] border border-[#2a2a4e] rounded-2xl group active:scale-95 transition-all">
                   <div className="flex items-center gap-3">

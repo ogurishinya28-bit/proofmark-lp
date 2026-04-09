@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "wouter";
-import { ShieldCheck, Lock, HelpCircle, FileText, Info } from "lucide-react";
+import { ShieldCheck, Lock, HelpCircle, FileText, Info, Zap, Scale } from "lucide-react";
 
 import navbarLogo from "../assets/logo/navbar/proofmark-navbar-symbol-dark.svg";
 
@@ -70,6 +70,25 @@ export default function Footer() {
               <li>
                 <Link href="/tokushoho" className="text-[#A8A0D8] hover:text-[#6C3EF4] text-sm transition-colors">
                   特定商取引法に基づく表記
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Service Section */}
+          <div>
+            <h3 className="text-white font-bold text-sm tracking-widest uppercase mb-6 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-[#ffd966]" /> SERVICE
+            </h3>
+            <ul className="space-y-4">
+              <li>
+                <Link href="/how-it-works" className="text-[#A8A0D8] hover:text-[#ffd966] text-sm transition-colors flex items-center gap-2 group">
+                  <Zap className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> ProofMarkの仕組み
+                </Link>
+              </li>
+              <li>
+                <Link href="/compare-c2pa" className="text-[#A8A0D8] hover:text-[#ffd966] text-sm transition-colors flex items-center gap-2 group">
+                  <Scale className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> C2PAとの比較
                 </Link>
               </li>
             </ul>
