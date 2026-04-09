@@ -127,6 +127,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const fontData = await getFont();
+        // @ts-expect-error - Satori and React type mismatch since Sentry update
         const svg = await satori(markup, {
             width: 1200,
             height: 630,
