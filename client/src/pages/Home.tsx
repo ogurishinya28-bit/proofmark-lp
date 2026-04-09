@@ -9,7 +9,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { FAQAccordion } from "@/components/FAQAccordion";
 import { SupportedToolsSection } from "@/components/SupportedToolsSection";
 import { DeveloperMessage } from "@/components/DeveloperMessage";
-import { PrivacyFooter } from "@/components/PrivacyFooter";
 import { sendConfirmationEmail } from "@/lib/email";
 import LearningSection from "@/components/LearningSection";
 import { SchemaScript } from "@/components/SchemaScript";
@@ -854,7 +853,6 @@ export default function Home() {
         </section>
 
         {/* ── Footer ──────────────────────────────────────────── */}
-        <PrivacyFooter />
       </div>
     </>
   );
