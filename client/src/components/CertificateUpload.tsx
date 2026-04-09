@@ -100,18 +100,30 @@ export default function CertificateUpload() {
       let publicImageUrl = null;
 
       if (proofMode === 'shareable' && user) {
-        setProcessStatus('暗号化通信で画像をセキュアストレージに保存中...');
-        const compressedFile = await compressImage(file);
-        
-        const filePath = `${user.id}/${certId}/proxy_${compressedFile.name}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('proofmark-assets')
-          .upload(filePath, compressedFile);
+        try {
+          // 1. 元画像をWebPに圧縮（極限まで容量削減）
+          const compressedFile = await compressImage(file);
 
-        if (uploadError) throw uploadError;
+          // 2. Supabase Storageの 'proof_images' バケットへアップロード
+          const fileName = `${user.id}/${certId}/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('proof_images')
+            .upload(fileName, compressedFile, { contentType: 'image/webp' });
 
-        storagePath = uploadData.path;
-        publicImageUrl = `${supabaseUrl}/storage/v1/object/public/proofmark-assets/${uploadData.path}`;
+          if (uploadError) throw uploadError;
+
+          // 3. 公開URLの取得
+          const { data: publicUrlData } = supabase.storage
+            .from('proof_images')
+            .getPublicUrl(fileName);
+
+          storagePath = uploadData.path;
+          publicImageUrl = publicUrlData.publicUrl;
+        } catch (err: any) {
+          alert('画像のアップロードに失敗しました。Storageの設定を確認してください: ' + err.message);
+          setIsProcessing(false);
+          return;
+        }
       }
 
       setProcessStatus('ブロックチェーンレベルの存在証明を生成中...');
