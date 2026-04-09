@@ -23,7 +23,8 @@ export default function CertificateUpload() {
   const [, setLocation] = useLocation();
 
   const { user, profile } = useAuth(); // profileを追加
-  const isPaidPlan = profile?.plan_tier ? ['light', 'admin'].includes(profile.plan_tier.toLowerCase()) : false; // 大文字小文字を問わず判定
+  const currentPlan = (profile?.plan_tier || '').toLowerCase();
+  const isPaidPlan = currentPlan === 'light' || currentPlan === 'admin';
 
   // ブラウザ内ハッシュ計算 (Private)
   const calculateHash = async (file: File): Promise<string> => {
@@ -218,7 +219,7 @@ export default function CertificateUpload() {
             return;
           }
           if (!isPaidPlan) {
-              alert('Shareable ProofはLIGHTプラン専用の機能です。');
+              alert('Shareable ProofはLIGHTプランまたはADMIN専用の機能です。');
               return;
           }
           setProofMode('shareable');
