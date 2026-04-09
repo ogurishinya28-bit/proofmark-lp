@@ -55,7 +55,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     markup = defaultMarkup;
                 } else {
                     // JST変換ロジック
-                    const date = new Date(cert.created_at);
+                    const targetTime = cert.certified_at ? cert.certified_at : cert.created_at;
+                    const date = new Date(targetTime);
                     const jstDate = new Date(date.getTime() + (9 * 60 * 60 * 1000));
                     const year = jstDate.getUTCFullYear();
                     const month = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
@@ -64,6 +65,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     const minutes = String(jstDate.getUTCMinutes()).padStart(2, '0');
                     const seconds = String(jstDate.getUTCSeconds()).padStart(2, '0');
                     const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds} JST`;
+
+                    const timeLabel = cert.certified_at ? 'RFC3161 TIMESTAMP (JST)' : 'DIGITAL TIMESTAMP (JST)';
 
                     // 画像エリアの出し分け
                     const imageSection = cert.public_image_url
@@ -107,7 +110,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                   </div>
 
                   <div tw="flex flex-col">
-                    <div tw="text-xs font-bold text-[#A8A0D8] uppercase tracking-widest mb-1">Timestamp (JST)</div>
+                    <div tw="text-xs font-bold text-[#A8A0D8] uppercase tracking-widest mb-1">${timeLabel}</div>
                     <div tw="text-2xl font-bold text-white tracking-tight">${formattedDate}</div>
                   </div>
                 </div>

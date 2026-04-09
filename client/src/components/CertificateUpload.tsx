@@ -143,8 +143,9 @@ export default function CertificateUpload() {
          }
       }, 500);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Process failed:", error);
+      alert('アップロードエラー: ' + error.message);
       setProcessStatus('エラーが発生しました。もう一度お試しください。');
       setIsProcessing(false);
     }
