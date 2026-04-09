@@ -12,6 +12,25 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// ---- RFC3161 FreeTSA Timestamp API ----
+const applyRFC3161Timestamp = async (certId: string, hash: string) => {
+  try {
+    const response = await fetch('/api/timestamp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ certId, hash }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'タイムスタンプの取得に失敗しました');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Timestamp request failed:', error);
+    throw error;
+  }
+};
+
 export default function CertificatePage() {
     const [match, params] = useRoute('/cert/:id');
     const id = match && params ? params.id : null;
@@ -26,6 +45,10 @@ export default function CertificatePage() {
     const [copiedType, setCopiedType] = useState<string | null>(null);
     const { user, profile, signOut } = useAuth(); // profileを追加
     const isPaidPlan = profile?.plan_tier === 'standard'; // 追加
+
+    // ---- RFC3161 Timestamp State ----
+    const [isStamping, setIsStamping] = useState(false);
+    const [verifiedTime, setVerifiedTime] = useState<string | null>(cert?.certified_at || null);
 
     useEffect(() => {
         async function fetchCertificate() {
@@ -43,6 +66,7 @@ export default function CertificatePage() {
 
             if (!certError && certData) {
                 setCert(certData);
+                setVerifiedTime(certData.certified_at || null);
                 
                 // 2. 最新のプロフィール情報を取得（ユーザー名変更に対応）
                 if (certData.user_id) {
@@ -67,6 +91,23 @@ export default function CertificatePage() {
             navigator.clipboard.writeText(cert.sha256);
             setIsHashCopied(true);
             setTimeout(() => setIsHashCopied(false), 2000);
+        }
+    };
+
+    // ---- RFC3161 Timestamp Handler ----
+    const handleApplyTimestamp = async () => {
+        if (!cert || !cert.id || !cert.sha256) return;
+        setIsStamping(true);
+        try {
+            const result = await applyRFC3161Timestamp(cert.id, cert.sha256);
+            if (result.success) {
+                setVerifiedTime(result.certified_at);
+                alert('FreeTSAによる公的タイムスタンプの付与に成功しました！');
+            }
+        } catch (error: any) {
+            alert(`エラーが発生しました: ${error.message}`);
+        } finally {
+            setIsStamping(false);
         }
     };
 
@@ -272,6 +313,42 @@ export default function CertificatePage() {
                 </div>
 
                 {/* --- 🚫 ここから下は印刷時すべて非表示 (print:hidden) --- */}
+
+                {/* ---- RFC3161 FreeTSA Timestamp UI ---- */}
+                <div className="flex flex-col items-center mt-8 print:hidden">
+                    {verifiedTime ? (
+                        <div className="flex items-center space-x-2 text-[#00D4AA] bg-[#00D4AA]/10 border border-[#00D4AA]/30 px-4 py-2 rounded-full">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-sm font-bold tracking-widest uppercase">
+                                RFC3161 Verified: {new Date(verifiedTime).toLocaleString('ja-JP')}
+                            </span>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={handleApplyTimestamp}
+                            disabled={isStamping}
+                            className={`flex items-center px-6 py-3 rounded-full font-bold transition-all ${
+                                isStamping
+                                    ? 'bg-gray-600 cursor-not-allowed text-gray-300'
+                                    : 'bg-[#6C3EF4] hover:bg-[#5A33CC] text-white shadow-[0_0_15px_rgba(108,62,244,0.5)]'
+                            }`}
+                        >
+                            {isStamping ? (
+                                <>
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Contacting TSA...
+                                </>
+                            ) : (
+                                '公的タイムスタンプを付与する (FreeTSA)'
+                            )}
+                        </button>
+                    )}
+                </div>
 
                 <div className="pt-8 border-t border-slate-700 flex flex-wrap gap-4">
                         <button
