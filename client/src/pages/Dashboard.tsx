@@ -130,10 +130,10 @@ export default function Dashboard() {
               <div key={cert.id} style={styles.card} className="pm-card">
                 {/* Thumbnail */}
                 <div style={styles.thumbWrap}>
-                  {cert.thumbnail_url || cert.file_url ? (
+                  {cert.proof_mode === 'shareable' && cert.public_image_url && (cert.visibility === 'public' || (user && user.id === cert.user_id)) ? (
                     <img
-                      src={cert.thumbnail_url || cert.file_url}
-                      alt={cert.file_name}
+                      src={cert.public_image_url}
+                      alt={cert.original_filename || cert.file_name || "Artwork"}
                       style={styles.thumbImg}
                       loading="lazy"
                     />
@@ -177,7 +177,7 @@ export default function Dashboard() {
 
                 {/* Info */}
                 <div style={styles.cardBody}>
-                  <p style={styles.fileName}>{cert.file_name || "Untitled"}</p>
+                  <p style={styles.fileName}>{cert.original_filename || cert.file_name || "Untitled"}</p>
 
                   <div style={styles.metaRow}>
                     <span style={styles.metaLabel}>Hash</span>

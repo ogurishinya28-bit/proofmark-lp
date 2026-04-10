@@ -10,7 +10,7 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 type ProofMode = 'private' | 'shareable';
-type VisibilityMode = 'private' | 'unlisted';
+type VisibilityMode = 'private' | 'public';
 
 export default function CertificateUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -280,11 +280,11 @@ export default function CertificateUpload() {
                   <input 
                       type="radio" 
                       name="visibility" 
-                      value="unlisted" 
-                      checked={visibility === 'unlisted'}
+                      value="public" 
+                      checked={visibility === 'public'}
                       onChange={() => {
                           if (window.confirm("「リンクを知っている全員」に設定すると、URLを知っている第三者も証明書と画像を閲覧できるようになります。よろしいですか？")) {
-                              setVisibility('unlisted');
+                              setVisibility('public');
                           }
                       }}
                       className="accent-[#6C3EF4]"

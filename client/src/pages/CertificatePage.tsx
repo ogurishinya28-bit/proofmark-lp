@@ -216,7 +216,7 @@ export default function CertificatePage() {
                             {/* 左側：アートワーク または ZK表示 */}
                             <div className="w-full md:w-2/5 flex-shrink-0 print:w-[38%]">
                                 <div className="aspect-square w-full rounded-2xl border border-[#1C1A38] bg-[#07061A] flex flex-col items-center justify-center overflow-hidden relative shadow-inner print:border-gray-300 print:bg-gray-50 print:shadow-none">
-                                    {cert.public_image_url ? (
+                                    {cert.proof_mode === 'shareable' && cert.public_image_url && (cert.visibility === 'public' || (user && user.id === cert.user_id)) ? (
                                         <img src={cert.public_image_url} alt="Artwork" className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="flex flex-col items-center justify-center text-center p-8 w-full h-full bg-[#0D0B24] rounded-xl border border-[#1C1A38]">
