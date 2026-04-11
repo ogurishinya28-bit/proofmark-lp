@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 import { html } from 'satori-html';
+import sharp from 'sharp';
 
 let fontBuffer: ArrayBuffer | null = null;
 const getFont = async () => {
@@ -68,10 +69,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
                     const timeLabel = cert.certified_at ? 'RFC3161 TIMESTAMP (JST)' : 'DIGITAL TIMESTAMP (JST)';
 
-                    // 画像エリアの出し分け
-                    const imageSection = cert.public_image_url
-                        ? `<img src="${cert.public_image_url}" tw="w-full h-full" style="object-fit: cover;" />`
-                        : `<div tw="flex flex-col items-center justify-center text-center p-8">
+                    // 画像エリアの出し分け (WebP対策のためPNG Base64変換)
+                    let imageSection = `<div tw="flex flex-col items-center justify-center text-center p-8">
                 <div tw="flex items-center px-4 py-2 bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-[#00D4AA] text-xs font-bold tracking-widest uppercase rounded-full mb-6">
                   CLIENT-SIDE HASHING
                 </div>
@@ -80,6 +79,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                   Verified in a complete zero-knowledge state.
                 </div>
               </div>`;
+
+                    if (cert.public_image_url) {
+                        try {
+                            const imgRes = await fetch(cert.public_image_url);
+                            if (imgRes.ok) {
+                                const arrayBuffer = await imgRes.arrayBuffer();
+                                const sourceBuffer = Buffer.from(arrayBuffer);
+                                const pngBuffer = await sharp(sourceBuffer).png().toBuffer();
+                                const base64String = pngBuffer.toString('base64');
+                                imageSection = `<img src="data:image/png;base64,${base64String}" tw="w-full h-full" style="object-fit: cover;" />`;
+                            }
+                        } catch (imgError) {
+                            console.error('Error fetching/converting WebP to PNG:', imgError);
+                            // Fallbacks safely to the default imageSection text set above
+                        }
+                    }
 
                     markup = html(`
             <div tw="flex flex-row w-full h-full bg-[#07061A] text-white p-10 border-4 border-[#6C3EF4]/30">
