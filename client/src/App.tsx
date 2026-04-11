@@ -6,7 +6,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 // 変更箇所: useAuth の代わりに AuthProvider をインポート
-import { AuthProvider } from "./hooks/useAuth"; 
+import { AuthProvider } from "./hooks/useAuth";
 import Home from "./pages/Home";
 import CertificatePage from './pages/CertificatePage';
 import Auth from './pages/Auth';
@@ -25,11 +25,13 @@ import WhatItProves from "./pages/WhatItProves";
 import HowItWorks from "./pages/HowItWorks";
 import CompareC2PA from "./pages/CompareC2PA";
 import Footer from "./components/Footer";
+import Pricing from "./pages/Pricing";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/pricing" component={Pricing} />
       <Route path="/cert/:id" component={CertificatePage} />
       <Route path="/auth" component={Auth} />
       <Route path="/dashboard" component={Dashboard} />
