@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Shield, 
-  Scale, 
-  Copy, 
-  Network, 
-  FileCheck, 
-  Clock, 
-  Lock, 
+import {
+  Shield,
+  Scale,
+  Copy,
+  Network,
+  FileCheck,
+  Clock,
+  Lock,
   AlertTriangle,
   Gavel,
   CheckCircle2,
@@ -73,7 +73,7 @@ Date: [Date]`;
 
   const copyToClipboard = (text: string, title: string) => {
     navigator.clipboard.writeText(text);
-    toast.success(\`\${title}をクリップボードにコピーしました\`, {
+    toast.success(`${title}をクリップボードにコピーしました`, {
       icon: <Copy className="w-4 h-4 text-[#00D4AA]" />
     });
   };
@@ -90,21 +90,21 @@ Date: [Date]`;
       {/* Header */}
       <section className="relative pt-24 pb-16 px-6 overflow-hidden">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-[#6C3EF4]/10 blur-[120px] rounded-[100%] pointer-events-none" />
-        
+
         <div className="max-w-4xl mx-auto relative z-10 text-center">
-          <motion.div 
+          <motion.div
             initial="hidden" animate="visible" variants={fadeIn}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#6C3EF4]/10 border border-[#6C3EF4]/30 text-[#BC78FF] text-xs font-bold tracking-widest uppercase mb-6"
           >
             <Gavel className="w-4 h-4" /> Legal Resources
           </motion.div>
-          <motion.h1 
+          <motion.h1
             initial="hidden" animate="visible" variants={fadeIn}
             className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight mb-6"
           >
-            クリエイターのための<br className="hidden md:block"/>権利行使キット
+            クリエイターのための<br className="hidden md:block" />権利行使キット
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial="hidden" animate="visible" variants={fadeIn}
             className="text-[#A8A0D8] text-lg max-w-2xl mx-auto leading-relaxed"
           >
@@ -114,9 +114,9 @@ Date: [Date]`;
       </section>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 pb-32 space-y-24">
-        
+
         {/* Section 1: Comparison Table */}
-        <motion.section 
+        <motion.section
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeIn}
           className="relative"
         >
@@ -178,7 +178,7 @@ Date: [Date]`;
         </motion.section>
 
         {/* Section 2: Chain of Evidence */}
-        <motion.section 
+        <motion.section
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeIn}
           className="relative"
         >
@@ -193,7 +193,7 @@ Date: [Date]`;
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
             {/* Connecting Line */}
             <div className="hidden md:block absolute top-[40px] left-[15%] right-[15%] h-[2px] bg-gradient-to-r from-[#6C3EF4]/0 via-[#6C3EF4]/30 to-[#6C3EF4]/0 z-0" />
-            
+
             <div className="bg-[#0D0B24] border border-[#1C1A38] rounded-3xl p-8 relative z-10 hover:-translate-y-2 transition-transform duration-300">
               <div className="w-16 h-16 rounded-2xl bg-[#00D4AA]/10 border border-[#00D4AA]/30 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(0,212,170,0.2)]">
                 <FileCheck className="w-8 h-8 text-[#00D4AA]" />
@@ -227,7 +227,7 @@ Date: [Date]`;
         </motion.section>
 
         {/* Section 3: DMCA Templates */}
-        <motion.section 
+        <motion.section
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeIn}
           className="relative"
         >
@@ -235,7 +235,7 @@ Date: [Date]`;
             <Lock className="w-8 h-8 text-[#BC78FF]" />
             <h2 className="text-2xl md:text-3xl font-extrabold text-white">DMCA削除申請テンプレート</h2>
           </div>
-          
+
           <div className="bg-[#FF4D4D]/10 border border-[#FF4D4D]/30 rounded-2xl p-6 mb-10 flex items-start gap-4">
             <AlertTriangle className="w-6 h-6 text-[#FF4D4D] shrink-0 mt-1" />
             <div>
@@ -251,7 +251,7 @@ Date: [Date]`;
             <div className="flex flex-col h-full bg-[#0D0B24] border border-[#1C1A38] rounded-3xl overflow-hidden">
               <div className="flex items-center justify-between px-6 py-4 border-b border-[#1C1A38] bg-[#151D2F]">
                 <h3 className="font-bold text-white text-sm">日本語版 (国内サービス向け)</h3>
-                <button 
+                <button
                   onClick={() => copyToClipboard(dmcaJapanese, '日本語版')}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition-all"
                 >
@@ -269,7 +269,7 @@ Date: [Date]`;
             <div className="flex flex-col h-full bg-[#0D0B24] border border-[#1C1A38] rounded-3xl overflow-hidden shadow-[0_0_30px_rgba(108,62,244,0.1)]">
               <div className="flex items-center justify-between px-6 py-4 border-b border-[#1C1A38] bg-[#6C3EF4]/10">
                 <h3 className="font-bold text-white text-sm">English Version (X/Twitter, Global)</h3>
-                <button 
+                <button
                   onClick={() => copyToClipboard(dmcaEnglish, '英語版')}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#6C3EF4]/20 hover:bg-[#6C3EF4]/30 text-[#BC78FF] border border-[#6C3EF4]/30 text-xs font-bold transition-all shadow-[0_0_15px_rgba(108,62,244,0.3)]"
                 >
