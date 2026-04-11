@@ -11,6 +11,10 @@
       "destination": "/api/cert?id=:id"
     },
     {
+      "source": "/u/:username",
+      "destination": "/api/profile?username=:username"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

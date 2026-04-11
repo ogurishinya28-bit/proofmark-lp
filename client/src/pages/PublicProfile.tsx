@@ -9,8 +9,17 @@ import {
   Hash,
   Layers,
   FileText,
-  Sparkles
+  Sparkles,
+  Twitter,
+  Instagram,
+  Youtube,
+  Globe,
+  Heart,
+  Video,
+  DollarSign,
+  PenTool
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@supabase/supabase-js';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
 import founderBadge from '../assets/logo/badges/proofmark-badge-founder.svg';
@@ -115,12 +124,27 @@ const ZKPlaceholder = () => (
   </div>
 );
 
+const SocialLink = ({ href, icon: Icon, label, colorClass = "hover:border-[#6C3EF4]/50 hover:bg-[#6C3EF4]/20", textClass="text-white" }: { href: string | undefined | null, icon: any, label: string, colorClass?: string, textClass?: string }) => {
+  if (!href) return null;
+  return (
+    <motion.a 
+      whileHover={{ y: -3, scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      href={href} target="_blank" rel="noopener noreferrer"
+      className={`flex items-center justify-center gap-2 bg-[#151D2F]/50 border border-[#2a2a4e] ${colorClass} px-3 py-2 rounded-xl transition-colors backdrop-blur-md text-xs font-bold ${textClass} shadow-[0_4px_15px_rgba(0,0,0,0.2)] hover:shadow-[0_4px_25px_rgba(108,62,244,0.3)]`}
+    >
+      <Icon className="w-4 h-4" /> {label}
+    </motion.a>
+  );
+};
+
 export default function PublicProfile() {
   const [match, params] = useRoute('/u/:username');
   const username = match && params ? params.username : null;
 
   const [certs, setCerts] = useState<CertRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<any>(null);
   const [profileExists, setProfileExists] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [isFounder, setIsFounder] = useState(false);
@@ -136,10 +160,10 @@ export default function PublicProfile() {
 
     async function loadPortfolio() {
       try {
-        // 🌟 まずプロファイルテーブルからユーザー情報を取得
+        // 🌟 まずプロファイルテーブルから詳細なユーザー情報を取得
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('id, avatar_url, is_founder')
+          .select('id, avatar_url, is_founder, bio, x_url, instagram_url, youtube_url, tiktok_url, pixiv_url, fanbox_url, patreon_url, website_url')
           .ilike('username', username)
           .maybeSingle();
 
@@ -151,6 +175,7 @@ export default function PublicProfile() {
         setProfileExists(true);
         setUserAvatar(profile.avatar_url);
         setIsFounder(Boolean(profile.is_founder));
+        setProfileData(profile);
 
         // 🌟 user_id を使って、そのユーザーの証明書のみを直接取得（効率的）
         const { data: userCerts, error: certsError } = await supabase
@@ -195,8 +220,14 @@ export default function PublicProfile() {
       <Navbar user={user} signOut={signOut} />
 
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-10">
-        <div className="flex flex-col md:flex-row items-center gap-8 bg-[#0D0B24] border border-[#1C1A38] rounded-[2rem] p-8 shadow-[0_0_40px_rgba(108,62,244,0.05)]">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-10"
+      >
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-8 bg-[#0D0B24]/80 backdrop-blur-xl border border-[#1C1A38] rounded-[2rem] p-8 shadow-[0_0_50px_rgba(108,62,244,0.08)] relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#6C3EF4]/5 right-0 to-transparent pointer-events-none" />
           <div className="relative">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6C3EF4] to-[#00D4AA] flex items-center justify-center shadow-[0_0_30px_rgba(108,62,244,0.3)] overflow-hidden">
               {userAvatar ? (
@@ -206,22 +237,41 @@ export default function PublicProfile() {
               )}
             </div>
           </div>
-          <div className="flex-1 text-center md:text-left">
+          <div className="flex-1 text-center md:text-left z-10 w-full">
             <div className="flex flex-col md:flex-row items-center gap-4 mb-3">
-              <h1 className="text-3xl font-extrabold text-white tracking-tight">@{username}</h1>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">@{username}</h1>
               {isFounder && <FounderBadge />}
             </div>
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm font-medium">
-              <span className="flex items-center gap-1.5 text-white bg-[#151D2F] border border-[#2a2a4e] px-4 py-2 rounded-full">
+
+            {profileData?.bio && (
+              <p className="text-[#A8A0D8] text-sm max-w-2xl mb-6 leading-relaxed whitespace-pre-wrap">
+                {profileData.bio}
+              </p>
+            )}
+
+            {/* Link-in-Bio Enhanced Social Links */}
+            <div className="flex flex-wrap justify-center md:justify-start gap-3 mb-6">
+              <SocialLink href={profileData?.x_url} icon={Twitter} label="X (Twitter)" />
+              <SocialLink href={profileData?.instagram_url} icon={Instagram} label="Instagram" colorClass="hover:border-pink-500/50 hover:bg-pink-500/20" />
+              <SocialLink href={profileData?.youtube_url} icon={Youtube} label="YouTube" colorClass="hover:border-red-500/50 hover:bg-red-500/20" />
+              <SocialLink href={profileData?.tiktok_url} icon={Video} label="TikTok" />
+              <SocialLink href={profileData?.pixiv_url} icon={PenTool} label="Pixiv" colorClass="hover:border-[#0096fa]/50 hover:bg-[#0096fa]/20" />
+              <SocialLink href={profileData?.fanbox_url} icon={Heart} label="FANBOX" colorClass="hover:border-[#fffb8f]/50 hover:bg-[#fffb8f]/20" />
+              <SocialLink href={profileData?.patreon_url} icon={DollarSign} label="Patreon" colorClass="hover:border-[#f96854]/50 hover:bg-[#f96854]/20" />
+              <SocialLink href={profileData?.website_url} icon={Globe} label="Website" colorClass="hover:border-[#00D4AA]/50 hover:bg-[#00D4AA]/20" />
+            </div>
+
+            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm font-medium border-t border-[#1C1A38] pt-6">
+              <span className="flex items-center gap-1.5 text-white bg-[#151D2F] border border-[#2a2a4e] px-4 py-2 rounded-full shadow-inner">
                 <Layers className="w-4 h-4 text-[#6C3EF4]" /> {certs.length} Protected Assets
               </span>
-              <span className="flex items-center gap-1.5 text-[#00D4AA] bg-[#00D4AA]/10 border border-[#00D4AA]/30 px-4 py-2 rounded-full">
+              <span className="flex items-center gap-1.5 text-[#00D4AA] bg-[#00D4AA]/10 border border-[#00D4AA]/30 px-4 py-2 rounded-full shadow-[0_0_15px_rgba(0,212,170,0.15)]">
                 <ShieldCheck className="w-4 h-4" /> All Artworks Verified
               </span>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Masonry Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -239,17 +289,22 @@ export default function PublicProfile() {
 
               return (
                 <Link key={cert.id} href={`/cert/${cert.id}`}>
-                  <div className="break-inside-avoid relative group rounded-2xl overflow-hidden cursor-pointer border border-[#1C1A38] bg-[#0D0B24] transition-all duration-500 hover:border-[#00D4AA]/50 hover:shadow-[0_0_30px_rgba(0,212,170,0.2)] hover:-translate-y-1">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    className="break-inside-avoid relative group rounded-2xl overflow-hidden cursor-pointer border border-[#1C1A38] bg-[#0D0B24] transition-all duration-300 hover:border-[#6C3EF4]/50 hover:shadow-[0_10px_40px_rgba(108,62,244,0.3)] mb-4"
+                  >
 
                     {imgUrl ? (
-                      <img src={imgUrl} alt={cleanFilename} className="w-full h-auto object-cover" loading="lazy" />
+                      <img src={imgUrl} alt={cleanFilename} className="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-105" loading="lazy" />
                     ) : (
                       <ZKPlaceholder />
                     )}
 
                     {/* Default Top Badge */}
                     <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-                      <div className="flex items-center gap-1 bg-[#0a0f1c]/80 backdrop-blur-md border border-[#00D4AA]/30 px-2.5 py-1 rounded-full w-fit">
+                      <div className="flex items-center gap-1 bg-[#0a0f1c]/80 backdrop-blur-md border border-[#00D4AA]/30 px-2.5 py-1 rounded-full w-fit shadow-md">
                         <ShieldCheck className="w-3 h-3 text-[#00D4AA]" />
                         <span className="text-[9px] font-bold text-[#00D4AA] tracking-widest uppercase">Verified</span>
                       </div>
@@ -266,19 +321,23 @@ export default function PublicProfile() {
                     </div>
 
                     {/* Cyber Hover Overlay (Desktop Only) */}
-                    <div className="absolute inset-0 bg-[#07061A]/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 hidden sm:flex flex-col items-center justify-center p-4">
-                      <div className="w-12 h-12 rounded-full border-2 border-[#00D4AA] flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(0,212,170,0.5)]">
-                        <ExternalLink className="w-5 h-5 text-[#00D4AA]" />
-                      </div>
-                      <p className="text-white text-sm font-bold text-center px-2 line-clamp-2 mb-2 flex items-center gap-1.5">
-                        <FileText className="w-3.5 h-3.5 text-[#6C3EF4]" /> {cleanFilename}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#07061A]/90 via-[#07061A]/40 to-transparent backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500 hidden sm:flex flex-col items-center justify-end pb-8">
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileHover={{ scale: 1.1 }}
+                        className="w-14 h-14 rounded-full border border-[#00D4AA]/50 bg-[#00D4AA]/10 backdrop-blur-md flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(0,212,170,0.6)]"
+                      >
+                        <ExternalLink className="w-6 h-6 text-[#00D4AA]" />
+                      </motion.div>
+                      <p className="text-white text-base font-bold text-center px-4 line-clamp-2 mb-2 flex items-center gap-2 drop-shadow-md">
+                        <FileText className="w-4 h-4 text-[#6C3EF4]" /> {cleanFilename}
                       </p>
-                      <p className="text-[#A8A0D8] font-mono text-[9px] tracking-widest uppercase">
-                        View Certificate
+                      <p className="text-[#00D4AA] font-mono text-[10px] tracking-[0.2em] uppercase">
+                        View Details →
                       </p>
                     </div>
 
-                  </div>
+                  </motion.div>
                 </Link>
               );
             })}
