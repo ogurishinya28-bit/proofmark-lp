@@ -2,6 +2,11 @@
   "name": "proofmark-lp",
   "version": "1.0.0",
   "type": "module",
+  "author": "ProofMark Security",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proofmark-jp/proofmark-lp.git"
+  },
   "license": "MIT",
   "scripts": {
     "dev": "vite --host",
@@ -63,6 +68,7 @@
     "react-day-picker": "^9.11.1",
     "react-dom": "^19.2.1",
     "react-dropzone": "^15.0.0",
+    "react-helmet-async": "^2.0.4",
     "react-hook-form": "^7.64.0",
     "react-resizable-panels": "^3.0.6",
     "recharts": "^2.15.2",

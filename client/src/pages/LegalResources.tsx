@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../hooks/useAuth';
+import SEO from '../components/SEO';
 
 export default function LegalResources() {
   const { user, signOut } = useAuth();
@@ -85,6 +86,11 @@ Date: [Date]`;
 
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans selection:bg-[#6C3EF4]/30">
+      <SEO 
+        title="クリエイターのための権利行使キット | ProofMark"
+        description="AI生成作品の無断転載や著作権侵害に対抗するための法的リソース。DMCAテイクダウンのテンプレートや証拠比較ガイダンスを提供します。"
+        url="https://proofmark.jp/legal-resources"
+      />
       <Navbar user={user} signOut={signOut} />
 
       {/* Header */}

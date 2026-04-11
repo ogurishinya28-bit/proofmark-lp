@@ -4,6 +4,7 @@ import { Shield, ShieldAlert, AlertTriangle, Info, ShieldCheck, Download, Code, 
 import { toast } from "sonner";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEO from "../components/SEO";
 
 const CodeBlock = ({ language, code }: { language: string; code: string }) => {
   const [copied, setCopied] = useState(false);
@@ -108,6 +109,23 @@ export default function TrustCenter() {
 
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans selection:bg-[#6C3EF4]/30 selection:text-white">
+      <SEO 
+        title="ProofMark セキュリティ白書 | RFC3161・SHA-256による技術証明の全貌"
+        description="AI生成作品の真正性を証明する暗号アーキテクチャの完全仕様。SHA-256・RFC3161・Supabase RLSの実装詳細を完全公開します。"
+        url="https://proofmark.jp/trust-center"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "TechArticle",
+          "name": "ProofMark Technical Security Whitepaper",
+          "headline": "Cryptographic Proof-of-Creation Architecture for AI-Generated Digital Works",
+          "description": "AI生成作品の真正性を証明する暗号アーキテクチャの完全仕様。",
+          "author": {
+            "@type": "Organization",
+            "name": "ProofMark Security",
+            "url": "https://proofmark.jp"
+          }
+        }}
+      />
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 flex flex-col md:flex-row gap-12">

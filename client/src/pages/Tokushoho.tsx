@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { fadeInVariants, staggerContainer } from "@/lib/animations";
 import { Briefcase, User, MapPin, Tag, CreditCard, Clock, Package, RefreshCcw, Info } from "lucide-react";
+import SEO from "@/components/SEO";
 
 export default function Tokushoho() {
   const { user, signOut } = useAuth();
@@ -20,6 +21,11 @@ export default function Tokushoho() {
 
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans selection:bg-[#F0BB38]/30">
+      <SEO 
+        title="特定商取引法に基づく表記 | ProofMark"
+        description="ProofMarkサービス利用における特定商取引法に基づく表記です。"
+        url="https://proofmark.jp/tokushoho"
+      />
       <Navbar user={user} signOut={signOut} />
       
       <main className="relative pt-32 pb-24 px-6">

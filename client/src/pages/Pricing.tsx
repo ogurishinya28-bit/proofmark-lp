@@ -4,6 +4,7 @@ import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../lib/supabase";
+import SEO from "../components/SEO";
 import { toast } from "sonner";
 
 export default function Pricing() {
@@ -47,9 +48,15 @@ export default function Pricing() {
       }
     }
   };
+
   return (
-    <div className="min-h-screen bg-[#07061A] text-white pt-32 pb-24 px-4 sm:px-6 lg:px-8 selection:bg-[#6C3EF4]/30">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans selection:bg-[#6C3EF4]/30">
+      <SEO 
+        title="料金プラン | ProofMark"
+        description="ProofMarkの料金プラン。無料で月30件まで利用可能なFreeプランから、高品質なPDF証明書が無制限に発行できるLightプランまで、用途に合わせたプランを提供。"
+        url="https://proofmark.jp/pricing"
+      />
+      <div className="max-w-7xl mx-auto pt-32 pb-24 px-4 sm:px-6 lg:px-8">
         {/* ===== Hero Section ===== */}
         <div className="text-center mb-16 flex flex-col items-center">
           <motion.div

@@ -1,6 +1,7 @@
 import React from "react";
 import { Scale, Check, Plus, AlertCircle } from "lucide-react";
 import { Link } from "wouter";
+import SEO from "../components/SEO";
 
 export default function CompareC2PA() {
   const comparisonData = [
@@ -47,6 +48,11 @@ export default function CompareC2PA() {
 
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] pt-32 pb-24 px-6 md:px-12">
+      <SEO 
+        title="C2PAとProofMarkの違い | AIクリエイターに最適な権利保護とは？"
+        description="デジタルコンテンツの信頼性確保において、ProofMarkとC2PAはどう違うのか？特徴を比較し、AIクリエイターの権利保護に最適な方法を解説します。"
+        url="https://proofmark.jp/compare-c2pa"
+      />
       <div className="max-w-5xl mx-auto">
         <header className="text-center mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-[#00D4AA] text-xs font-bold tracking-widest uppercase mb-6">

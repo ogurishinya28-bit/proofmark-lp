@@ -1,10 +1,16 @@
 import React from "react";
 import { Lock, CheckCircle, Shield, Globe, Terminal } from "lucide-react";
 import { Link } from "wouter";
+import SEO from "../components/SEO";
 
 export default function Security() {
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] pt-32 pb-24 px-6 md:px-12">
+      <SEO 
+        title="セキュリティと安全性 | ProofMark"
+        description="ProofMarkの堅牢なセキュリティ体制。ブラウザ内でのハッシュ計算やSSL/TLSによる暗号化通信など、クリエイターの作品データを保護する様々な仕組みをご案内します。"
+        url="https://proofmark.jp/security"
+      />
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-[#00D4AA] text-xs font-bold tracking-widest uppercase mb-6">

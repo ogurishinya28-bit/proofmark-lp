@@ -14,6 +14,7 @@ import LearningSection from "@/components/LearningSection";
 import { SchemaScript } from "@/components/SchemaScript";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/lib/supabase";
+import SEO from "@/components/SEO";
 import founderBadge from "../assets/logo/badges/proofmark-badge-founder.svg";
 import {
   fadeInVariants,
@@ -129,6 +130,27 @@ export default function Home() {
 
   return (
     <>
+      <SEO 
+        title="ProofMark | AI生成作品の改ざん防止・存在証明インフラ"
+        description="「どうせAIでしょ？」を検証可能な事実で終わらせる。画像データのSHA-256ハッシュをブラウザ内で計算し、時間的証拠とともに刻印するプライバシー完全保護のタイムスタンプサービス。著作権侵害や無断転載からクリエイターの権利を守ります。"
+        url="https://proofmark.jp/"
+        type="website"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "url": "https://proofmark.jp/",
+          "name": "ProofMark",
+          "description": "AIクリエイターのためのデジタル存在証明インフラ",
+          "publisher": {
+            "@type": "Organization",
+            "name": "ProofMark",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://proofmark.jp/ogp-image.png"
+            }
+          }
+        }}
+      />
       <div id="top" className="min-h-screen bg-background text-foreground overflow-clip">
         <Navbar user={user} signOut={signOut} />
 

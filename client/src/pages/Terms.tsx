@@ -3,12 +3,18 @@ import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { fadeInVariants, staggerContainer } from "@/lib/animations";
 import { AlertCircle, FileText, Shield, Gavel, Scale, Ban, CreditCard, Lock, RefreshCw } from "lucide-react";
+import SEO from "@/components/SEO";
 
 export default function Terms() {
   const { user, signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans selection:bg-[#6C3EF4]/30">
+      <SEO 
+        title="利用規約 | ProofMark"
+        description="ProofMarkサービス利用に関する利用規約です。"
+        url="https://proofmark.jp/terms"
+      />
       <Navbar user={user} signOut={signOut} />
       
       <main className="relative pt-32 pb-24 px-6">

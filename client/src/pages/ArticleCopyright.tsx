@@ -1,10 +1,28 @@
 import { Link } from 'wouter';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
+import SEO from '../components/SEO';
 
 export default function ArticleCopyright() {
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans pb-24">
+      <SEO 
+        title="AI生成物の著作権と無断転載対策 | ProofMark ブログ"
+        description="AI生成物に著作権は認められるのか？自作発言や無断転載から作品を守るための具体的な手段と最新の防衛策を解説します。"
+        url="https://proofmark.jp/blog/copyright"
+        type="article"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": "AI生成物の著作権と無断転載対策：クリエイターが今すべき防衛策とは？",
+          "image": "https://proofmark.jp/ogp-image.png",
+          "datePublished": "2026-04-11T00:00:00+09:00",
+          "author": {
+            "@type": "Organization",
+            "name": "ProofMark 編集部"
+          }
+        }}
+      />
       {/* ── Header ── */}
       <div className="w-full border-b border-[#1C1A38] bg-[#0D0B24]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">

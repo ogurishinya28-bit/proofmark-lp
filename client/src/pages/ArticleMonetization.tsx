@@ -1,10 +1,28 @@
 import { Link } from 'wouter';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
+import SEO from '../components/SEO';
 
 export default function ArticleMonetization() {
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans pb-24">
+      <SEO 
+        title="AI作品のマネタイズとクライアントワーク | ProofMark ブログ"
+        description="AIイラストの販売や依頼受注で必須となる「プロとしての信頼」。クライアントとの納品トラブルを防ぐ存在証明書の活用法を公開。"
+        url="https://proofmark.jp/blog/monetization"
+        type="article"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": "AI作品のマネタイズとクライアントワーク：納品トラブルを防ぐ「信頼」の作り方",
+          "image": "https://proofmark.jp/ogp-image.png",
+          "datePublished": "2026-04-11T00:00:00+09:00",
+          "author": {
+            "@type": "Organization",
+            "name": "ProofMark 編集部"
+          }
+        }}
+      />
       {/* ── Header ── */}
       <div className="w-full border-b border-[#1C1A38] bg-[#0D0B24]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">

@@ -1,10 +1,16 @@
 import { Link } from 'wouter';
 import { BookOpen, ChevronRight, ArrowLeft } from 'lucide-react';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
+import SEO from '../components/SEO';
 
 export default function BlogIndex() {
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans pb-24">
+      <SEO 
+        title="ProofMark ブログ | AIクリエイターのための最新情報"
+        description="AIクリエイターのための著作権知識や、ProofMarkの活用方法を発信します。"
+        url="https://proofmark.jp/blog"
+      />
       {/* ── Header ── */}
       <div className="w-full border-b border-[#1C1A38] bg-[#0D0B24]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">

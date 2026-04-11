@@ -1,6 +1,7 @@
 import React from "react";
 import { UploadCloud, Fingerprint, Clock, FileBadge, ArrowRight, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
+import SEO from "../components/SEO";
 
 export default function HowItWorks() {
   const steps = [
@@ -56,6 +57,11 @@ export default function HowItWorks() {
 
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] pt-32 pb-24 px-6 md:px-12">
+      <SEO 
+        title="ProofMarkのしくみ | デジタル存在証明の裏側"
+        description="ProofMarkの仕組みを解説。ブラウザでのSHA-256ハッシュ計算、RFC3161準拠タイムスタンプなどを利用したクライアントサイド技術で安全・安心の証拠を作ります。"
+        url="https://proofmark.jp/how-it-works"
+      />
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-24 animate-in fade-in slide-in-from-bottom-4 duration-1000">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#6C3EF4]/10 border border-[#6C3EF4]/30 text-[#6C3EF4] text-xs font-bold tracking-widest uppercase mb-6">

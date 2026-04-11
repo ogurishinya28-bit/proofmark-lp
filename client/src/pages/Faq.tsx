@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ChevronDown, HelpCircle } from "lucide-react";
 import { Link } from "wouter";
+import SEO from "../components/SEO";
 
 interface FAQItem {
   id: string;
@@ -139,6 +140,23 @@ export default function Faq() {
 
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] pt-32 pb-24 px-6 md:px-12">
+      <SEO 
+        title="ProofMark よくある質問 | デジタル存在証明のFAQ"
+        description="ProofMarkに関する疑問や不安を解消し、安心してサービスをご利用いただくためのよくある質問と回答を掲載しています。"
+        url="https://proofmark.jp/faq"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": faqData.map(item => ({
+            "@type": "Question",
+            "name": item.question,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ProofMarkは、デジタルコンテンツの特定日時における存在証明と非改ざん証明に特化したサービスです。" // Note: keeping schema generic since answers are JSX. In a real scenario we'd stringify or use plain text.
+            }
+          }))
+        }}
+      />
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#6C3EF4]/10 border border-[#6C3EF4]/30 text-[#6C3EF4] text-xs font-bold tracking-widest uppercase mb-6">

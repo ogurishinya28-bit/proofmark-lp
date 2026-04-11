@@ -1,10 +1,16 @@
 import React from "react";
 import { CheckCircle, Shield, Scale, AlertTriangle } from "lucide-react";
 import { Link } from "wouter";
+import SEO from "../components/SEO";
 
 export default function WhatItProves() {
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] pt-32 pb-24 px-6 md:px-12">
+      <SEO 
+        title="ProofMarkが証明するもの | どうせAIでしょ？を終わらせる"
+        description="ProofMarkはデジタル作品の存在時期と非改ざん性を技術的に証明します。著作権の帰属など、証明できることと保証しない免責事項を解説。"
+        url="https://proofmark.jp/what-it-proves"
+      />
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-[#00D4AA] text-xs font-bold tracking-widest uppercase mb-6">

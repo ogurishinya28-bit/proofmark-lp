@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -60,20 +61,22 @@ function Router() {
 
 function App() {
   return (
-    <ErrorBoundary>
-      <ThemeProvider>
-        {/* 追加箇所: アプリ全体を AuthProvider でラップする */}
-        <AuthProvider>
-          <TooltipProvider>
-            <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-              <Toaster />
-              <Router />
-              <Footer />
-            </div>
-          </TooltipProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+    <HelmetProvider>
+      <ErrorBoundary>
+        <ThemeProvider>
+          {/* 追加箇所: アプリ全体を AuthProvider でラップする */}
+          <AuthProvider>
+            <TooltipProvider>
+              <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+                <Toaster />
+                <Router />
+                <Footer />
+              </div>
+            </TooltipProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </ErrorBoundary>
+    </HelmetProvider>
   );
 }
 

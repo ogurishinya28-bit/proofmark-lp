@@ -3,12 +3,18 @@ import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { fadeInVariants, staggerContainer } from "@/lib/animations";
 import { Shield, Eye, Lock, Database, Globe, Bell, Mail, Info, CheckCircle } from "lucide-react";
+import SEO from "@/components/SEO";
 
 export default function Privacy() {
   const { user, signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans selection:bg-[#00D4AA]/30">
+      <SEO 
+        title="プライバシーポリシー | ProofMark"
+        description="ProofMarkサービス利用におけるプライバシーポリシーです。個人情報の取り扱いなどについて説明しています。"
+        url="https://proofmark.jp/privacy"
+      />
       <Navbar user={user} signOut={signOut} />
       
       <main className="relative pt-32 pb-24 px-6">
