@@ -34,22 +34,22 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/trust-center" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors flex items-center gap-2 group">
+                <Link href="/trust-center" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
                   <Lock className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> Trust Center (Whitepaper)
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors flex items-center gap-2 group">
+                <Link href="/faq" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
                   <HelpCircle className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> よくある質問 (FAQ)
                 </Link>
               </li>
               <li>
-                <Link href="/what-it-proves" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors flex items-center gap-2 group">
+                <Link href="/what-it-proves" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
                   <Info className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> ProofMarkが証明するもの
                 </Link>
               </li>
               <li>
-                <Link href="/security" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors flex items-center gap-2 group">
+                <Link href="/security" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
                   <ShieldCheck className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> セキュリティの透明性
                 </Link>
               </li>
@@ -63,22 +63,22 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/privacy" className="text-[#A8A0D8] hover:text-[#6C3EF4] text-sm transition-colors">
+                <Link href="/privacy" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200">
                   プライバシーポリシー
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-[#A8A0D8] hover:text-[#6C3EF4] text-sm transition-colors">
+                <Link href="/terms" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200">
                   利用規約
                 </Link>
               </li>
               <li>
-                <Link href="/tokushoho" className="text-[#A8A0D8] hover:text-[#6C3EF4] text-sm transition-colors">
+                <Link href="/tokushoho" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200">
                   特定商取引法に基づく表記
                 </Link>
               </li>
               <li>
-                <Link href="/legal-resources" className="text-[#A8A0D8] hover:text-[#6C3EF4] text-sm transition-colors">
+                <Link href="/legal-resources" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200">
                   権利行使キット (DMCA)
                 </Link>
               </li>
@@ -92,12 +92,12 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/how-it-works" className="text-[#A8A0D8] hover:text-[#ffd966] text-sm transition-colors flex items-center gap-2 group">
+                <Link href="/how-it-works" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
                   <Zap className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> ProofMarkの仕組み
                 </Link>
               </li>
               <li>
-                <Link href="/compare-c2pa" className="text-[#A8A0D8] hover:text-[#ffd966] text-sm transition-colors flex items-center gap-2 group">
+                <Link href="/compare-c2pa" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
                   <Scale className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> C2PAとの比較
                 </Link>
               </li>
@@ -113,7 +113,7 @@ export default function Footer() {
                   href="https://x.com/ProofMark_jp" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors"
+                  className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200"
                 >
                   公式 X (@ProofMark_jp)
                 </a>
@@ -121,7 +121,7 @@ export default function Footer() {
               <li>
                 <Link 
                   href="/blog" 
-                  className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors"
+                  className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200"
                 >
                   公式ブログ
                 </Link>

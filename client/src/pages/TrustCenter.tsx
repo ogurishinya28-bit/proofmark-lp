@@ -167,9 +167,7 @@ export default function TrustCenter() {
                 <Download className="w-4 h-4" /> PDF ダウンロード (v1.0)
               </a>
               <a 
-                href="https://github.com/proofmark-jp/verify" 
-                target="_blank" 
-                rel="noopener noreferrer"
+                href="#sa" 
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#1C1A38] hover:bg-[#2A2654] border border-[#2A284D] text-[#E8E6FF] rounded-xl font-bold transition-all hover:border-[#6C3EF4]"
               >
                 <Code className="w-4 h-4" /> 検証スクリプト (GitHub)
@@ -183,7 +181,7 @@ export default function TrustCenter() {
               </div>
               <div>
                 <p className="text-[10px] text-[#A8A0D8] uppercase tracking-wider font-bold mb-1">Status</p>
-                <p className="font-mono text-sm text-[#00D4AA]">Public Release</p>
+                <p className="font-mono text-sm text-[#00D4AA]">Public Beta</p>
               </div>
               <div>
                 <p className="text-[10px] text-[#A8A0D8] uppercase tracking-wider font-bold mb-1">Standards</p>
@@ -191,7 +189,7 @@ export default function TrustCenter() {
               </div>
               <div>
                 <p className="text-[10px] text-[#A8A0D8] uppercase tracking-wider font-bold mb-1">Author</p>
-                <p className="font-sans text-sm text-white">ProofMark Eng</p>
+                <p className="font-sans text-sm text-white">ProofMark Security</p>
               </div>
             </div>
           </motion.div>
