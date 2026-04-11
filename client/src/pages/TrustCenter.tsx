@@ -120,11 +120,10 @@ export default function TrustCenter() {
                 <button
                   key={item.id}
                   onClick={() => scrollTo(item.id)}
-                  className={`text-left px-4 py-2.5 rounded-lg text-sm transition-all flex items-center gap-3 border-l-2 ${
-                    activeId === item.id 
-                      ? "bg-[#6C3EF4]/10 text-white font-bold border-[#6C3EF4]" 
+                  className={`text-left px-4 py-2.5 rounded-lg text-sm transition-all flex items-center gap-3 border-l-2 ${activeId === item.id
+                      ? "bg-[#6C3EF4]/10 text-white font-bold border-[#6C3EF4]"
                       : "text-[#A8A0D8] border-transparent hover:text-white hover:bg-white/5"
-                  }`}
+                    }`}
                 >
                   <span className="font-mono text-xs text-[#6C3EF4] w-5">{item.title.split(' ')[0]}</span>
                   <span>{item.title.substring(item.title.indexOf(' ') + 1)}</span>
@@ -136,9 +135,9 @@ export default function TrustCenter() {
 
         {/* Main Content */}
         <div className="flex-1 max-w-3xl">
-          
+
           {/* Hero */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-16 border-b border-white/10 pb-12"
@@ -148,26 +147,26 @@ export default function TrustCenter() {
               <span className="text-white/20">/</span>
               <span className="text-[#A8A0D8] text-xs font-bold tracking-[0.15em] uppercase">Technical Whitepaper</span>
             </div>
-            
+
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight mb-6">
               Technical Security<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C3EF4] to-[#00D4AA]">Whitepaper</span>
             </h1>
-            
+
             <p className="text-lg text-[#A8A0D8] leading-relaxed mb-8 max-w-2xl">
               AI生成作品の真正性を証明する暗号アーキテクチャの完全仕様。SHA-256・RFC3161・Supabase RLSの実装詳細を完全公開します。
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mb-8">
-              <a 
-                href="/documents/ProofMark Whitepaper v1.0.pdf" 
+              <a
+                href="/documents/ProofMark Whitepaper v1.0.pdf"
                 download
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#6C3EF4] hover:bg-[#8B61FF] text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(108,62,244,0.4)] hover:-translate-y-0.5"
               >
                 <Download className="w-4 h-4" /> PDF ダウンロード (v1.0)
               </a>
-              <a 
-                href="#sa" 
+              <a
+                href="#sa"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#1C1A38] hover:bg-[#2A2654] border border-[#2A284D] text-[#E8E6FF] rounded-xl font-bold transition-all hover:border-[#6C3EF4]"
               >
                 <Code className="w-4 h-4" /> 検証スクリプト (GitHub)
@@ -200,7 +199,7 @@ export default function TrustCenter() {
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§1</span>
               <h2 className="text-2xl font-bold text-white tracking-tight">脅威モデル & 信頼境界</h2>
             </div>
-            
+
             <p className="text-[#A8A0D8] leading-relaxed mb-6">
               暗号システムを評価する前に、脅威モデルを明確にする必要があります。ProofMarkは特定の、限定された主張に対処します。
             </p>
@@ -208,7 +207,7 @@ export default function TrustCenter() {
             <h3 className="flex items-center gap-2 text-[#00D4AA] font-bold text-lg mb-4 mt-10">
               <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> 唯一の検証可能な主張
             </h3>
-            
+
             <div className="bg-[#0D0B24] border-l-4 border-[#00D4AA] border border-[#1C1A38] rounded-xl p-5 mb-8 font-mono text-sm leading-relaxed text-white">
               <strong className="text-[#00D4AA]">Claim:</strong> SHA-256ハッシュ <strong className="text-white">H</strong> を持つファイルが、信頼された第三者TSAによって証明されたタイムスタンプ <strong className="text-white">T</strong> の時点で、改ざんされていない状態で存在していた。
             </div>
@@ -237,7 +236,7 @@ export default function TrustCenter() {
             <h3 className="flex items-center gap-2 text-[#00D4AA] font-bold text-lg mb-4 mt-8">
               <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> Adversary Model
             </h3>
-            
+
             <div className="overflow-x-auto rounded-xl border border-white/10 mb-8">
               <table className="w-full text-sm text-left">
                 <thead className="bg-[#6C3EF4] text-white">
@@ -284,7 +283,7 @@ export default function TrustCenter() {
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§2</span>
               <h2 className="text-2xl font-bold text-white tracking-tight">暗号ハッシュ — SHA-256 via Web Crypto API</h2>
             </div>
-            
+
             <p className="text-[#A8A0D8] leading-relaxed mb-6">
               ProofMarkはブラウザネイティブの <strong className="text-white">Web Crypto API</strong>（W3C仕様）を使用し、SHA-256ダイジェストを完全にクライアントサイドで計算します。Private Proofモードでは原画はサーバーに一切送信されません。
             </p>
@@ -343,7 +342,7 @@ export default function TrustCenter() {
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§3</span>
               <h2 className="text-2xl font-bold text-white tracking-tight">RFC3161 タイムスタンプ — アーキテクチャ & 信頼チェーン</h2>
             </div>
-            
+
             <p className="text-[#A8A0D8] leading-relaxed mb-6">
               RFC3161は、ハッシュ値を特定の時刻にバインドする暗号的に安全なプロトコルを定義します。生成されたTime-Stamp Token（TST）は、ProofMarkを信頼することなく独立して検証可能です。
             </p>
@@ -385,7 +384,7 @@ export default function TrustCenter() {
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§4</span>
               <h2 className="text-2xl font-bold text-white tracking-tight">TSA選定：現状と移行計画</h2>
             </div>
-            
+
             <Callout type="info">
               TSAの選択を透明に公開します。すべての証明の信頼性はこの決定に依存します。曖昧な表現で隠しません。
             </Callout>
@@ -456,7 +455,7 @@ export default function TrustCenter() {
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§5</span>
               <h2 className="text-2xl font-bold text-white tracking-tight">データ永続化 & セキュリティ（Supabase / RLS）</h2>
             </div>
-            
+
             <p className="text-[#A8A0D8] leading-relaxed mb-6">
               ProofMarkはSupabase（PostgreSQLベースのBaaS）を使用します。セキュリティはRow-Level Security（RLS）ポリシーによりデータベース層で強制されます。
             </p>
@@ -484,7 +483,7 @@ export default function TrustCenter() {
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§6</span>
               <h2 className="text-2xl font-bold text-white tracking-tight">エンドツーエンド データフロー</h2>
             </div>
-            
+
             <p className="text-white font-bold mb-4">Private Proofモード（デフォルト）</p>
 
             <div className="rounded-xl border border-white/10 overflow-hidden mb-8">
@@ -520,7 +519,7 @@ export default function TrustCenter() {
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§7</span>
               <h2 className="text-2xl font-bold text-white tracking-tight">検証ガイド — 第三者監査</h2>
             </div>
-            
+
             <p className="text-[#A8A0D8] leading-relaxed mb-6">
               ProofMarkの証明は、標準的なオープンソースツールを使って誰でも検証できます。ProofMarkインフラへの信頼は不要です。
             </p>
@@ -548,7 +547,7 @@ export default function TrustCenter() {
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§8</span>
               <h2 className="text-2xl font-bold text-white tracking-tight">制限事項 & 正直な開示</h2>
             </div>
-            
+
             <p className="text-[#A8A0D8] leading-relaxed mb-6">
               制限事項についての誠実な開示が、それを隠すよりも信頼を築くと考えています。
             </p>
@@ -602,9 +601,9 @@ export default function TrustCenter() {
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§A</span>
               <h2 className="text-2xl font-bold text-white tracking-tight">Appendix：Python検証スクリプト（完全版）</h2>
             </div>
-            
+
             <p className="text-[#A8A0D8] leading-relaxed mb-6">
-              ProofMark証明書を検証するスタンドアロンスクリプト。Python 3.8+とOpenSSLが必要。完全版ソース: <a href="https://github.com/proofmark-jp/verify" target="_blank" rel="noopener noreferrer" className="text-[#00D4AA] hover:underline">github.com/proofmark-jp/verify</a>
+              ProofMark証明書を検証するスタンドアロンスクリプト。Python 3.8+とOpenSSLが必要。完全版ソース: <a href="https://github.com/proofmark-jp/proofmark-verify" target="_blank" rel="noopener noreferrer" className="text-[#00D4AA] hover:underline">github.com/proofmark-jp/verify</a>
             </p>
 
             <CodeBlock language="Python 3" code={`#!/usr/bin/env python3\n"""ProofMark RFC3161 Timestamp Verifier\n   Usage: python verify_proofmark.py <file> <hash_hex> <tst_base64>\n"""\nimport sys, hashlib, base64, subprocess\nfrom pathlib import Path\n\ndef verify_file_hash(filepath: str, expected_hex: str) -> bool:\n    actual = hashlib.sha256(Path(filepath).read_bytes()).hexdigest()\n    ok = actual == expected_hex.lower()\n    print(f"[HASH] Expected : {expected_hex}")\n    print(f"[HASH] Computed : {actual}")\n    print("[HASH] Result   : PASS ✓" if ok else "[HASH] Result   : FAIL ✗")\n    return ok\n\ndef verify_rfc3161_tst(tst_b64: str, hash_hex: str,\n                       ca: str = "freetsa-ca.crt",\n                       tsa: str = "freetsa-tsa.crt") -> bool:\n    tsr = Path("/tmp/proof.tsr")\n    tsr.write_bytes(base64.b64decode(tst_b64))\n    r = subprocess.run(\n        ["openssl", "ts", "-verify",\n         "-in", str(tsr), "-digest", hash_hex,\n         "-CAfile", ca, "-untrusted", tsa],\n        capture_output=True, text=True\n    )\n    ok = "Verification: OK" in r.stdout\n    print(f"[TST]  openssl : {r.stdout.strip()}")\n    print("[TST]  Result  : PASS ✓" if ok else "[TST]  Result  : FAIL ✗")\n    return ok\n\nif __name__ == "__main__":\n    filepath, hash_hex, tst_b64 = sys.argv[1], sys.argv[2], sys.argv[3]\n    h_ok = verify_file_hash(filepath, hash_hex)\n    t_ok = verify_rfc3161_tst(tst_b64, hash_hex)\n    sys.exit(0 if (h_ok and t_ok) else 1)`} />
