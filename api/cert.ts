@@ -39,58 +39,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const description = `This artwork has been verified on ProofMark. SHA-256: ${cert.sha256 || cert.file_hash}`;
       const ogImageUrl = `${baseUrl}/api/og?id=${id}`;
 
-      // Title
-      if (html.match(/<title>.*?<\/title>/i)) {
-        html = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
-      } else {
-        html = html.replace('</head>', `  <title>${title}</title>\n</head>`);
-      }
-      
-      // OG Title
-      if (html.match(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/i)) {
-        html = html.replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/i, `<meta property="og:title" content="${title}" />`);
-      } else {
-        html = html.replace('</head>', `  <meta property="og:title" content="${title}" />\n</head>`);
-      }
+      // Replace Title Strings
+      html = html.replaceAll(
+        'ProofMark | AI作品のデジタル存在証明・無断転載防止サービス',
+        title
+      );
+      html = html.replaceAll(
+        'ProofMark | AI作品のデジタル存在証明',
+        title
+      );
 
-      // OG Description
-      if (html.match(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/i)) {
-        html = html.replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/i, `<meta property="og:description" content="${description}" />`);
-      } else {
-        html = html.replace('</head>', `  <meta property="og:description" content="${description}" />\n</head>`);
-      }
-      
-      // OG Image
-      if (html.match(/<meta\s+property="og:image"\s+content=".*?"\s*\/?>/i)) {
-        html = html.replace(/<meta\s+property="og:image"\s+content=".*?"\s*\/?>/i, `<meta property="og:image" content="${ogImageUrl}" />`);
-      } else {
-        html = html.replace('</head>', `  <meta property="og:image" content="${ogImageUrl}" />\n</head>`);
-      }
+      // Replace Description Strings
+      html = html.replaceAll(
+        'ブラウザ内で安全にSHA-256ハッシュを計算し、あなたのAI生成作品の制作日時とオリジナルデータを改ざん不能な状態で証明。無断転載や自作発言からクリエイターを守ります。',
+        description
+      );
+      html = html.replaceAll(
+        'ブラウザ内で安全にSHA-256ハッシュを計算。あなたのAI作品を無断転載や自作発言から守る、クリエイターのためのデジタル存在証明サービス。',
+        description
+      );
 
-      // Twitter Card tags
-      if (html.match(/<meta\s+name="twitter:card"\s+content=".*?"\s*\/?>/i)) {
-        html = html.replace(/<meta\s+name="twitter:card"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:card" content="summary_large_image" />`);
-      } else {
-        html = html.replace('</head>', `  <meta name="twitter:card" content="summary_large_image" />\n</head>`);
-      }
-
-      if (html.match(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/i)) {
-        html = html.replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:title" content="${title}" />`);
-      } else {
-        html = html.replace('</head>', `  <meta name="twitter:title" content="${title}" />\n</head>`);
-      }
-
-      if (html.match(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/i)) {
-        html = html.replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:description" content="${description}" />`);
-      } else {
-        html = html.replace('</head>', `  <meta name="twitter:description" content="${description}" />\n</head>`);
-      }
-
-      if (html.match(/<meta\s+name="twitter:image"\s+content=".*?"\s*\/?>/i)) {
-        html = html.replace(/<meta\s+name="twitter:image"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:image" content="${ogImageUrl}" />`);
-      } else {
-        html = html.replace('</head>', `  <meta name="twitter:image" content="${ogImageUrl}" />\n</head>`);
-      }
+      // Replace Image OGP URLs
+      html = html.replaceAll(
+        'https://proofmark.jp/ogp-image.png',
+        ogImageUrl
+      );
     }
 
     // 6. 書き換えたHTML文字列を返却
