@@ -14,7 +14,8 @@ import {
   Zap,
   Scale,
   CreditCard,
-  ShieldAlert
+  ShieldAlert,
+  ShieldCheck
 } from 'lucide-react';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
 import { useAuth } from '../hooks/useAuth';
@@ -66,6 +67,9 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
           </Link>
           <Link href="/legal-resources">
             <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/legal-resources' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>法的ガイド</span>
+          </Link>
+          <Link href="/trust-center">
+            <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/trust-center' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>Trust Center</span>
           </Link>
           <Link href="/pricing">
             <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/pricing' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>料金プラン</span>
@@ -163,6 +167,12 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
                 <span onClick={closeMenu} className="flex items-center gap-3 p-4 hover:bg-white/5 rounded-2xl transition-all">
                   <ShieldAlert className="w-5 h-5 text-[#BC78FF]" />
                   <span className="text-sm font-bold text-[#A8A0D8]">権利行使・法的ガイド</span>
+                </span>
+              </Link>
+              <Link href="/trust-center">
+                <span onClick={closeMenu} className="flex items-center gap-3 p-4 hover:bg-white/5 rounded-2xl transition-all">
+                  <ShieldCheck className="w-5 h-5 text-[#00D4AA]" />
+                  <span className="text-sm font-bold text-[#A8A0D8]">Trust Center</span>
                 </span>
               </Link>
               <Link href="/blog">

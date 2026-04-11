@@ -27,6 +27,7 @@ import CompareC2PA from "./pages/CompareC2PA";
 import Footer from "./components/Footer";
 import Pricing from "./pages/Pricing";
 import LegalResources from "./pages/LegalResources";
+import TrustCenter from "./pages/TrustCenter";
 
 function Router() {
   return (
@@ -46,6 +47,7 @@ function Router() {
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/compare-c2pa" component={CompareC2PA} />
       <Route path="/legal-resources" component={LegalResources} />
+      <Route path="/trust-center" component={TrustCenter} />
       <Route path="/u/:username" component={PublicProfile} />
       <Route path="/blog" component={BlogIndex} />
       <Route path="/blog/copyright" component={ArticleCopyright} />

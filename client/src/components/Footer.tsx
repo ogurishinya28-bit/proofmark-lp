@@ -34,6 +34,11 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4">
               <li>
+                <Link href="/trust-center" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors flex items-center gap-2 group">
+                  <Lock className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> Trust Center (Whitepaper)
+                </Link>
+              </li>
+              <li>
                 <Link href="/faq" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors flex items-center gap-2 group">
                   <HelpCircle className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> よくある質問 (FAQ)
                 </Link>
