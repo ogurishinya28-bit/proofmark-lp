@@ -11,6 +11,10 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/cert/:id",
+      "destination": "/api/cert?id=$id"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
