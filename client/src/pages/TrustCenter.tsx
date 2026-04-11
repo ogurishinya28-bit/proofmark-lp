@@ -171,6 +171,18 @@ export default function TrustCenter() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C3EF4] to-[#00D4AA]">Whitepaper</span>
             </h1>
 
+            <div className="text-sm text-gray-400 -mt-2 mb-8 flex items-center gap-1.5">
+              <span>Written by:</span>
+              <a 
+                href="https://x.com/ProofMark_jp" 
+                target="_blank" 
+                rel="noopener" 
+                className="font-bold text-[#F0EFF8] hover:text-[#00D4AA] transition-colors decoration-[#00D4AA] underline-offset-4 hover:underline"
+              >
+                ProofMark Security Team
+              </a>
+            </div>
+
             <p className="text-lg text-[#A8A0D8] leading-relaxed mb-8 max-w-2xl">
               AI生成作品の真正性を証明する暗号アーキテクチャの完全仕様。SHA-256・RFC3161・Supabase RLSの実装詳細を完全公開します。
             </p>
