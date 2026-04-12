@@ -85,6 +85,13 @@ export default function Auth() {
   const { signIn, signUp, resetPassword, user, loading } = useAuth();
   const [, setLocation] = useLocation();
 
+  // ★ ユーザー状態の変更を検知して宣言的に遷移（iOS Safariのリダイレクトブロック対策）
+  useEffect(() => {
+    if (user && !isRecoveryMode) {
+      setLocation("/dashboard");
+    }
+  }, [user, isRecoveryMode, setLocation]);
+
   // ★ PKCEフロー対応：SupabaseのAuthイベントを直接監視する
   useEffect(() => {
     let isMounted = true;
@@ -129,7 +136,7 @@ export default function Auth() {
         } else {
           setSuccessMsg("パスワードを更新しました。ダッシュボードに移動します。");
           toast.success("パスワードを更新しました");
-          setTimeout(() => setLocation("/dashboard"), 1500);
+          setIsRecoveryMode(false);
         }
       } else if (isResetMode) {
         const { error } = await resetPassword(email);
@@ -147,7 +154,6 @@ export default function Auth() {
           toast.error("ログインに失敗しました");
         } else {
           toast.success("おかえりなさい！");
-          setLocation("/dashboard");
         }
       } else {
         const { error } = await signUp(email, password, username);
