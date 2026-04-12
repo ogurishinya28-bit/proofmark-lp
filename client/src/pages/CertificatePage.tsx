@@ -5,6 +5,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { CheckCircle, Clock, ShieldCheck, Image as ImageIcon, Copy, Check, FileText, Lock } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from '../components/Navbar';
+import SEO from '../components/SEO';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
 import founderBadge from '../assets/logo/badges/proofmark-badge-founder.svg';
 
@@ -146,12 +147,39 @@ export default function CertificatePage() {
 
     const verifyUrl = `${window.location.origin}/cert/${cert.id}`;
 
-    // 💡 プロ仕様にアップグレードされたテンプレート
     const templateFormal = `納品データ一式をお送りいたします。本作品は、AI生成ベースに当方で独自の加筆修正を施したオリジナル作品です。『ProofMark』にて制作日時と元データを暗号化・保全し、正当な制作プロセスを証明しております。\n証明書URL: ${verifyUrl}`;
     const templateSNS = `本作品の制作日時とオリジナルデータは『ProofMark』にて改ざん不能な状態で証明・保全されています。無断転載や自作発言等の不正利用はお控えください。\n証明書URL: ${verifyUrl}`;
 
+    // --- 動的OGP用のパラメータ抽出 ---
+    const getDisplayTitle = () => {
+        if (cert.title) return cert.title;
+        if (cert.original_filename && cert.original_filename !== 'unknown_file') return cert.original_filename;
+        if (cert.storage_path) {
+            const parts = cert.storage_path.split('/');
+            let rawName = parts[parts.length - 1] || 'Verified_Digital_Artwork';
+            rawName = rawName.replace(/^file_\\d+_?/, '');
+            return rawName;
+        }
+        return 'Verified_Digital_Artwork';
+    };
+    
+    const ogTitle = getDisplayTitle();
+    const ogThumb = cert.public_image_url || '';
+    const ogHash = cert.sha256 ? cert.sha256.substring(0, 12) : '000000000000';
+    const ogTimestamp = verifiedTime || cert.created_at || '';
+    const formattedTimestamp = new Date(ogTimestamp).toLocaleString('ja-JP');
+    const ogCreator = authorProfile?.username || 'Anonymous';
+
+    const ogpUrl = `https://proofmark.jp/api/og?id=${cert.id}&title=${encodeURIComponent(ogTitle)}&thumb=${encodeURIComponent(ogThumb)}&hash=${ogHash}&timestamp=${encodeURIComponent(formattedTimestamp)}&creator=${encodeURIComponent(ogCreator)}`;
+
     return (
         <>
+            <SEO 
+                title={`証明書: ${ogTitle}`}
+                description={`この作品の存在と制作日時はProofMarkによって暗号学的に証明されています。`}
+                image={ogpUrl}
+                url={verifyUrl}
+            />
             {/* 🖨️ ブラウザの印刷基本設定を強制（Tailwindと併用して最強にする） */}
             <style>{`
                 @media print {
@@ -246,24 +274,7 @@ export default function CertificatePage() {
                                         <FileText className="w-3 h-3" /> Protected Asset
                                     </p>
                                     <p className="font-medium text-sm sm:text-base text-white print:text-black">
-                                        {(() => {
-                                            // 1. DBにちゃんとしたファイル名 (original_filename) があればそれを優先表示
-                                            if (cert.original_filename && cert.original_filename !== 'unknown_file') return cert.original_filename;
-
-                                            // 2. なければ、storage_path（例: "cert_1712345678/image.png"）から抽出
-                                            if (cert.storage_path) {
-                                                // スラッシュで分割して一番後ろ（ファイル名部分）を取得
-                                                const parts = cert.storage_path.split('/');
-                                                let rawName = parts[parts.length - 1] || 'Verified_Digital_Artwork';
-
-                                                // "file_1775299275556.png" のような余計なタイムスタンプを除去する処理
-                                                // 例: "file_1775..._オリジナル名.png" などの場合、綺麗にする
-                                                rawName = rawName.replace(/^file_\d+_?/, '');
-
-                                                return rawName;
-                                            }
-                                            return 'Verified_Digital_Artwork';
-                                        })()}
+                                        {ogTitle}
                                     </p>
                                 </div>
 
