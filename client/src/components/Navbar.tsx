@@ -45,7 +45,7 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
 
   return (
     <nav className="w-full border-b border-[#1C1A38] bg-[#0D0B24]/80 backdrop-blur-md sticky top-0 z-50 no-print transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 sm:gap-3 text-decoration-none group">
           <div className="relative">
@@ -58,7 +58,7 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-4 mr-auto ml-8">
+        <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8">
           <Link href="/how-it-works">
             <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/how-it-works' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>仕組み</span>
           </Link>

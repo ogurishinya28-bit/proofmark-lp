@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "wouter";
-import { ShieldCheck, Lock, HelpCircle, FileText, Info, Zap, Scale } from "lucide-react";
+import { ShieldCheck, Lock, HelpCircle, FileText, Info, Zap, Scale, ChevronRight } from "lucide-react";
 
 import navbarLogo from "../assets/logo/navbar/proofmark-navbar-symbol-dark.svg";
 
@@ -34,23 +34,27 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/trust-center" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
-                  <Lock className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> Trust Center (Whitepaper)
+                <Link href="/trust-center" className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1">
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>Trust Center (Whitepaper)</span>
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
-                  <HelpCircle className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> よくある質問 (FAQ)
+                <Link href="/faq" className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1">
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>よくある質問 (FAQ)</span>
                 </Link>
               </li>
               <li>
-                <Link href="/what-it-proves" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
-                  <Info className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> ProofMarkが証明するもの
+                <Link href="/what-it-proves" className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1">
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>ProofMarkが証明するもの</span>
                 </Link>
               </li>
               <li>
-                <Link href="/security" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
-                  <ShieldCheck className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> セキュリティの透明性
+                <Link href="/security" className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1">
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>セキュリティの透明性</span>
                 </Link>
               </li>
             </ul>
@@ -63,23 +67,27 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/privacy" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200">
-                  プライバシーポリシー
+                <Link href="/privacy" className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1">
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>プライバシーポリシー</span>
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200">
-                  利用規約
+                <Link href="/terms" className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1">
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>利用規約</span>
                 </Link>
               </li>
               <li>
-                <Link href="/tokushoho" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200">
-                  特定商取引法に基づく表記
+                <Link href="/tokushoho" className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1">
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>特定商取引法に基づく表記</span>
                 </Link>
               </li>
               <li>
-                <Link href="/legal-resources" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200">
-                  権利行使キット (DMCA)
+                <Link href="/legal-resources" className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1">
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>権利行使キット (DMCA)</span>
                 </Link>
               </li>
             </ul>
@@ -92,13 +100,15 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4">
               <li>
-                <Link href="/how-it-works" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
-                  <Zap className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> ProofMarkの仕組み
+                <Link href="/how-it-works" className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1">
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>ProofMarkの仕組み</span>
                 </Link>
               </li>
               <li>
-                <Link href="/compare-c2pa" className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200 flex items-center gap-2 group">
-                  <Scale className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" /> C2PAとの比較
+                <Link href="/compare-c2pa" className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1">
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>C2PAとの比較</span>
                 </Link>
               </li>
             </ul>
@@ -113,17 +123,19 @@ export default function Footer() {
                   href="https://x.com/ProofMark_jp" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200"
+                  className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1"
                 >
-                  公式 X (@ProofMark_jp)
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>公式 X (@ProofMark_jp)</span>
                 </a>
               </li>
               <li>
                 <Link 
                   href="/blog" 
-                  className="text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-colors duration-200"
+                  className="group flex items-center text-[#A8A0D8] hover:text-[#00D4AA] text-sm transition-all duration-300 ease-out hover:translate-x-1 active:translate-x-1"
                 >
-                  公式ブログ
+                  <ChevronRight className="w-4 h-4 text-[#00D4AA] opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 group-hover:mr-1 group-active:opacity-100 group-active:ml-0 group-active:mr-1 transition-all duration-300 ease-out" />
+                  <span>公式ブログ</span>
                 </Link>
               </li>
             </ul>
