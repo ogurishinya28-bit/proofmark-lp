@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { 
-  LogOut, 
-  LayoutDashboard, 
-  Image as ImageIcon, 
-  Settings, 
-  Menu, 
-  X, 
-  FileText, 
-  Shield, 
+import {
+  LogOut,
+  LayoutDashboard,
+  Image as ImageIcon,
+  Settings,
+  Menu,
+  X,
+  FileText,
+  Shield,
   Info,
   ExternalLink,
   Zap,
@@ -29,11 +29,11 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
 
   const NavLink = ({ href, children, icon: Icon, active, onClick }: any) => (
     <Link href={href}>
-      <span 
+      <span
         onClick={onClick}
         className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer whitespace-nowrap
-          ${active 
-            ? 'bg-[#6C3EF4]/10 text-[#00D4AA] border border-[#6C3EF4]/30' 
+          ${active
+            ? 'bg-[#6C3EF4]/10 text-[#00D4AA] border border-[#6C3EF4]/30'
             : 'text-[#A8A0D8] hover:text-white hover:bg-white/5 border border-transparent'
           }`}
       >
@@ -82,7 +82,7 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
               <NavLink href="/dashboard" icon={LayoutDashboard} active={location === '/dashboard'}>管理画面</NavLink>
               <NavLink href={`/u/${displayUsername}`} icon={ImageIcon} active={location.startsWith('/u/')}>公開ギャラリー</NavLink>
               <NavLink href="/settings" icon={Settings} active={location === '/settings'}>設定</NavLink>
-              <button 
+              <button
                 onClick={signOut}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#A8A0D8] hover:text-[#FF4D4D] transition-all hover:bg-[#FF4D4D]/10 rounded-xl"
               >
@@ -112,7 +112,7 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
               </span>
             </Link>
           )}
-          <button 
+          <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="w-10 h-10 flex items-center justify-center bg-[#1C1A38]/50 rounded-xl text-white border border-[#1C1A38] hover:bg-[#1C1A38] transition-all"
           >
@@ -123,7 +123,7 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
 
       {/* Mobile Menu Dropdown */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-[#0D0B24]/95 backdrop-blur-2xl border-b border-[#1C1A38] p-6 shadow-2xl animate-in slide-in-from-top-4 duration-300">
+        <div className="lg:hidden absolute top-full left-0 w-full max-h-[calc(100dvh-70px)] overflow-y-auto overscroll-contain bg-[#0D0B24]/95 backdrop-blur-2xl border-b border-[#1C1A38] p-6 shadow-2xl animate-in slide-in-from-top-4 duration-300">
           <div className="flex flex-col gap-6">
             {user ? (
               <div className="grid grid-cols-1 gap-2">
@@ -193,7 +193,7 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
             </div>
 
             {user && (
-              <button 
+              <button
                 onClick={() => { signOut(); closeMenu(); }}
                 className="flex items-center justify-center gap-2 p-4 text-[#FF4D4D] font-bold border border-[#FF4D4D]/20 rounded-2xl bg-[#FF4D4D]/5 active:scale-95 transition-all"
               >
@@ -201,7 +201,7 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
               </button>
             )}
 
-            <div className="text-center pt-4 border-t border-[#1C1A38] relative z-50 bg-[#0D0B24] py-4 -mx-6 mt-4">
+            <div className="text-center pt-4 border-t border-[#1C1A38] relative z-50 bg-[#0D0B24] py-4 pb-24 -mx-6 mt-4">
               <p className="text-[10px] text-[#A8A0D8] flex items-center justify-center gap-1.5 font-bold">
                 © 2026 ProofMark. All rights reserved.
               </p>
