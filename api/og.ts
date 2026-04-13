@@ -2,8 +2,6 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 import { html } from 'satori-html';
-import fs from 'fs';
-import path from 'path';
 import sharp from 'sharp';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -15,16 +13,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const timestamp = (req.query.timestamp as string) || 'N/A';
         const creator = (req.query.creator as string) || 'Anonymous';
 
-        // 2. フォントの読み込み (Node.jsのfsモジュールを使用)
-        // ※ public/fonts/NotoSansJP-Bold.ttf が存在することを前提としています
-        const fontPath = path.join(process.cwd(), 'public', 'fonts', 'NotoSansJP-Bold.ttf');
-        let fontData: Buffer;
+        // 2. 💡 修正ポイント: Vercelのファイルシステムに依存せず、Webからフォントを直接取得する
+        // (Google Fonts から Noto Sans JP Bold を取得)
+        let fontData: ArrayBuffer;
         try {
-            fontData = fs.readFileSync(fontPath);
-        } catch (e) {
-            console.warn('Font file not found, fallback to system fonts if possible.');
-            // 開発環境等でフォントがない場合の緊急用（本来は必須）
-            fontData = Buffer.from('');
+            const fontRes = await fetch(
+                'https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/Japanese/NotoSansCJKjp-Bold.otf'
+            );
+            if (!fontRes.ok) throw new Error('Failed to fetch font');
+            fontData = await fontRes.arrayBuffer();
+        } catch (fontErr) {
+            console.error('Font fetch error:', fontErr);
+            throw new Error('Font rendering engine failed to initialize.');
         }
 
         // 3. サムネイル画像（WebP等）の処理とBase64化
@@ -120,6 +120,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     } catch (e: any) {
         console.error('Failed to generate OGP image:', e);
-        return res.status(500).send('Failed to generate the image');
+        // Vercel環境での詳細なエラー原因を特定できるようにJSONで返す
+        return res.status(500).json({ error: 'Failed to generate the image', details: e.message });
     }
 }

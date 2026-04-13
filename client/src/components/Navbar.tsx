@@ -45,9 +45,9 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
 
   return (
     <nav className="w-full border-b border-[#1C1A38] bg-[#0D0B24]/80 backdrop-blur-md sticky top-0 z-50 no-print transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between relative">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 sm:gap-3 text-decoration-none group">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-6 relative">
+        {/* 1. Logo (左側) */}
+        <Link href="/" className="flex items-center gap-2 sm:gap-3 text-decoration-none group shrink-0">
           <div className="relative">
             <div className="absolute inset-0 bg-[#00D4AA]/20 blur-lg rounded-full group-hover:bg-[#00D4AA]/40 transition-all opacity-0 group-hover:opacity-100" />
             <img src={navbarLogo} alt="ProofMark" className="h-7 w-auto relative z-10" />
@@ -57,26 +57,27 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8">
+        {/* 2. Desktop Navigation (中央・絶対配置を廃止しFlexで押し出し) */}
+        <div className="hidden xl:flex flex-1 justify-center items-center gap-6">
           <Link href="/how-it-works">
-            <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/how-it-works' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>仕組み</span>
+            <span className={`text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${location === '/how-it-works' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>仕組み</span>
           </Link>
           <Link href="/compare-c2pa">
-            <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/compare-c2pa' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>C2PA比較</span>
+            <span className={`text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${location === '/compare-c2pa' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>C2PA比較</span>
           </Link>
           <Link href="/legal-resources">
-            <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/legal-resources' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>法的ガイド</span>
+            <span className={`text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${location === '/legal-resources' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>法的ガイド</span>
           </Link>
           <Link href="/trust-center">
-            <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/trust-center' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>Trust Center</span>
+            <span className={`text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${location === '/trust-center' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>Trust Center</span>
           </Link>
           <Link href="/pricing">
-            <span className={`text-sm font-bold transition-all cursor-pointer ${location === '/pricing' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>料金プラン</span>
+            <span className={`text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${location === '/pricing' ? 'text-[#00D4AA]' : 'text-[#A8A0D8] hover:text-white'}`}>料金プラン</span>
           </Link>
         </div>
 
-        <div className="hidden lg:flex items-center gap-2">
+        {/* 3. User Actions (右側) */}
+        <div className="hidden lg:flex items-center gap-2 shrink-0">
           {user ? (
             <>
               <NavLink href="/dashboard" icon={LayoutDashboard} active={location === '/dashboard'}>管理画面</NavLink>
@@ -84,18 +85,18 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
               <NavLink href="/settings" icon={Settings} active={location === '/settings'}>設定</NavLink>
               <button
                 onClick={signOut}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#A8A0D8] hover:text-[#FF4D4D] transition-all hover:bg-[#FF4D4D]/10 rounded-xl"
+                className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-[#A8A0D8] hover:text-[#FF4D4D] transition-all hover:bg-[#FF4D4D]/10 rounded-xl whitespace-nowrap"
               >
-                <LogOut className="w-4 h-4" /> ログアウト
+                <LogOut className="w-4 h-4" />
               </button>
             </>
           ) : (
             <div className="flex items-center gap-4">
               <Link href="/auth">
-                <span className="text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer">ログイン</span>
+                <span className="text-sm font-bold text-[#A8A0D8] hover:text-white transition-colors cursor-pointer whitespace-nowrap">ログイン</span>
               </Link>
               <Link href="/auth?mode=signup">
-                <button className="bg-gradient-to-r from-[#6C3EF4] to-[#8B61FF] text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-[0_0_20px_rgba(108,62,244,0.4)] hover:scale-105 transition-all">
+                <button className="bg-gradient-to-r from-[#6C3EF4] to-[#8B61FF] text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-[0_0_20px_rgba(108,62,244,0.4)] hover:scale-105 transition-all whitespace-nowrap">
                   無料で始める
                 </button>
               </Link>
