@@ -1,6 +1,17 @@
 {
   "version": 2,
   "public": true,
+  "functions": {
+    "api/og.ts": {
+      "runtime": "nodejs20.x",
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "api/cert.ts": {
+      "runtime": "nodejs20.x",
+      "memory": 512
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
