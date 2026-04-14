@@ -24,6 +24,8 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location] = useLocation();
   const displayUsername = user?.user_metadata?.username || user?.email?.split('@')[0] || 'sinn';
+  
+  const isAdmin = user?.user_metadata?.username === 'sinn' || user?.email?.includes('ogurishinya') || user?.user_metadata?.is_founder === true;
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -80,6 +82,14 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
         <div className="hidden xl:flex items-center gap-2 shrink-0">
           {user ? (
             <>
+              {isAdmin && (
+                <Link href="/admin">
+                  <span className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-[#6C3EF4]/20 to-[#00D4AA]/20 border border-[#6C3EF4]/40 rounded-xl hover:from-[#6C3EF4]/40 hover:to-[#00D4AA]/40 transition-all shadow-[0_0_15px_rgba(108,62,244,0.15)] cursor-pointer group">
+                    <Shield className="w-4 h-4 text-[#00D4AA] group-hover:scale-110 transition-transform" />
+                    Admin Center
+                  </span>
+                </Link>
+              )}
               <NavLink href="/dashboard" icon={LayoutDashboard} active={location === '/dashboard'}>管理画面</NavLink>
               <NavLink href={`/u/${displayUsername}`} icon={ImageIcon} active={location.startsWith('/u/')}>公開ギャラリー</NavLink>
               <NavLink href="/settings" icon={Settings} active={location === '/settings'}>設定</NavLink>
@@ -129,6 +139,14 @@ export default function Navbar({ user, signOut }: { user: any, signOut: () => vo
             {user ? (
               <div className="grid grid-cols-1 gap-1">
                 <p className="text-[10px] font-black text-[#6C3EF4] tracking-[0.2em] uppercase mb-1 px-2">Navigation</p>
+                {isAdmin && (
+                  <Link href="/admin">
+                    <span onClick={closeMenu} className="flex items-center gap-2 px-4 py-2 mb-1 text-sm font-bold text-white bg-gradient-to-r from-[#6C3EF4]/20 to-[#00D4AA]/20 border border-[#6C3EF4]/40 rounded-xl hover:from-[#6C3EF4]/40 hover:to-[#00D4AA]/40 transition-all shadow-[0_0_15px_rgba(108,62,244,0.15)] cursor-pointer group">
+                      <Shield className="w-4 h-4 text-[#00D4AA] group-hover:scale-110 transition-transform" />
+                      Admin Center
+                    </span>
+                  </Link>
+                )}
                 <NavLink href="/dashboard" icon={LayoutDashboard} active={location === '/dashboard'} onClick={closeMenu}>管理画面</NavLink>
                 <NavLink href={`/u/${displayUsername}`} icon={ImageIcon} active={location.startsWith('/u/')} onClick={closeMenu}>公開ギャラリー</NavLink>
                 <NavLink href="/settings" icon={Settings} active={location === '/settings'} onClick={closeMenu}>プロフィール設定</NavLink>
