@@ -6,7 +6,6 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-// 変更箇所: useAuth の代わりに AuthProvider をインポート
 import { AuthProvider } from "./hooks/useAuth";
 import Home from "./pages/Home";
 import CertificatePage from './pages/CertificatePage';
@@ -29,6 +28,8 @@ import Footer from "./components/Footer";
 import Pricing from "./pages/Pricing";
 import LegalResources from "./pages/LegalResources";
 import TrustCenter from "./pages/TrustCenter";
+// ▼ ここに追加：管理画面用コンポーネントのインポート
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 function Router() {
   return (
@@ -53,6 +54,8 @@ function Router() {
       <Route path="/blog" component={BlogIndex} />
       <Route path="/blog/copyright" component={ArticleCopyright} />
       <Route path="/blog/monetization" component={ArticleMonetization} />
+      {/* ▼ ここに追加：管理画面のルーティング */}
+      <Route path="/admin" component={AdminDashboard} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
@@ -64,7 +67,6 @@ function App() {
     <HelmetProvider>
       <ErrorBoundary>
         <ThemeProvider>
-          {/* 追加箇所: アプリ全体を AuthProvider でラップする */}
           <AuthProvider>
             <TooltipProvider>
               <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
