@@ -33,6 +33,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
 import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminMonitor from "./pages/admin/AdminMonitor";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 function Router() {
   return (
@@ -61,8 +63,8 @@ function Router() {
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/certificates" component={AdminCertificates} />
       <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/monitor"><AdminPlaceholder title="System Monitor" /></Route>
-      <Route path="/admin/settings"><AdminPlaceholder title="Admin Settings" /></Route>
+      <Route path="/admin/monitor" component={AdminMonitor} />
+      <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
