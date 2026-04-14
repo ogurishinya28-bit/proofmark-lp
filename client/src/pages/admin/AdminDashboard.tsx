@@ -24,6 +24,8 @@ export default function AdminDashboard() {
 
     const [deployments, setDeployments] = useState<Deployment[]>([]);
     const [loadingDeploys, setLoadingDeploys] = useState(true);
+    const [activityData, setActivityData] = useState<{label: string, count: number}[]>([]);
+    const [maxActivity, setMaxActivity] = useState(1);
 
     useEffect(() => {
         const fetchAdminStats = async () => {
@@ -81,8 +83,51 @@ export default function AdminDashboard() {
             }
         };
 
+        const fetchActivity = async () => {
+            try {
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+                sevenDaysAgo.setHours(0, 0, 0, 0);
+
+                const { data, error } = await supabase
+                    .from('certificates')
+                    .select('created_at')
+                    .gte('created_at', sevenDaysAgo.toISOString());
+
+                if (error) throw error;
+
+                // 過去7日間の箱（配列）を準備
+                const last7Days = [...Array(7)].map((_, i) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() - (6 - i));
+                    return { 
+                        dateStr: d.toISOString().split('T')[0], 
+                        label: d.toLocaleDateString('en-US', { weekday: 'short' }), 
+                        count: 0 
+                    };
+                });
+
+                // データを箱に振り分け
+                if (data) {
+                    data.forEach(cert => {
+                        const certDate = cert.created_at.split('T')[0];
+                        const targetDay = last7Days.find(d => d.dateStr === certDate);
+                        if (targetDay) targetDay.count++;
+                    });
+                }
+
+                const maxCount = Math.max(...last7Days.map(d => d.count), 1); // ゼロ除算防止
+                setMaxActivity(maxCount);
+                setActivityData(last7Days);
+
+            } catch (error) {
+                console.error("Failed to fetch activity data:", error);
+            }
+        };
+
         fetchAdminStats();
         fetchVercelDeployments();
+        fetchActivity();
     }, []);
 
     // 時間のフォーマット
@@ -116,8 +161,30 @@ export default function AdminDashboard() {
                     <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                         <Activity className="w-5 h-5 text-[#00D4AA]" /> System Activity
                     </h2>
-                    <div className="h-64 flex items-center justify-center border border-dashed border-[#1C1A38] rounded-xl text-[#A8A0D8] text-sm">
-                        Chart rendering area (Pending Phase 2)
+                    <div className="h-64 flex items-end justify-between gap-2 pt-8 pb-2">
+                        {activityData.length === 0 ? (
+                            <div className="w-full h-full flex items-center justify-center text-[#A8A0D8] text-sm">Loading activity...</div>
+                        ) : (
+                            activityData.map((day, i) => {
+                                const heightPercentage = Math.max((day.count / maxActivity) * 100, 4); // 最低4%の高さを担保
+                                return (
+                                    <div key={i} className="flex flex-col items-center flex-1 h-full justify-end group">
+                                        <div className="relative w-full max-w-[40px] flex items-end justify-center h-[calc(100%-24px)]">
+                                            {/* ツールチップ（ホバー時） */}
+                                            <div className="absolute -top-10 bg-[#1C1A38] text-white text-xs font-bold py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                                                {day.count} certs
+                                            </div>
+                                            {/* バー本体 */}
+                                            <div 
+                                                className="w-full bg-gradient-to-t from-[#6C3EF4]/40 to-[#00D4AA] rounded-t-sm transition-all duration-500 ease-out group-hover:brightness-125"
+                                                style={{ height: `${heightPercentage}%` }}
+                                            />
+                                        </div>
+                                        <span className="text-[10px] font-bold text-[#A8A0D8] mt-2 uppercase tracking-wider">{day.label}</span>
+                                    </div>
+                                );
+                            })
+                        )}
                     </div>
                 </div>
 
