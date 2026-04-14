@@ -24,7 +24,7 @@ export default function AdminDashboard() {
 
     const [deployments, setDeployments] = useState<Deployment[]>([]);
     const [loadingDeploys, setLoadingDeploys] = useState(true);
-    const [activityData, setActivityData] = useState<{label: string, count: number}[]>([]);
+    const [activityData, setActivityData] = useState<{ label: string, count: number }[]>([]);
     const [maxActivity, setMaxActivity] = useState(1);
 
     useEffect(() => {
@@ -79,6 +79,7 @@ export default function AdminDashboard() {
             } catch (error) {
                 console.error("Vercel API Error:", error);
             } finally {
+                // 💡 初回だけ true になっているローディングフラグを false にする（以降は二度と true に戻さない）
                 setLoadingDeploys(false);
             }
         };
@@ -100,10 +101,10 @@ export default function AdminDashboard() {
                 const last7Days = [...Array(7)].map((_, i) => {
                     const d = new Date();
                     d.setDate(d.getDate() - (6 - i));
-                    return { 
-                        dateStr: d.toISOString().split('T')[0], 
-                        label: d.toLocaleDateString('en-US', { weekday: 'short' }), 
-                        count: 0 
+                    return {
+                        dateStr: d.toISOString().split('T')[0],
+                        label: d.toLocaleDateString('en-US', { weekday: 'short' }),
+                        count: 0
                     };
                 });
 
@@ -125,9 +126,19 @@ export default function AdminDashboard() {
             }
         };
 
-        fetchAdminStats();
-        fetchVercelDeployments();
-        fetchActivity();
+        // 初回マウント時に1回実行
+        const fetchAllData = () => {
+            fetchAdminStats();
+            fetchVercelDeployments();
+            fetchActivity();
+        };
+        fetchAllData();
+
+        // 💡 60秒（60000ミリ秒）ごとに自動更新するタイマーをセット
+        const intervalId = setInterval(fetchAllData, 60000);
+
+        // 💡 コンポーネントがアンマウント（画面遷移など）された時にタイマーを解除（メモリリーク防止）
+        return () => clearInterval(intervalId);
     }, []);
 
     // 時間のフォーマット
@@ -175,7 +186,7 @@ export default function AdminDashboard() {
                                                 {day.count} certs
                                             </div>
                                             {/* バー本体 */}
-                                            <div 
+                                            <div
                                                 className="w-full bg-gradient-to-t from-[#6C3EF4]/40 to-[#00D4AA] rounded-t-sm transition-all duration-500 ease-out group-hover:brightness-125"
                                                 style={{ height: `${heightPercentage}%` }}
                                             />
@@ -203,7 +214,7 @@ export default function AdminDashboard() {
                                 <div key={dep.uid} className="flex flex-col gap-1.5 p-3.5 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
                                     <div className="flex items-center justify-between">
                                         <span className={`text-xs font-bold flex items-center gap-1.5 ${dep.state === 'READY' ? 'text-[#00D4AA]' :
-                                                dep.state === 'ERROR' ? 'text-[#FF4D4D]' : 'text-[#f5a623]'
+                                            dep.state === 'ERROR' ? 'text-[#FF4D4D]' : 'text-[#f5a623]'
                                             }`}>
                                             {dep.state === 'READY' ? <CheckCircle className="w-3.5 h-3.5" /> :
                                                 dep.state === 'ERROR' ? <XCircle className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5 animate-pulse" />}
