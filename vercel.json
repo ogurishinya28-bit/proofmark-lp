@@ -24,8 +24,8 @@
       "destination": "/api/profile?username=:username"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/((?!api/|cert/|u/|@|src/|node_modules/|client/|favicon.ico).*)",
+      "destination": "/client/index.html"
     }
   ]
 }

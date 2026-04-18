@@ -5,51 +5,47 @@ import { html } from 'satori-html';
 import sharp from 'sharp';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
+    const protocol = req.headers['x-forwarded-proto'] || 'http';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:3000';
+    const url = new URL(req.url!, `${protocol}://${host}`);
+
+    const title = (req.query.title as string) || url.searchParams.get('title') || 'Digital Certificate';
+    const thumbUrl = (req.query.thumb as string) || url.searchParams.get('thumb');
+    const hash = (req.query.hash as string) || url.searchParams.get('hash') || '000000000000';
+    const timestamp = (req.query.timestamp as string) || url.searchParams.get('timestamp') || 'N/A';
+    const creator = (req.query.creator as string) || url.searchParams.get('creator') || 'Anonymous';
+
+    let fontData: ArrayBuffer;
     try {
-        // 1. パラメータの取得
-        const title = (req.query.title as string) || 'Digital Certificate';
-        const thumbUrl = req.query.thumb as string;
-        const hash = (req.query.hash as string) || '000000000000';
-        const timestamp = (req.query.timestamp as string) || 'N/A';
-        const creator = (req.query.creator as string) || 'Anonymous';
+      const fontRes = await fetch(
+        'https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/Japanese/NotoSansCJKjp-Bold.otf'
+      );
+      if (!fontRes.ok) throw new Error('Failed to fetch font');
+      fontData = await fontRes.arrayBuffer();
+    } catch (fontErr) {
+      console.error('Font fetch error:', fontErr);
+      throw new Error('Font rendering engine failed to initialize.');
+    }
 
-        // 2. 💡 修正ポイント: Vercelのファイルシステムに依存せず、Webからフォントを直接取得する
-        // (Google Fonts から Noto Sans JP Bold を取得)
-        let fontData: ArrayBuffer;
-        try {
-            const fontRes = await fetch(
-                'https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/Japanese/NotoSansCJKjp-Bold.otf'
-            );
-            if (!fontRes.ok) throw new Error('Failed to fetch font');
-            fontData = await fontRes.arrayBuffer();
-        } catch (fontErr) {
-            console.error('Font fetch error:', fontErr);
-            throw new Error('Font rendering engine failed to initialize.');
-        }
+    let base64Thumb = '';
+    if (thumbUrl) {
+      try {
+        const imageRes = await fetch(thumbUrl);
+        const imageBuffer = await imageRes.arrayBuffer();
+        const pngBuffer = await sharp(Buffer.from(imageBuffer))
+          .resize(1200, 630, { fit: 'cover' })
+          .png()
+          .toBuffer();
+        base64Thumb = `data:image/png;base64,${pngBuffer.toString('base64')}`;
+      } catch (err) {
+        console.error('Failed to process thumbnail with sharp:', err);
+      }
+    }
 
-        // 3. サムネイル画像（WebP等）の処理とBase64化
-        let base64Thumb = '';
-        if (thumbUrl) {
-            try {
-                const imageRes = await fetch(thumbUrl);
-                const imageBuffer = await imageRes.arrayBuffer();
-
-                // Sharpの力：どんな画像形式（WebP等）が来ても、強制的にPNGに変換し、リサイズする
-                const pngBuffer = await sharp(Buffer.from(imageBuffer))
-                    .resize(1200, 630, { fit: 'cover' })
-                    .png()
-                    .toBuffer();
-
-                base64Thumb = `data:image/png;base64,${pngBuffer.toString('base64')}`;
-            } catch (err) {
-                console.error('Failed to process thumbnail with sharp:', err);
-            }
-        }
-
-        // 4. Satori用のHTML（JSX不使用、ピュアなHTML文字列）
-        const markup = html`<div style="display: flex; height: 100%; width: 100%; flex-direction: column; position: relative; background-color: #07061A; font-family: 'Noto Sans JP', sans-serif;">
-      ${base64Thumb ? 
-        `<img src="${base64Thumb}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />` : 
+    const markup = html`<div style="display: flex; height: 100%; width: 100%; flex-direction: column; position: relative; background-color: #07061A; font-family: 'Noto Sans JP', sans-serif;">
+      ${base64Thumb ?
+        `<img src="${base64Thumb}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />` :
         `<div style="display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #1C1A38;"></div>`
       }
       <div style="display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(to bottom, rgba(13, 11, 36, 0) 0%, rgba(13, 11, 36, 0.4) 40%, rgba(13, 11, 36, 0.95) 80%, rgba(13, 11, 36, 1) 100%);"></div>
@@ -81,35 +77,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       </div>
     </div>`;
 
-        // 5. SatoriでSVGを生成
-        const svg = await satori(markup as any, {
-            width: 1200,
-            height: 630,
-            fonts: [
-                {
-                    name: 'Noto Sans JP',
-                    data: fontData,
-                    weight: 700,
-                    style: 'normal',
-                },
-            ],
-        });
+    const svg = await satori(markup as any, {
+      width: 1200,
+      height: 630,
+      fonts: [
+        {
+          name: 'Noto Sans JP',
+          data: fontData,
+          weight: 700,
+          style: 'normal',
+        },
+      ],
+    });
 
-        // 6. ResvgでSVGをPNGに変換
-        const resvg = new Resvg(svg, {
-            fitTo: { mode: 'width', value: 1200 },
-        });
-        const pngData = resvg.render();
-        const pngBuffer = pngData.asPng();
+    const resvg = new Resvg(svg, {
+      fitTo: { mode: 'width', value: 1200 },
+    });
+    const pngData = resvg.render();
+    const pngBuffer = pngData.asPng();
 
-        // 7. 生成したPNG画像を返す
-        res.setHeader('Content-Type', 'image/png');
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-        return res.status(200).send(pngBuffer);
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    return res.status(200).send(pngBuffer);
 
-    } catch (e: any) {
-        console.error('Failed to generate OGP image:', e);
-        // Vercel環境での詳細なエラー原因を特定できるようにJSONで返す
-        return res.status(500).json({ error: 'Failed to generate the image', details: e.message });
-    }
+  } catch (e: any) {
+    console.error('Failed to generate OGP image:', e);
+    return res.status(500).json({ error: 'Failed to generate the image', details: e.message });
+  }
 }

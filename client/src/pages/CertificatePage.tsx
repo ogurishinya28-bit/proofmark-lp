@@ -6,6 +6,9 @@ import { CheckCircle, Clock, ShieldCheck, Image as ImageIcon, Copy, Check, FileT
 import { useAuth } from '../hooks/useAuth';
 import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
+import { ProofBundleTimelineCard } from '../components/proof/ProofBundleTimelineCard';
+import type { ProcessBundlePublic } from '../lib/proofmark-types';
+import { getProcessBundleByVerifyToken } from '../lib/proofmark-api';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
 import founderBadge from '../assets/logo/badges/proofmark-badge-founder.svg';
 
@@ -38,6 +41,7 @@ export default function CertificatePage() {
     const [, setLocation] = useLocation();
 
     const [cert, setCert] = useState<any>(null);
+    const [bundle, setBundle] = useState<ProcessBundlePublic | null>(null);
     const [authorProfile, setAuthorProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [isHashCopied, setIsHashCopied] = useState(false);
@@ -55,6 +59,7 @@ export default function CertificatePage() {
 
     useEffect(() => {
         async function fetchCertificate() {
+            setBundle(null); // Reset the timeline on page change
             if (!id) {
                 setLoading(false);
                 return;
@@ -81,6 +86,16 @@ export default function CertificatePage() {
                     
                     if (profileData) {
                         setAuthorProfile(profileData);
+                    }
+                }
+
+                // 3. Chain of Evidence バンドルの取得
+                if (certData.process_bundle_id && certData.public_verify_token) {
+                    try {
+                        const bundle = await getProcessBundleByVerifyToken(certData.public_verify_token);
+                        if (bundle) setBundle(bundle);
+                    } catch (err) {
+                        console.error('Failed to load process bundle:', err);
                     }
                 }
             }
@@ -446,6 +461,14 @@ export default function CertificatePage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Chain of Evidence タイムライン */}
+                {bundle && (
+                    <div className="w-full max-w-5xl mt-12 print:hidden relative isolate">
+                        <div className="absolute inset-0 bg-gradient-to-b from-[#6C3EF4]/5 to-transparent blur-3xl -z-10 rounded-[3rem]"></div>
+                        <ProofBundleTimelineCard bundle={bundle} />
+                    </div>
+                )}
 
             </div>
         </>

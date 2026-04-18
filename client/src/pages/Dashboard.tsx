@@ -1,12 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../lib/supabase";
 import Navbar from "../components/Navbar";
 import FounderBadge from "../components/FounderBadge";
+import { ProcessBundleComposer } from "../components/proof/ProcessBundleComposer";
+import type { CertificateRecord } from "../lib/proofmark-types";
+import { Search, Star, ArrowUpDown, Shield } from "lucide-react"; // 追加
 
 interface Certificate {
   id: string;
+  title?: string; // 追加
+  is_starred?: boolean; // 追加
   file_name: string;
   file_hash: string;
   file_url?: string;
@@ -25,6 +30,42 @@ export default function Dashboard() {
   const [, navigate] = useLocation();
   const [certs, setCerts] = useState<Certificate[]>([]);
   const [loadingCerts, setLoadingCerts] = useState(true);
+  const [composerCert, setComposerCert] = useState<CertificateRecord | null>(null);
+
+  // ── 検索・ソート・保護機能用ステート ──
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"newest" | "starred">("newest");
+
+  const handleToggleStar = async (certId: string, currentStatus: boolean) => {
+    // Optimistic UI Update (即時反映)
+    setCerts((prev) => prev.map((c) => c.id === certId ? { ...c, is_starred: !currentStatus } : c));
+    const { error } = await supabase.from("certificates").update({ is_starred: !currentStatus }).eq("id", certId);
+    if (error) {
+      // エラー時はロールバック
+      setCerts((prev) => prev.map((c) => c.id === certId ? { ...c, is_starred: currentStatus } : c));
+      console.error("Failed to update star status", error);
+    }
+  };
+
+  const filteredAndSortedCerts = useMemo(() => {
+    let result = [...certs];
+    // 1. 検索フィルタリング
+    if (searchQuery.trim()) {
+      const lowerQ = searchQuery.toLowerCase();
+      result = result.filter(c =>
+        (c.title?.toLowerCase() || "").includes(lowerQ) ||
+        (c.file_name?.toLowerCase() || "").includes(lowerQ)
+      );
+    }
+    // 2. ソート
+    if (sortBy === "starred") {
+      result.sort((a, b) => {
+        if (a.is_starred === b.is_starred) return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        return a.is_starred ? -1 : 1;
+      });
+    }
+    return result;
+  }, [certs, searchQuery, sortBy]);
 
   // 未認証時リダイレクト
   useEffect(() => {
@@ -119,6 +160,30 @@ export default function Dashboard() {
 
       {/* Content */}
       <main style={styles.main}>
+
+        {/* ── Control Bar (Search & Sort) ── */}
+        {!loadingCerts && certs.length > 0 && (
+          <div style={styles.controlBar} className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+            <div style={styles.searchWrap} className="relative w-full sm:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A8A0D8]/50" />
+              <input
+                type="text"
+                placeholder="タイトルやファイル名で検索..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={styles.searchInput}
+              />
+            </div>
+            <button
+              onClick={() => setSortBy(prev => prev === "newest" ? "starred" : "newest")}
+              style={sortBy === "starred" ? styles.sortBtnActive : styles.sortBtn}
+            >
+              <ArrowUpDown className="w-4 h-4" />
+              {sortBy === "starred" ? "お気に入り優先" : "最新順"}
+            </button>
+          </div>
+        )}
+
         {loadingCerts ? (
           <div style={styles.loadingContainer}>
             <div style={styles.spinner} />
@@ -135,7 +200,11 @@ export default function Dashboard() {
           </div>
         ) : (
           <div style={styles.grid}>
-            {certs.map((cert) => (
+            {filteredAndSortedCerts.length === 0 ? (
+              <div className="col-span-full text-center py-10 text-[#A8A0D8]/50 text-sm">
+                検索条件に一致する証明書が見つかりません。
+              </div>
+            ) : filteredAndSortedCerts.map((cert) => (
               <div key={cert.id} style={styles.card} className="pm-card">
                 {/* Thumbnail */}
                 <div style={styles.thumbWrap}>
@@ -168,6 +237,15 @@ export default function Dashboard() {
                       </svg>
                     </div>
                   )}
+                  {/* Star Toggle Button */}
+                  <button
+                    onClick={(e) => { e.preventDefault(); handleToggleStar(cert.id, !!cert.is_starred); }}
+                    style={{ ...styles.starBtn, ...(cert.is_starred ? styles.starBtnActive : {}) }}
+                    title={cert.is_starred ? "お気に入り解除" : "お気に入りに追加して保護"}
+                  >
+                    <Star className="w-4 h-4" fill={cert.is_starred ? "#F59E0B" : "transparent"} color={cert.is_starred ? "#F59E0B" : "rgba(255,255,255,0.5)"} />
+                  </button>
+
                   {/* Verified badge */}
                   <div style={styles.verifiedBadge}>
                     <svg
@@ -219,20 +297,23 @@ export default function Dashboard() {
                       証明書
                     </a>
                     <button
-                      onClick={() => handleDelete(cert.id)}
-                      style={styles.deleteBtn}
-                      title="削除"
+                      onClick={() => setComposerCert(cert as unknown as CertificateRecord)}
+                      style={styles.chainBtn}
+                      title="証拠の連鎖を作成"
                     >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
-                      </svg>
+                      🔗
+                    </button>
+                    <button
+                      onClick={() => !cert.is_starred && handleDelete(cert.id)}
+                      style={{ ...styles.deleteBtn, ...(cert.is_starred ? styles.deleteBtnDisabled : {}) }}
+                      disabled={cert.is_starred}
+                      title={cert.is_starred ? "星印で保護されています。削除するには星を外してください。" : "削除"}
+                    >
+                      {cert.is_starred ? <Shield className="w-4 h-4" /> : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14" />
+                        </svg>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -244,6 +325,32 @@ export default function Dashboard() {
 
       <style>{spinnerKeyframes}</style>
       <style>{hoverStyles}</style>
+
+      {/* ── Chain of Evidence モーダル ── */}
+      {composerCert && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto py-8 px-4"
+          style={{ background: 'rgba(7, 6, 26, 0.92)', backdropFilter: 'blur(8px)' }}
+        >
+          <div className="w-full max-w-4xl">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-[#A8A0D8] mb-1">Chain of Evidence Studio</p>
+                <h2 className="text-lg font-bold text-white">
+                  {composerCert.title ?? composerCert.file_name ?? composerCert.id}
+                </h2>
+              </div>
+              <button
+                onClick={() => setComposerCert(null)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#A8A0D8] hover:text-white border border-[#1C1A38] hover:border-[#6C3EF4]/40 rounded-xl transition-all"
+              >
+                ✕ 閉じる
+              </button>
+            </div>
+            <ProcessBundleComposer certificate={composerCert} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -498,6 +605,19 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
     transition: "all 0.2s",
   },
+  chainBtn: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 36,
+    padding: 0,
+    background: "rgba(108, 62, 244, 0.08)",
+    border: "1px solid rgba(108, 62, 244, 0.2)",
+    borderRadius: 8,
+    fontSize: 16,
+    cursor: "pointer",
+    transition: "all 0.2s",
+  },
 
   // Empty state
   emptyState: {
@@ -535,5 +655,79 @@ const styles: Record<string, React.CSSProperties> = {
     borderTopColor: "#6c3ef4",
     borderRadius: "50%",
     animation: "pm-spin 0.8s linear infinite",
+  },
+
+  // New UI Styles
+  controlBar: {
+    padding: "0 4px",
+  },
+  searchInput: {
+    width: "100%",
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 12,
+    padding: "10px 16px 10px 38px",
+    color: "#fff",
+    fontSize: 14,
+    outline: "none",
+    transition: "all 0.2s",
+  },
+  sortBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 12,
+    padding: "10px 16px",
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: "pointer",
+    whiteSpace: "nowrap" as const,
+    transition: "all 0.2s",
+  },
+  sortBtnActive: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    background: "rgba(245, 158, 11, 0.1)",
+    border: "1px solid rgba(245, 158, 11, 0.3)",
+    borderRadius: 12,
+    padding: "10px 16px",
+    color: "#F59E0B",
+    fontSize: 13,
+    fontWeight: 700,
+    cursor: "pointer",
+    whiteSpace: "nowrap" as const,
+    transition: "all 0.2s",
+  },
+  starBtn: {
+    position: "absolute" as const,
+    top: 10,
+    left: 10,
+    zIndex: 10,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 28,
+    height: 28,
+    background: "rgba(0, 0, 0, 0.4)",
+    backdropFilter: "blur(4px)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 8,
+    cursor: "pointer",
+    transition: "all 0.2s",
+  },
+  starBtnActive: {
+    background: "rgba(245, 158, 11, 0.15)",
+    border: "1px solid rgba(245, 158, 11, 0.4)",
+  },
+  deleteBtnDisabled: {
+    opacity: 0.3,
+    cursor: "not-allowed",
+    color: "rgba(255, 255, 255, 0.4)",
+    background: "rgba(255, 255, 255, 0.05)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
   },
 };

@@ -49,7 +49,7 @@
     "@resvg/resvg-js": "^2.6.2",
     "@sentry/node": "^10.47.0",
     "@sentry/react": "^10.47.0",
-    "@supabase/supabase-js": "^2.99.3",
+    "@supabase/supabase-js": "^2.103.2",
     "axios": "^1.12.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

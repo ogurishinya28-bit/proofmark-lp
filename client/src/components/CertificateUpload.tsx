@@ -4,6 +4,7 @@ import { useLocation } from 'wouter';
 import { createClient } from '@supabase/supabase-js';
 import { Shield, Eye, ShieldCheck, UploadCloud, Lock, Star } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useHashFile } from '../hooks/useHashFile';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -13,6 +14,7 @@ type ProofMode = 'private' | 'shareable';
 type VisibilityMode = 'private' | 'public';
 
 export default function CertificateUpload() {
+  const { hashFile } = useHashFile();
   const [file, setFile] = useState<File | null>(null);
   const [hash, setHash] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -26,57 +28,6 @@ export default function CertificateUpload() {
   const actualPlanVariable = user?.user_metadata?.plan_type;
   const currentPlan = (actualPlanVariable || '').toLowerCase();
   const isPaidPlan = currentPlan === 'light' || currentPlan === 'admin';
-
-  // ブラウザ内ハッシュ計算 (Private)
-  const calculateHash = async (file: File): Promise<string> => {
-    setProcessStatus('ブラウザ内でSHA-256ハッシュを計算中...');
-    const arrayBuffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
-
-  // ブラウザ内画像圧縮 (WebP化してインフラコストを激減させる)
-  const compressImage = async (file: File): Promise<File> => {
-    setProcessStatus('公開検証用の軽量プロキシ画像を生成中...');
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_SIZE = 1200;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height && width > MAX_SIZE) {
-            height *= MAX_SIZE / width;
-            width = MAX_SIZE;
-          } else if (height > MAX_SIZE) {
-            width *= MAX_SIZE / height;
-            height = MAX_SIZE;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-
-          canvas.toBlob((blob) => {
-            if (!blob) { reject(new Error('Canvas empty')); return; }
-            const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
-            const newFile = new File([blob], newFileName, { type: 'image/webp' });
-            resolve(newFile);
-          }, 'image/webp', 0.8);
-        };
-      };
-      reader.onerror = error => reject(error);
-    });
-  };
-
-
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const selectedFile = acceptedFiles[0];
@@ -92,58 +43,42 @@ export default function CertificateUpload() {
     setIsProcessing(true);
 
     try {
-      const fileHash = await calculateHash(file);
+      setProcessStatus('Web Workerで高速にSHA-256ハッシュを計算中...');
+      const { sha256: fileHash } = await hashFile(file);
       setHash(fileHash);
 
-      const certId = crypto.randomUUID(); // UUID事前生成に変更
-      let storagePath = null;
-      let publicImageUrl = null;
+      setProcessStatus('証明書とセキュアストレージデータをサーバーで処理中...');
 
-      if (proofMode === 'shareable' && user) {
-        try {
-          // 1. 元画像をWebPに圧縮（極限まで容量削減）
-          const compressedFile = await compressImage(file);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('title', file.name);
+      formData.append('sha256', fileHash);
+      formData.append('proofMode', proofMode);
+      formData.append('visibility', proofMode === 'shareable' ? visibility : 'private');
 
-          // 2. Supabase Storageの 'proof_images' バケットへアップロード
-          const fileName = `${user.id}/${certId}/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('proof_images')
-            .upload(fileName, compressedFile, { contentType: 'image/webp' });
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-          if (uploadError) throw uploadError;
+      const res = await fetch('/api/certificates/create', {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
 
-          // 3. 公開URLの取得
-          const { data: publicUrlData } = supabase.storage
-            .from('proof_images')
-            .getPublicUrl(fileName);
-
-          storagePath = uploadData.path;
-          publicImageUrl = publicUrlData.publicUrl;
-        } catch (err: any) {
-          alert('画像のアップロードに失敗しました。Storageの設定を確認してください: ' + err.message);
-          setIsProcessing(false);
-          return;
-        }
+      if (!res.ok) {
+         const errData = await res.json().catch(() => ({}));
+         
+         if (res.status === 409) {
+            throw new Error(`すでに同一の証明書が存在します。(Token: ${errData.certificate?.public_verify_token})`);
+         }
+         throw new Error(errData.error || 'Failed to create certificate');
       }
 
-      setProcessStatus('ブロックチェーンレベルの存在証明を生成中...');
-      const { error: certError } = await supabase
-        .from('certificates')
-        .insert([{
-          id: certId,
-          user_id: user ? user.id : null,
-          sha256: fileHash,
-          original_filename: file.name,
-          title: file.name,
-          mime_type: file.type,
-          file_size: file.size,
-          proof_mode: proofMode,
-          visibility: proofMode === 'shareable' ? visibility : 'private',
-          storage_path: storagePath,
-          public_image_url: publicImageUrl
-        }]);
-
-      if (certError) throw certError;
+      const result = await res.json();
+      const certId = result.certificate.id;
 
       setProcessStatus('完了しました。証明書ページへリダイレクトします...');
 
@@ -238,6 +173,7 @@ export default function CertificateUpload() {
               return;
           }
           setProofMode('shareable');
+          setVisibility('public'); // Default is public for shareable
         }}
         className={`relative p-5 rounded-2xl border-2 transition-all ${
             !isPaidPlan ? 'opacity-60 cursor-not-allowed bg-[#07061A] border-[#1C1A38]' :
