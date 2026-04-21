@@ -21,7 +21,7 @@
     },
     {
       "source": "/((?!api/|cert/|u/|@|src/|node_modules/|client/|favicon.ico).*)",
-      "destination": "/client/index.html"
+      "destination": "/index.html"
     }
   ],
   "headers": [

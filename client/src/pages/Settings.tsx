@@ -448,6 +448,8 @@ export default function Settings() {
                     </div>
                     <input type="text" value={link.val} onChange={(e) => link.set(e.target.value)}
                       placeholder={link.placeholder}
+                      name={`social_link_${link.label}`}
+                      autoComplete="off"
                       className="w-full bg-[#07061A] border border-[#1C1A38] text-white rounded-xl pl-10 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#00D4AA] transition-all"
                     />
                   </div>
@@ -476,16 +478,23 @@ export default function Settings() {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#151D2F]/30 border border-[#1C1A38] rounded-2xl p-10 text-center flex flex-col items-center justify-center">
-                <div className="w-12 h-12 rounded-full bg-[#1C1A38] flex items-center justify-center mb-4 border border-[#2a2a4e]">
-                  <Code className="w-5 h-5 text-[#A8A0D8]/60" />
+              <div className="bg-[#151D2F]/30 border border-[#1C1A38] rounded-2xl p-10 text-center flex flex-col items-center justify-center relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#00D4AA]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="w-12 h-12 rounded-full bg-[#1C1A38] flex items-center justify-center mb-4 border border-[#2a2a4e] relative z-10">
+                  <Code className="w-5 h-5 text-[#00D4AA]/60" />
                 </div>
-                <p className="text-sm text-white font-bold mb-2">ウィジェットを作成できません</p>
-                <p className="text-xs text-[#A8A0D8] max-w-sm leading-relaxed">
-                  外部サイトへ埋め込むためのバッジを生成するには、まず上部の「基本情報」でユーザー名 (ID) を設定し、変更を保存してください。
+                <p className="text-sm text-white font-bold mb-2 relative z-10">ウィジェットの準備ができていません</p>
+                <p className="text-xs text-[#A8A0D8] max-w-sm leading-relaxed mb-6 relative z-10">
+                  バイラルエンジンを稼働させるには、まず基本情報で「ユーザー名 (ID)」を入力し、プロフィールを保存して公開ポートフォリオを有効化してください。
                 </p>
+                <button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="px-5 py-2 rounded-full bg-[#00D4AA]/10 text-[#00D4AA] text-xs font-bold border border-[#00D4AA]/20 hover:bg-[#00D4AA]/20 transition-all relative z-10 cursor-pointer"
+                >
+                  基本情報へ戻る
+                </button>
               </div>
-            )}
+            ) }
           </div>
 
           {/* 👑 サブスクリプション＆プラン情報 */}
@@ -636,7 +645,7 @@ export default function Settings() {
           </div>
 
           {/* 👑 神の領域：Admin System (メールアドレスによる絶対ロック) */}
-          {user?.email === 'fiftyfifty.ok@gmail.com' && (
+          {user?.email === 'fiftyfifty.ok@gmail.com' ? (
             <div className="mt-16 pt-10 border-t-2 border-[#F0BB38]/30 border-dashed">
               <div className="bg-[#1A1200] border border-[#F0BB38]/30 rounded-2xl p-6 md:p-8 relative overflow-hidden shadow-[0_0_30px_rgba(240,187,56,0.1)]">
                 <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-[#F0BB38] to-[#FF8C00]" />
@@ -706,7 +715,7 @@ export default function Settings() {
                 </div>
               </div>
             </div>
-          )}
+          ) : null}
 
         </div>
       </div>
