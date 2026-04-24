@@ -1,15 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useLocation } from 'wouter';
-import { createClient } from '@supabase/supabase-js';
 import { Shield, Eye, ShieldCheck, UploadCloud, Lock, Star } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useHashFile } from '../hooks/useHashFile';
 import { prepareEvidencePayload } from '../lib/evidence-prep';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from '../lib/supabase';
 
 type ProofMode = 'private' | 'shareable';
 type VisibilityMode = 'private' | 'public';

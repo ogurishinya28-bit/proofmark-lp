@@ -1,11 +1,42 @@
 export const config = { runtime: 'edge' };
 import { getAuthenticatedUserId, getOrigin, json, supabaseAdmin } from '../_shared';
+import { Redis } from '@upstash/redis';
+import { Ratelimit } from '@upstash/ratelimit';
 
 // Vercel Edgeの上限（4.5MB）より少し安全なマージンを取る（4MB = 4 * 1024 * 1024 bytes）
 const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
 export default async function handler(request: Request) {
   if (request.method !== 'POST') return json(405, { error: 'Method not allowed' });
+
+  // 🛡️ 最終防衛線：Rate Limit（1つのIPにつき、10秒間に5回まで）
+  try {
+    const redis = new Redis({
+      url: process.env.KV_REST_API_URL || '',
+      token: process.env.KV_REST_API_TOKEN || '',
+    });
+
+    const ratelimit = new Ratelimit({
+      redis: redis,
+      limiter: Ratelimit.slidingWindow(5, '10 s'),
+      analytics: true,
+    });
+
+    // ユーザーのIPアドレスを取得（Edge環境の標準的な取り方）
+    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    
+    // 判定
+    const { success } = await ratelimit.limit(`ratelimit_${ip}`);
+    if (!success) {
+      console.warn(`[RateLimit] Blocked request from IP: ${ip}`);
+      return json(429, { 
+        error: 'Too many requests. Please wait a few seconds before trying again.' 
+      });
+    }
+  } catch (error) {
+    // Upstashの無料枠上限到達や接続エラー時は、システムを止めずに通過させる（フェイルセーフ）
+    console.error('[RateLimit] Error or Limit Reached. Bypassing safely:', error);
+  }
 
   let formData: FormData;
   try {

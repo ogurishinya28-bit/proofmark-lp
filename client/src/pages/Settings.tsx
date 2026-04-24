@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'wouter';
-import { createClient } from '@supabase/supabase-js';
 import { Camera, Save, User, Loader2, ShieldCheck, ArrowLeft, LayoutGrid, Globe, Info, Edit3, Twitter, Instagram, Youtube, Video, Heart, DollarSign, PenTool, CreditCard, Zap, Sparkles, Mail, Key, AlertTriangle, Trash2, Search, Code } from 'lucide-react';
 import { toast } from 'sonner';
 import WidgetBuilder from '../components/embed/WidgetBuilder';
 import AdminStorageSimulator from '../components/AdminStorageSimulator';
 import AdminSafetyPanel from '../components/AdminSafetyPanel';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from '../lib/supabase';
 
 export default function Settings() {
   const [, setLocation] = useLocation();

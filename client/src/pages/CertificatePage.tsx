@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useRoute, useLocation, Link } from 'wouter';
-import { createClient } from '@supabase/supabase-js';
 import { QRCodeSVG } from 'qrcode.react';
 import { CheckCircle, Clock, ShieldCheck, Image as ImageIcon, Copy, Check, FileText, Lock } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -11,10 +10,7 @@ import type { ProcessBundlePublic } from '../lib/proofmark-types';
 import { getProcessBundleByVerifyToken } from '../lib/proofmark-api';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
 import founderBadge from '../assets/logo/badges/proofmark-badge-founder.svg';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from '../lib/supabase';
 
 // ---- RFC3161 FreeTSA Timestamp API ----
 const applyRFC3161Timestamp = async (certId: string, hash: string) => {
