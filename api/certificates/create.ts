@@ -1,21 +1,43 @@
 export const config = { runtime: 'edge' };
 import { getAuthenticatedUserId, getOrigin, json, supabaseAdmin } from '../_shared';
 
+// Vercel Edgeの上限（4.5MB）より少し安全なマージンを取る（4MB = 4 * 1024 * 1024 bytes）
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
+
 export default async function handler(request: Request) {
   if (request.method !== 'POST') return json(405, { error: 'Method not allowed' });
 
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch (error) {
+    return json(400, { error: 'Invalid form data. File might be too large (Limit is 4MB).' });
+  }
+
   const file = formData.get('file');
   const title = String(formData.get('title') || '').trim();
   const sha256 = String(formData.get('sha256') || '');
   const proofMode = String(formData.get('proofMode') || 'shareable');
   const visibility = String(formData.get('visibility') || 'public');
-  const metadataJson = String(formData.get('metadataJson') || '{}');
+  const metadataJsonRaw = String(formData.get('metadataJson') || '{}');
 
-  // Edgeランタイムの仕様（Fileではなく名前付きBlobとしてパースされる現象）を回避する柔軟なチェック
   if (!file || typeof file === 'string' || !('name' in file)) return json(400, { error: 'file is required' });
+
+  // 🛡️ ファイルサイズ制限のガード
+  if (file.size > MAX_FILE_SIZE) {
+    return json(413, { error: 'File size exceeds 4MB limit. Please compress the file.' });
+  }
+
   if (!title) return json(400, { error: 'title is required' });
   if (!sha256) return json(400, { error: 'sha256 is required' });
+
+  // 🛡️ JSONパースの安全な処理
+  let parsedMetadata = {};
+  try {
+    parsedMetadata = JSON.parse(metadataJsonRaw);
+  } catch (e) {
+    return json(400, { error: 'Invalid metadataJson format' });
+  }
 
   let userId = '';
   try {
@@ -39,22 +61,21 @@ export default async function handler(request: Request) {
   let publicImageUrl: string | null = null;
 
   if (proofMode === 'shareable') {
-    const upload = await supabaseAdmin.storage.from('proofmark-originals').upload(storagePath, file, {
-      upsert: false,
-      contentType: file.type || 'application/octet-stream',
-      cacheControl: '31536000',
-    });
-
-    if (upload.error) return json(500, { error: upload.error.message });
-
     const publicPreviewPath = `certificates/${certificateId}.${ext}`;
-    const previewCopy = await supabaseAdmin.storage.from('proofmark-public').upload(publicPreviewPath, file, {
-      upsert: false,
-      contentType: file.type || 'application/octet-stream',
-      cacheControl: '31536000',
-    });
 
+    // 🏎️ パフォーマンス最適化：並列アップロード（Promise.all）でタイムアウトを防ぐ
+    const [originalUpload, previewCopy] = await Promise.all([
+      supabaseAdmin.storage.from('proofmark-originals').upload(storagePath, file, {
+        upsert: false, contentType: file.type || 'application/octet-stream', cacheControl: '31536000',
+      }),
+      supabaseAdmin.storage.from('proofmark-public').upload(publicPreviewPath, file, {
+        upsert: false, contentType: file.type || 'application/octet-stream', cacheControl: '31536000',
+      })
+    ]);
+
+    if (originalUpload.error) return json(500, { error: originalUpload.error.message });
     if (previewCopy.error) return json(500, { error: previewCopy.error.message });
+
     const { data: previewPublicData } = supabaseAdmin.storage.from('proofmark-public').getPublicUrl(publicPreviewPath);
     publicImageUrl = previewPublicData.publicUrl;
   }
@@ -75,7 +96,7 @@ export default async function handler(request: Request) {
       mime_type: file.type || null,
       file_size: file.size,
       metadata_json: {
-        ...(JSON.parse(metadataJson) as Record<string, unknown>),
+        ...parsedMetadata,
         integrity_model: 'proofmark.chain-ready.v1',
       },
     })

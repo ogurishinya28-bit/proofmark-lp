@@ -9,6 +9,19 @@ const clamp = (value: number, min: number, max: number) => {
 const parseBoolean = (value: string | null, fallback: boolean) => (value == null ? fallback : value !== 'false' && value !== '0');
 
 export default async function handler(request: Request) {
+  // 🛡️ 1. CORS事前確認（OPTIONS）を最優先で通過させる（超重要）
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
+    });
+  }
+
+  // 🛡️ 2. GET以外の不正なリクエストを弾く
   if (request.method !== 'GET') {
     return json(405, { error: 'Method not allowed' });
   }
@@ -49,8 +62,8 @@ export default async function handler(request: Request) {
       item.metadata_json && typeof item.metadata_json === 'object'
         ? item.metadata_json
         : item.metadata && typeof item.metadata === 'object'
-        ? item.metadata
-        : {};
+          ? item.metadata
+          : {};
 
     const title =
       item.title ||

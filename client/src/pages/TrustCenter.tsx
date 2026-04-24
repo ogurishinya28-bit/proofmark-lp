@@ -412,72 +412,251 @@ export default function TrustCenter() {
           <motion.section id="s4" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="mb-20 scroll-mt-32">
             <div className="flex items-center gap-4 mb-8 pb-4 border-b border-white/10">
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§4</span>
-              <h2 className="text-2xl font-bold text-white tracking-tight">TSA選定：現状と移行計画</h2>
+              <h2 className="text-2xl font-bold text-white tracking-tight">TSA選定：現在の構成と、商用TSAへの移行条件</h2>
             </div>
 
             <Callout type="info">
-              TSAの選択を透明に公開します。すべての証明の信頼性はこの決定に依存します。曖昧な表現で隠しません。
+              TSA（時刻認証局）の選択は、ProofMarkが発行するすべての証明の信頼性を決定する最上位の設計判断です。本節では、(a) 現在の本番構成、(b) 各プランで使用するTSAクラス、(c) 商用TSAへの移行条件と契約上のトリガ、(d) 移行時の既存TST互換性、(e) Dashboardでの信頼レベル表示との対応、を <strong>Trust Center 更新履歴（§9）に紐づく約束として</strong> 公開します。曖昧な表現で隠しません。
             </Callout>
 
+            {/* 4.0 — 現状サマリカード */}
+            <div className="grid md:grid-cols-3 gap-4 my-8">
+              <div className="rounded-xl border border-[#1C1A38] bg-[#0D0B24] p-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#A8A0D8] mb-1">Current Production TSA</p>
+                <p className="text-lg font-black text-white">FreeTSA.org</p>
+                <p className="text-xs text-[#A8A0D8] mt-2 leading-relaxed">Beta 公開用。RFC3161として暗号的に有効ですが、主要トラストストア未収録・SLAなし。</p>
+              </div>
+              <div className="rounded-xl border border-[#00D4AA]/30 bg-[#00D4AA]/5 p-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#00D4AA] mb-1">Next — Trusted TSA</p>
+                <p className="text-lg font-black text-white">DigiCert / GlobalSign</p>
+                <p className="text-xs text-[#A8A0D8] mt-2 leading-relaxed">有料プラン開始と同時に切替。OS/ブラウザのトラストストアに収録済みの商用TSA。</p>
+              </div>
+              <div className="rounded-xl border border-[#F0BB38]/30 bg-[#F0BB38]/5 p-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#F0BB38] mb-1">JP-legal Option</p>
+                <p className="text-lg font-black text-white">セイコーソリューションズ</p>
+                <p className="text-xs text-[#A8A0D8] mt-2 leading-relaxed">国内法廷・監査実務での実績を重視する Business / Enterprise 向け。</p>
+              </div>
+            </div>
+
             <h3 className="flex items-center gap-2 text-[#00D4AA] font-bold text-lg mb-4 mt-8">
-              <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> 現在の設定（ベータ版）
+              <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> 4.1 現在の設定（Public Beta）
             </h3>
 
-            <p className="text-lg text-white mb-6">
+            <p className="text-base text-white mb-4">
               <strong>TSA: FreeTSA.org</strong> — <code className="text-[#00D4AA] font-mono text-sm bg-white/5 py-0.5 px-2 rounded">freetsa.org/tsr</code>
             </p>
+            <ul className="text-sm text-[#A8A0D8] leading-relaxed mb-6 space-y-1.5 list-disc pl-5">
+              <li>ハッシュアルゴリズム: SHA-256（RFC 3161 / RFC 5816 対応）</li>
+              <li>TSA鍵管理: 運営元（FreeTSA）側で管理。ProofMarkはHSMを自社運用しません。</li>
+              <li>応答形式: DER エンコードされた TimeStampResp / TSTInfo（Base64化して `certificates.timestamp_token` に保存）</li>
+              <li>Dashboard上の表示: <strong>Beta TSA</strong> バッジで明示（後述 §4.5）</li>
+            </ul>
 
             <Callout type="warning">
-              <strong className="text-white font-bold">⚠ 正直な評価：</strong> FreeTSA.orgはRFC3161準拠で暗号的に有効なタイムスタンプを発行します。ただし：(1) 正式なSLAなし、(2) ルートCAがWindows/macOS/Mozillaトラストストアに未収録、(3) 正式な紛争での法的証明力は裁判所の判断に依存します。ベータ版には適切ですが有料プランには不適切。
+              <strong className="text-white font-bold">⚠ 正直な評価：</strong> FreeTSA.org の TST は RFC3161として暗号的に有効ですが、次の3点の制約があります。(1) 正式なSLAが提供されない、(2) ルートCAが Windows / macOS / Mozilla の主要トラストストアに収録されていない、(3) 正式な紛争において証拠採用されるか・どの程度の証拠価値を持つかは事案と法域、裁判所の裁量に依存する。これらの理由から、<strong>Beta公開期間中の検証用にのみ適しており、Studio / Business プランでの本番運用には用いません。</strong>
             </Callout>
 
             <h3 className="flex items-center gap-2 text-[#00D4AA] font-bold text-lg mb-4 mt-8">
-              <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> 本番環境TSAロードマップ
+              <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> 4.2 商用TSAロードマップ（プラン別）
             </h3>
 
-            <div className="overflow-x-auto rounded-xl border border-white/10 mb-8">
+            <p className="text-[#A8A0D8] leading-relaxed mb-4 text-sm">
+              各プランで使用するTSAと、それが Dashboard に表示される信頼バッジを以下のように対応させます。利用開始後に下位クラスへ変更されることはありません（片方向移行）。
+            </p>
+            <div className="overflow-x-auto rounded-xl border border-white/10 mb-4">
               <table className="w-full text-sm text-left">
                 <thead className="bg-[#6C3EF4] text-white">
                   <tr>
-                    <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">TSA</th>
-                    <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">ルートCA信頼</th>
-                    <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">SLA</th>
-                    <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">対象プラン</th>
+                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider">プラン</th>
+                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider">使用TSA</th>
+                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider">ルートCA</th>
+                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider">SLA</th>
+                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider">LTV対応</th>
+                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider">Dashboard表示</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   <tr className="bg-[#0D0B24] hover:bg-[#1C1A38]/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-[#6C3EF4]">FreeTSA.org</td>
-                    <td className="px-6 py-4 text-white">自己署名</td>
-                    <td className="px-6 py-4 text-white">なし</td>
-                    <td className="px-6 py-4 text-white">Beta のみ</td>
+                    <td className="px-4 py-3 font-bold text-white">Free / Beta</td>
+                    <td className="px-4 py-3 text-white">FreeTSA.org</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">自己署名</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">—</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">—</td>
+                    <td className="px-4 py-3"><span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(155,163,212,0.12)", color: "#9BA3D4", border: "1px solid rgba(155,163,212,0.35)" }}>Beta TSA</span></td>
                   </tr>
                   <tr className="bg-[#07061A] hover:bg-[#1C1A38]/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-[#6C3EF4]">DigiCert TSA</td>
-                    <td className="px-6 py-4 text-white">DigiCert（グローバル）</td>
-                    <td className="px-6 py-4 text-white">99.9%</td>
-                    <td className="px-6 py-4 text-white">Pro / Business</td>
+                    <td className="px-4 py-3 font-bold text-white">Creator / Studio</td>
+                    <td className="px-4 py-3 text-white">DigiCert TSA</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">DigiCert（グローバル）</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">99.9%</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">可</td>
+                    <td className="px-4 py-3"><span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(0,212,170,0.12)", color: "#00D4AA", border: "1px solid rgba(0,212,170,0.4)" }}>Trusted TSA</span></td>
                   </tr>
                   <tr className="bg-[#0D0B24] hover:bg-[#1C1A38]/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-[#6C3EF4]">GlobalSign TSA</td>
-                    <td className="px-6 py-4 text-white">GlobalSign（グローバル）</td>
-                    <td className="px-6 py-4 text-white">99.95%</td>
-                    <td className="px-6 py-4 text-white">Enterprise</td>
+                    <td className="px-4 py-3 font-bold text-white">Business</td>
+                    <td className="px-4 py-3 text-white">GlobalSign TSA</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">GlobalSign（グローバル）</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">99.95%</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">可</td>
+                    <td className="px-4 py-3"><span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(0,212,170,0.12)", color: "#00D4AA", border: "1px solid rgba(0,212,170,0.4)" }}>Trusted TSA</span></td>
                   </tr>
                   <tr className="bg-[#07061A] hover:bg-[#1C1A38]/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-[#6C3EF4]">セイコーソリューションズ</td>
-                    <td className="px-6 py-4 text-white">SECOM / 日本政府</td>
-                    <td className="px-6 py-4 text-white">99.9%</td>
-                    <td className="px-6 py-4 text-white">JP法的効力</td>
+                    <td className="px-4 py-3 font-bold text-white">Business (JP-legal)</td>
+                    <td className="px-4 py-3 text-white">セイコーソリューションズ</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">SECOM / 日本政府</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">99.9%</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">可</td>
+                    <td className="px-4 py-3"><span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(0,212,170,0.12)", color: "#00D4AA", border: "1px solid rgba(0,212,170,0.4)" }}>Trusted TSA · SEIKO</span></td>
+                  </tr>
+                  <tr className="bg-[#0D0B24] hover:bg-[#1C1A38]/50 transition-colors">
+                    <td className="px-4 py-3 font-bold text-white">Enterprise (Dual-anchor)</td>
+                    <td className="px-4 py-3 text-white">上記のうち2つ（Global + JP）</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">クロスアンカー</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">99.95%</td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">可</td>
+                    <td className="px-4 py-3"><span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(240,187,56,0.12)", color: "#F0BB38", border: "1px solid rgba(240,187,56,0.4)" }}>Cross-anchored</span></td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <p className="text-xs text-[#A8A0D8]/75 mb-2">
+              ※ SLAは各TSA提供元が公表する数値を参照値として掲載しています。ProofMark自身のSLAはアプリケーション層の可用性について別途定義します（§9 更新履歴で告知）。
+            </p>
+
+            <h3 className="flex items-center gap-2 text-[#00D4AA] font-bold text-lg mb-4 mt-10">
+              <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> 4.3 移行のトリガ条件（Go / No-Go）
+            </h3>
+            <p className="text-[#A8A0D8] leading-relaxed mb-4 text-sm">
+              「いつ商用TSAに切り替えるか」を曖昧にしないために、以下の <strong>5つの条件をすべて満たしたタイミング</strong> を、公式な切替日とします。一つでも満たさない場合は、Beta のまま据え置きます。
+            </p>
+            <ol className="list-decimal pl-5 space-y-2 text-sm text-[#E8E6FF] leading-relaxed mb-6">
+              <li><strong>商用TSAとの契約締結：</strong>DigiCert または GlobalSign の SaaS 契約を締結し、本番用 TSA URL / API キー / ルートCAチェーンを取得していること。</li>
+              <li><strong>段階切替フラグの実装：</strong>サーバー環境変数 <code className="text-[#00D4AA] bg-white/5 px-1.5 py-0.5 rounded font-mono text-xs">TSA_PROVIDER</code> / <code className="text-[#00D4AA] bg-white/5 px-1.5 py-0.5 rounded font-mono text-xs">TSA_URL</code> により、ゼロダウンタイムでTSAを切り替え可能であること。</li>
+              <li><strong>検証スクリプトの互換確認：</strong>既存の <a href="https://github.com/proofmark-jp/verify" target="_blank" rel="noopener noreferrer" className="text-[#00D4AA] hover:underline">verify リポジトリ</a>が、新TSAのルート証明書バンドルで OpenSSL 検証をパスすること（CIで自動確認）。</li>
+              <li><strong>旧TSTの永続有効性：</strong>Beta 期間中に発行された TST が、TSAの CA 証明書アーカイブにより、切替後も独立検証できることを確認済であること（LTV対応またはアーカイブTSA運用）。</li>
+              <li><strong>Trust Center / Security / Dashboard の3点同期：</strong>本ページ §4.2、<a href="/security" className="text-[#00D4AA] hover:underline">/security</a>、および Dashboard の信頼バッジ表示が、切替と同一コミットで更新されること。</li>
+            </ol>
+            <Callout type="info">
+              これら5条件のうち <strong>いずれかが未達</strong> の段階で「Trusted TSA 対応」と表示することはしません。マーケティング都合で条件をスキップしません。
+            </Callout>
+
+            <h3 className="flex items-center gap-2 text-[#00D4AA] font-bold text-lg mb-4 mt-10">
+              <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> 4.4 既存TST（Beta期間分）の扱い
+            </h3>
+            <p className="text-[#A8A0D8] leading-relaxed mb-4 text-sm">
+              移行時に最も重要なのは、<strong>既に発行済のTSTが移行後に「無効扱いにならない」</strong>ことです。RFC3161の設計上、TST は発行時点のTSA署名鍵 / CA チェーンに紐づくため、以下の方針で永続的な検証可能性を担保します。
+            </p>
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div className="rounded-xl border border-[#00D4AA]/30 bg-[#00D4AA]/5 p-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#00D4AA] mb-1">保証する</p>
+                <ul className="text-sm text-[#E8E6FF] leading-relaxed space-y-1.5 list-disc pl-5">
+                  <li>Beta期間中に発行されたTSTは、そのまま保存・再ダウンロード可能（`certificates.timestamp_token`）。</li>
+                  <li>FreeTSA公開CA証明書とルート証明書のスナップショットを、ProofMark側リポジトリにアーカイブ（commit pinで固定）。</li>
+                  <li>Beta TST の検証手順を、verify リポジトリに個別コマンドとして残置。</li>
+                  <li>旧TST、元データのハッシュ、および検証手順をすべてエクスポート可能な状態（<strong>Evidence Pack</strong>）で提供します。これにより、ProofMarkに依存せず、ユーザー自身で外部ツールを用いた長期保管や再タイムスタンプ（overstamp）が可能なデータ・ポータビリティを保証します。</li>
+                </ul>
+              </div>
+              <div className="rounded-xl border border-[#F0BB38]/30 bg-[#F0BB38]/5 p-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#F0BB38] mb-1">保証しない</p>
+                <ul className="text-sm text-[#E8E6FF] leading-relaxed space-y-1.5 list-disc pl-5">
+                  <li>Beta TSTをもって「Trusted TSA 相当の信頼レベル」を主張すること。Dashboard上は Beta TSA のまま保持されます。</li>
+                  <li>Beta TSTを第三者機関（裁判所・監査法人等）が必ず採用すること。採否は事案と法域に依存します。</li>
+                  <li>FreeTSA.org 側のサービス継続性（廃止・鍵失効など外部要因）。このリスクを軽減するために Evidence Pack のエクスポートを推奨します。</li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 className="flex items-center gap-2 text-[#00D4AA] font-bold text-lg mb-4 mt-10">
+              <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> 4.5 Dashboard 信頼バッジとの対応
+            </h3>
+            <p className="text-[#A8A0D8] leading-relaxed mb-4 text-sm">
+              Dashboard / 公開検証ページに表示される <strong>信頼バッジ</strong> は、サーバーに保存されている <code className="text-[#00D4AA] bg-white/5 px-1.5 py-0.5 rounded font-mono text-xs">tsa_provider</code> と <code className="text-[#00D4AA] bg-white/5 px-1.5 py-0.5 rounded font-mono text-xs">cross_anchors</code> のみから決定されます。クライアント側のロジックで昇格させることはできません。
+            </p>
+            <div className="overflow-x-auto rounded-xl border border-white/10 mb-4">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-[#0D0B24] text-white">
+                  <tr>
+                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider">バッジ</th>
+                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider">導出条件</th>
+                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider">意味</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  <tr>
+                    <td className="px-4 py-3"><span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(168,160,216,0.10)", color: "#A8A0D8", border: "1px solid rgba(168,160,216,0.35)" }}>Pending</span></td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">timestamp_token が未設定</td>
+                    <td className="px-4 py-3 text-[#E8E6FF]">TSA応答待ち（通常は数秒で解消）</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-3"><span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(155,163,212,0.10)", color: "#9BA3D4", border: "1px solid rgba(155,163,212,0.35)" }}>Beta TSA</span></td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">tsa_provider = <code className="font-mono">freetsa</code></td>
+                    <td className="px-4 py-3 text-[#E8E6FF]">RFC3161として暗号的に有効。主要トラストストア未収録、SLAなし。</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-3"><span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(0,212,170,0.12)", color: "#00D4AA", border: "1px solid rgba(0,212,170,0.4)" }}>Trusted TSA</span></td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">tsa_provider ∈ {"{ digicert, globalsign, seiko, sectigo }"}</td>
+                    <td className="px-4 py-3 text-[#E8E6FF]">主要トラストストアに収録された商用TSAによる発行。SLA付き。</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-3"><span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "rgba(240,187,56,0.12)", color: "#F0BB38", border: "1px solid rgba(240,187,56,0.4)" }}>Cross-anchored</span></td>
+                    <td className="px-4 py-3 text-[#A8A0D8]">cross_anchors.length ≥ 1</td>
+                    <td className="px-4 py-3 text-[#E8E6FF]">複数のTSAで多重発行。TSA単一障害・鍵失効に対する耐性。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <Callout type="shield">
+              <strong className="text-white font-bold">UIとサーバーの約束：</strong>Dashboardのバッジ導出ロジックは、<code className="text-[#00D4AA] bg-white/5 px-1.5 py-0.5 rounded font-mono text-xs">deriveTrustTier()</code> という純関数1箇所に集約しており、テスト可能かつ他画面との二重定義を禁止しています（<a href="https://github.com/proofmark-jp/proofmark-web/blob/main/src/pages/Dashboard.tsx" target="_blank" rel="noopener noreferrer" className="text-[#00D4AA] hover:underline">実装を見る</a>）。
+            </Callout>
+
+            <h3 className="flex items-center gap-2 text-[#00D4AA] font-bold text-lg mb-4 mt-10">
+              <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> 4.6 公開タイムライン（2026年）
+            </h3>
+            <ol className="relative border-l border-[#1C1A38] ml-3 space-y-6 mb-8">
+              <li className="pl-6">
+                <div className="absolute -left-[7px] w-3.5 h-3.5 rounded-full bg-[#00D4AA] border-2 border-[#07061A]" />
+                <p className="text-xs font-mono text-[#00D4AA] mb-1">2026 Q2 — 現在</p>
+                <p className="text-sm text-[#E8E6FF]"><strong>Public Beta。</strong> FreeTSA.org 利用。Dashboardには Beta TSA バッジ。検証スクリプトを公開。</p>
+              </li>
+              <li className="pl-6">
+                <div className="absolute -left-[7px] w-3.5 h-3.5 rounded-full bg-[#6C3EF4] border-2 border-[#07061A]" />
+                <p className="text-xs font-mono text-[#6C3EF4] mb-1">2026 Q3 — Trusted TSA 切替</p>
+                <p className="text-sm text-[#E8E6FF]">DigiCert または GlobalSign と契約。§4.3 の5条件を満たし次第、Creator / Studio プランを Trusted TSA で本番開始。既存 Beta TST はそのまま保存継続。</p>
+              </li>
+              <li className="pl-6">
+                <div className="absolute -left-[7px] w-3.5 h-3.5 rounded-full bg-[#F0BB38] border-2 border-[#07061A]" />
+                <p className="text-xs font-mono text-[#F0BB38] mb-1">2026 Q4 — JP-legal オプション</p>
+                <p className="text-sm text-[#E8E6FF]">セイコーソリューションズ TSA を Business プラン向けに追加。国内紛争・監査対応のユースケースをカバー。</p>
+              </li>
+              <li className="pl-6">
+                <div className="absolute -left-[7px] w-3.5 h-3.5 rounded-full bg-[#F0BB38] border-2 border-[#07061A]" />
+                <p className="text-xs font-mono text-[#F0BB38] mb-1">2027 H1 — Cross-anchor 運用</p>
+                <p className="text-sm text-[#E8E6FF]">Enterprise 向けにグローバルTSA × JP-TSA の二重発行を提供。Dashboard に Cross-anchored バッジ。TSA障害・鍵失効リスクを構造的に低減。</p>
+              </li>
+            </ol>
+
+            <h3 className="flex items-center gap-2 text-[#00D4AA] font-bold text-lg mb-4 mt-10">
+              <div className="w-1 h-5 bg-[#00D4AA] rounded-full" /> 4.7 インシデント・ダウングレードの扱い
+            </h3>
+            <p className="text-[#A8A0D8] leading-relaxed mb-4 text-sm">
+              商用TSAの障害・鍵漏洩・CA失効といった外部インシデントが発生した場合、<strong>ProofMarkは証明をダウングレード表示しません（静かに格下げしません）</strong>。代わりに、以下の明示的な手順を踏みます。
+            </p>
+            <ul className="list-disc pl-5 space-y-2 text-sm text-[#E8E6FF] leading-relaxed mb-6">
+              <li>検知後72時間以内に、<a href="/trust-center/incidents" className="text-[#00D4AA] hover:underline">/trust-center/incidents</a> にインシデント告知を掲載。</li>
+              <li>影響範囲の証明レコードに対し、サーバー側に <code className="text-[#00D4AA] bg-white/5 px-1.5 py-0.5 rounded font-mono text-xs">tsa_incident_ref</code> を紐づけ、Dashboard / 公開検証ページ上で注意ラベルを表示。</li>
+              <li>影響ユーザー向けに、代替TSAを用いた新規証明書の再発行（付け直し）を円滑に行うための運用手順とサポートを公開。</li>
+              <li>インシデントの事後レポートを Trust Center §9 の更新履歴に追記。</li>
+            </ul>
 
             <Callout type="shield">
-              <strong className="text-white font-bold">移行コミットメント：</strong>有料プランリリース前に、Microsoft/Apple/MozillaトラストストアのTSAへ移行します。既存のTSTは暗号的に有効なまま維持されます。
+              <strong className="text-white font-bold">移行コミットメント（再掲）：</strong>有料プラン正式リリース以降、証明の発行には常に主要トラストストアに収録された商用TSAを用います。Beta TSA（FreeTSA.org）による発行は、検証用途および Free プランにのみ残置し、UI上で明示的に Beta TSA バッジとして区別します。既存TSTは暗号的に有効なまま保持されます。
             </Callout>
+
+            <p className="text-xs text-[#A8A0D8]/70 mt-8 leading-relaxed">
+              本セクション (§4) は、Trust Center のバージョン履歴（§9）に対して拘束力を持つ約束として運用されます。文言変更・条件の追加 / 削除は、すべて §9 の更新ログに記録します。
+            </p>
           </motion.section>
+
 
           {/* §5 */}
           <motion.section id="s5" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="mb-20 scroll-mt-32">
