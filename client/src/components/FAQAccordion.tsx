@@ -11,7 +11,7 @@ import { Link } from "wouter";
 interface FAQItem {
   id: string;
   question: string;
-  answer: string;
+  answer: React.ReactNode;
 }
 
 const faqItems: FAQItem[] = [
@@ -31,9 +31,20 @@ const faqItems: FAQItem[] = [
     answer: "ハッシュ値はユーザーのブラウザ内で計算されるため、証明書を発行するだけであれば運営が画像の内容を知ることはシステム上不可能です。また、クラウドに保存されたポートフォリオ用の画像データについても、厳格なセキュリティポリシー（RLS）で保護されており、運営スタッフが意図的にユーザーの非公開画像を閲覧する仕組みにはなっていません。",
   },
   {
-    id: "free-vs-light",
-    question: "料金について：FreeプランとLightプランの違いは何ですか？",
-    answer: "Freeプランは月30件までの証明書発行が可能です。Lightプラン（¥480/月）は発行が無制限になり、さらにプロフェッショナルな「PDF証明書」のダウンロードや、高度な機能が利用可能になります。クライアントへの納品物に証明書を添付したい方には、Lightプランが最適です。",
+    id: "pricing",
+    question: "料金プランについて教えてください",
+    answer: (
+      <>
+        <p>ProofMarkは「証明回数」ではなく「納品信頼の運用」に基づいた料金体系です。</p>
+        <ul className="list-disc pl-5 space-y-1 my-4">
+          <li><strong>Free（0円）</strong>: 月30件までのWeb証明（PDF発行は含みません）</li>
+          <li><strong>Spot（1回100円）</strong>: 単発でのEvidence Pack発行（登録不要）</li>
+          <li><strong>Creator（月額980円）</strong>: 無制限の証明とEvidence Pack納品機能</li>
+          <li><strong>Studio（月額3,980円）</strong>: チーム管理、監査ログを含むスタジオ向け</li>
+        </ul>
+        <p>詳細は<a href="/pricing" style={{ color: "#00D4AA", textDecoration: "underline" }}>料金プランページ</a>をご確認ください。</p>
+      </>
+    ),
   },
 ];
 

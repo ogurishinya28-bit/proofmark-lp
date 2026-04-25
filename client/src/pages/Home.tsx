@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
-import { Lock, Database, AlertCircle, Check, Shield, Zap, Award, Info, Share2, CheckCircle } from "lucide-react";
+import { Lock, Database, Check, Shield, Zap, Award, Share2, CheckCircle } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 import CertificateUpload from "@/components/CertificateUpload";
@@ -15,6 +15,10 @@ import { SchemaScript } from "@/components/SchemaScript";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/lib/supabase";
 import SEO from "@/components/SEO";
+import TrustSignalRow from "@/components/TrustSignalRow";
+import EvidencePackTeaser from "@/components/EvidencePackTeaser";
+import { PROOFMARK_COPY } from "@/lib/proofmark-copy";
+import { PRICING_PLANS, FOUNDER_OFFER } from "@/data/pricingPlans";
 import founderBadge from "../assets/logo/badges/proofmark-badge-founder.svg";
 import {
   fadeInVariants,
@@ -81,7 +85,12 @@ export default function Home() {
   const { user, signOut } = useAuth();
   SchemaScript();
 
-  const [totalCerts, setTotalCerts] = useState<number>(18);
+  /**
+   * 公開数バッジ。レポート指摘どおり、件数が少ない間は逆効果になり得るため、
+   * 一定閾値（DISPLAY_THRESHOLD）を満たさない場合は "β版公開中" 表示に切り替える。
+   */
+  const DISPLAY_THRESHOLD = 1000;
+  const [totalCerts, setTotalCerts] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchTotalCerts() {
@@ -96,6 +105,11 @@ export default function Home() {
     }
     fetchTotalCerts();
   }, []);
+
+  const heroEyebrowLabel =
+    totalCerts !== null && totalCerts >= DISPLAY_THRESHOLD
+      ? `${PROOFMARK_COPY.hero.eyebrow} · ${totalCerts.toLocaleString()} verified`
+      : `${PROOFMARK_COPY.hero.eyebrow} · β版公開中`;
 
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -60]);
@@ -152,9 +166,9 @@ export default function Home() {
 
   return (
     <>
-      <SEO 
-        title="ProofMark | AI生成作品の改ざん防止・存在証明インフラ"
-        description="「どうせAIでしょ？」を、検証可能な事実で終わらせる。ファイルのSHA-256ハッシュをブラウザ内で計算し、RFC3161準拠のタイムスタンプを付与。あなたの作品が特定の日時に、その内容で存在していたことを第三者が独立して検証できる、プライバシーファーストの存在証明インフラです。"
+      <SEO
+        title="ProofMark | AI時代の納品信頼インフラ"
+        description={PROOFMARK_COPY.metaDescription}
         url="https://proofmark.jp/"
         type="website"
         jsonLd={{
@@ -207,17 +221,16 @@ export default function Home() {
           >
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%" }}>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-[#00D4AA] text-xs sm:text-sm font-bold tracking-widest uppercase mb-8">
-                Securing Creative Assets: <span className="text-white ml-1">{totalCerts}</span>
+                {heroEyebrowLabel}
               </div>
               <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight mb-6 leading-tight text-center">
-                「どうせAIでしょ？」を、<br className="hidden sm:block" />
+                {PROOFMARK_COPY.hero.title1}<br className="hidden sm:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D4AA] to-[#6C3EF4]">
-                  検証可能な事実で終わらせる。
+                  {PROOFMARK_COPY.hero.title2}
                 </span>
               </h1>
               <p className="text-[#A8A0D8] text-base sm:text-xl max-w-3xl mx-auto mb-10 leading-relaxed text-center">
-                ファイルのSHA-256ハッシュをブラウザ内で計算し（Client-side Hashing）、RFC3161準拠のタイムスタンプを付与。<br className="hidden md:block" />
-                「特定の日時にその内容で存在していた」という客観的な事実を、ProofMarkに依存せず第三者が独立検証できます。
+                {PROOFMARK_COPY.hero.subtitle}
               </p>
 
               {/* Hero form / Dashboard CTA based on auth state */}
@@ -315,38 +328,47 @@ export default function Home() {
                 transition={{ delay: 1.0, duration: 0.8, ease: "easeOut" }}
                 className="w-full"
               >
-                <img 
-                  src="/mockup.avif" 
-                  alt="ProofMark Mockup" 
-                  className="w-full max-w-3xl mx-auto mt-12 rounded-2xl shadow-[0_0_50px_rgba(108,62,244,0.2)] border border-[#1C1A38] transform perspective-1000 rotate-x-12 hover:rotate-0 transition-transform duration-700" 
+                <img
+                  src="/mockup.avif"
+                  alt="ProofMarkで生成された証明書のデザインモックアップ"
+                  loading="lazy"
+                  className="w-full max-w-3xl mx-auto mt-12 rounded-2xl shadow-[0_0_50px_rgba(108,62,244,0.2)] border border-[#1C1A38] transform perspective-1000 rotate-x-12 hover:rotate-0 transition-transform duration-700"
                 />
               </motion.div>
             </div>
           </motion.div>
         </section>
 
+        {/* 【REPORT】ヒーロー直下に「証明する/しない/現在のTSA」を3カードで固定表示。コピーは SSOT経由。 */}
+        <TrustSignalRow />
+
+        {/* 【REPORT】Evidence Pack セクションを追加。「信用を納品できるSaaS」を一目で伝える。 */}
+        <EvidencePackTeaser />
+
         {/* --- 2モード解説セクション --- */}
         <section className="py-24 px-6 sm:px-12 bg-[#0D0B24] border-y border-[#1C1A38]">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">選べる2つの証明モード</h2>
-              <p className="text-[#A8A0D8]">ProofMarkは「原画を送信しない」ことをデフォルトとし、クリエイターの尊厳を守ります。</p>
+              <p className="text-[#A8A0D8]">デフォルトは Private Proof。「原本をサーバーに送信しない」を、UXレベルで実現します。</p>
             </div>
             <div className="grid md:grid-cols-2 gap-8">
               <div className="bg-[#07061A] border border-[#1C1A38] rounded-3xl p-8 sm:p-10 relative overflow-hidden group hover:border-[#00D4AA]/50 transition-colors">
                 <Shield className="w-12 h-12 text-[#00D4AA] mb-6" />
                 <h3 className="text-2xl font-bold text-white mb-3">Private Proof <span className="text-sm font-normal text-slate-400 ml-2">(推奨)</span></h3>
-                <p className="text-[#A8A0D8] mb-6 leading-relaxed">原画をサーバーに一切送信せず、ブラウザ上でハッシュ計算のみを行います。運営側すら作品を見ることができない、最高水準のプライバシー保護モードです。</p>
+                <p className="text-[#A8A0D8] mb-6 leading-relaxed">原画はサーバーに送信されません。ブラウザ内で SHA-256 を計算し、ハッシュとメタデータだけを ProofMark が受け取ります。運営側も原画を視認できません。</p>
                 <ul className="space-y-3">
-                  <li className="flex items-center gap-3 text-sm text-slate-300"><CheckCircle className="w-5 h-5 text-[#00D4AA]" /> 原画の漏洩リスクゼロ</li>
+                  <li className="flex items-center gap-3 text-sm text-slate-300"><CheckCircle className="w-5 h-5 text-[#00D4AA]" /> 原画はブラウザ外に出ない</li>
+                  <li className="flex items-center gap-3 text-sm text-slate-300"><CheckCircle className="w-5 h-5 text-[#00D4AA]" /> 独立検証可能なRFC3161トークン</li>
                 </ul>
               </div>
               <div className="bg-[#07061A] border border-[#1C1A38] rounded-3xl p-8 sm:p-10 relative overflow-hidden group hover:border-[#6C3EF4]/50 transition-colors">
                 <Share2 className="w-12 h-12 text-[#6C3EF4] mb-6" />
                 <h3 className="text-2xl font-bold text-white mb-3">Shareable Proof</h3>
-                <p className="text-[#A8A0D8] mb-6 leading-relaxed">SNSシェアやポートフォリオ用に、表示用画像をセキュアストレージに保存します。RLSにより、安全な状態で公開検証ページに画像を表示できます。</p>
+                <p className="text-[#A8A0D8] mb-6 leading-relaxed">SNSシェア・ポートフォリオ掲載・納品に使う表示用画像のみ、セキュアストレージに保存します。クリエイターがコントロールした状態で検証ページを公開できます。</p>
                 <ul className="space-y-3">
-                  <li className="flex items-center gap-3 text-sm text-slate-300"><CheckCircle className="w-5 h-5 text-[#6C3EF4]" /> 美しい公開検証ページの生成</li>
+                  <li className="flex items-center gap-3 text-sm text-slate-300"><CheckCircle className="w-5 h-5 text-[#6C3EF4]" /> 公開検証ページ + OG カード</li>
+                  <li className="flex items-center gap-3 text-sm text-slate-300"><CheckCircle className="w-5 h-5 text-[#6C3EF4]" /> ポートフォリオ埋め込みウィジェット</li>
                 </ul>
               </div>
             </div>
@@ -397,10 +419,10 @@ export default function Home() {
                 viewport={{ once: true }}
               >
                 {[
-                  { value: "SHA-256", label: "暗号強度" },
-                  { value: "Direct", label: "ストレージ直結" },
-                  { value: "Secure", label: "クラウド保存" },
-                  { value: "C2PA", label: "対応予定" },
+                  { value: "SHA-256", label: "暗号ハッシュ" },
+                  { value: "RFC3161", label: "タイムスタンプ規格" },
+                  { value: "Independent", label: "独立検証可能" },
+                  { value: "C2PA", label: "連携計画中" },
                 ].map((stat) => (
                   <motion.div key={stat.value} className="text-center" variants={slideInVariants}>
                     <div
@@ -550,20 +572,20 @@ export default function Home() {
                 {
                   emoji: "😤",
                   title: "「どうせAIでしょ？」と言われた",
-                  desc: "何時間も試行錯誤した作品を、たった一言で否定される悔しさ。",
+                  desc: "何時間も試行錯誤した制作プロセスを、たった一言で否定される悔しさ。",
                   tag: "信用問題",
                 },
                 {
                   emoji: "😰",
-                  title: "作品を盗用されたが証拠がない",
-                  desc: "DMCA申請には「先に作った」証明が必要。でも手元に証拠が…。",
-                  tag: "著作権侵害",
+                  title: "作品を転載されたが証拠が手元にない",
+                  desc: "「いつ・その状態で・手元にあった」客観データがあれば、交渉や申し立てを進めるスタートラインに立てる。",
+                  tag: "トラブル予防",
                 },
                 {
                   emoji: "📁",
-                  title: "ポートフォリオに説得力が欲しい",
-                  desc: "自分の成長や実績を、信頼できる形でクライアントに伝えたい。",
-                  tag: "実績証明",
+                  title: "クライアントに「信じてもいい」と思わせたい",
+                  desc: "納品時に、疑いの余地がない独立検証可能な証拠を添えて提出したい。",
+                  tag: "納品信頼",
                 },
               ].map((pain, i) => (
                 <motion.div
@@ -605,7 +627,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Pricing ─────────────────────────────────────────── */}
+        {/* ── Pricing (SSOT-driven mini view) ─────────────────────────── */}
         <section id="pricing" className="py-24 relative overflow-hidden">
           <GlowOrb color="#6c3ef4" size={500} top="20%" left="45%" opacity={0.07} />
 
@@ -621,176 +643,91 @@ export default function Home() {
               >
                 <Award className="w-3 h-3" /> PRICING
               </div>
-              <h2 className="text-4xl font-black mb-4">描いた証拠を、ワンコインで一生の守りに。</h2>
+              <h2 className="text-4xl font-black mb-4">証拠を、納品できる状態に。</h2>
               <p className="text-muted max-w-xl mx-auto">
-                まずは気軽に試せる単発プランか、大幅増枠した無料プランで、あなたの創作に安心をプラスしませんか？
+                ProofMarkの料金は「証明回数」ではなく「納品信頼の運用機能」で設計されています。詳細は料金ページへ。
               </p>
             </FadeInSection>
 
-            {/* 🌟 2カラムから3カラム（md:grid-cols-3）に変更し、最大幅（max-w-5xl）を拡張 */}
             <motion.div
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-8"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-8"
               variants={staggerContainer}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
             >
-              {/* ── Free plan ── */}
-              <motion.div
-                className="p-8 rounded-2xl border relative overflow-hidden flex flex-col"
-                style={{
-                  background: "rgba(21,29,47,0.8)",
-                  backdropFilter: "blur(12px)",
-                  borderColor: "rgba(42,42,78,0.7)",
-                }}
-                variants={slideInVariants}
-                whileHover={{ borderColor: "rgba(108,62,244,0.4)", y: -4 }}
-                transition={{ duration: 0.25 }}
-              >
-                <div className="text-xs font-bold text-muted uppercase tracking-widest mb-2">Free</div>
-                <div className="text-4xl font-black mb-1">
-                  ¥0<span className="text-lg text-muted font-normal">/月</span>
-                </div>
-                <p className="text-sm text-muted mb-6">まずは無料で試したい方</p>
-                <ul className="space-y-3 mb-8 flex-1">
-                  <li className="flex items-start gap-2 text-sm">
-                    <Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
-                    <span>
-                      Webタイムスタンプ証明{" "}
-                      <span
-                        className="ml-1 text-xs font-bold px-2 py-0.5 rounded-full block mt-1 w-fit"
-                        style={{
-                          background: "rgba(0,212,170,0.15)",
-                          color: "#00d4aa",
-                          border: "1px solid rgba(0,212,170,0.3)",
-                          whiteSpace: "nowrap",
-                        }}
+              {PRICING_PLANS.filter((p) => p.id !== 'business').map((plan) => {
+                const ctaLabel = user ? plan.ctaLabel.authed : plan.ctaLabel.guest;
+                const ctaHref = user ? plan.ctaHref.authed : plan.ctaHref.guest;
+                const isRecommended = plan.recommended;
+                return (
+                  <motion.div
+                    key={plan.id}
+                    className="p-7 rounded-2xl border relative overflow-hidden flex flex-col"
+                    style={{
+                      background: isRecommended ? "linear-gradient(135deg, rgba(108,62,244,0.2) 0%, rgba(21,29,47,0.95) 60%)" : "rgba(21,29,47,0.8)",
+                      backdropFilter: "blur(12px)",
+                      borderColor: isRecommended ? "rgba(108,62,244,0.5)" : "rgba(42,42,78,0.7)",
+                      borderWidth: isRecommended ? 2 : 1,
+                      boxShadow: isRecommended ? "0 0 30px rgba(108,62,244,0.18)" : undefined,
+                    }}
+                    variants={slideInVariants}
+                    whileHover={{ y: -4 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    {plan.badge ? (
+                      <div
+                        className="absolute top-4 right-4 text-xs font-black px-3 py-1 rounded-full"
+                        style={{ background: "linear-gradient(135deg, #6c3ef4, #00d4aa)", color: "#f0f0fa" }}
                       >
-                        月30件に増枠！
-                      </span>
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-accent flex-shrink-0" />
-                    <span>公開ポートフォリオ機能</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm text-muted/60">
-                    <span className="w-4 h-4 text-center text-muted/40 flex-shrink-0 select-none">—</span>
-                    <span className="line-through">PDF証明書の発行</span>
-                  </li>
-                </ul>
-                <Link
-                  href={user ? "/dashboard" : "/auth?mode=signup"}
-                  className="block w-full px-6 py-3 rounded-full border font-bold text-sm transition-colors text-center mt-auto"
-                  style={{ borderColor: "rgba(108,62,244,0.4)", color: "#6c3ef4" }}
-                >
-                  {user ? "管理画面へ進む" : "無料で始める"}
-                </Link>
-              </motion.div>
-
-              {/* ── Spot plan (新規追加) ── */}
-              <motion.div
-                className="p-8 rounded-2xl border relative overflow-hidden flex flex-col"
-                style={{
-                  background: "rgba(21,29,47,0.85)",
-                  backdropFilter: "blur(12px)",
-                  borderColor: "rgba(0,212,170,0.3)",
-                }}
-                variants={slideInVariants}
-                whileHover={{ borderColor: "rgba(0,212,170,0.6)", y: -4, boxShadow: "0 8px 24px rgba(0,212,170,0.1)" }}
-                transition={{ duration: 0.25 }}
-              >
-                <div className="text-xs font-bold text-[#00D4AA] uppercase tracking-widest mb-2">Spot</div>
-                <div className="text-4xl font-black mb-1">
-                  ¥100<span className="text-lg text-muted font-normal">/回</span>
-                </div>
-                <p className="text-sm text-muted mb-6">必要な時だけ手軽に使いたい方</p>
-                <ul className="space-y-3 mb-8 flex-1">
-                  <li className="flex items-center gap-2 text-sm font-bold text-white">
-                    <Zap className="w-4 h-4 text-[#00D4AA] flex-shrink-0" />
-                    <span>アカウント登録不要</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-accent flex-shrink-0" />
-                    <span>PDF証明書（1件発行）</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-accent flex-shrink-0" />
-                    <span>Webタイムスタンプ証明</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm text-muted/60">
-                    <span className="w-4 h-4 text-center text-muted/40 flex-shrink-0 select-none">—</span>
-                    <span className="line-through">公開ポートフォリオ保存</span>
-                  </li>
-                </ul>
-                <Link
-                  href={user ? "/dashboard" : "/auth?mode=signup"}
-                  className="block w-full px-6 py-3 rounded-full border font-bold text-sm transition-colors text-center mt-auto"
-                  style={{ borderColor: "rgba(0,212,170,0.4)", color: "#00D4AA", background: "rgba(0,212,170,0.05)" }}
-                >
-                  {user ? "管理画面へ進む" : "今すぐ1件発行する"}
-                </Link>
-              </motion.div>
-
-              {/* ── Light plan ── */}
-              <motion.div
-                className="p-8 rounded-2xl relative overflow-hidden flex flex-col"
-                style={{
-                  background: "linear-gradient(135deg, rgba(108,62,244,0.2) 0%, rgba(21,29,47,0.95) 60%)",
-                  border: "2px solid rgba(108,62,244,0.5)",
-                  boxShadow: "0 0 40px rgba(108,62,244,0.2), inset 0 1px 0 rgba(255,255,255,0.05)",
-                  backdropFilter: "blur(12px)",
-                }}
-                variants={slideInVariants}
-                whileHover={{ boxShadow: "0 0 60px rgba(108,62,244,0.35)", y: -4 }}
-                transition={{ duration: 0.25 }}
-              >
-                {/* Recommended badge */}
-                <div
-                  className="absolute top-4 right-4 text-xs font-black px-3 py-1 rounded-full"
-                  style={{
-                    background: "linear-gradient(135deg, #6c3ef4, #00d4aa)",
-                    color: "#f0f0fa",
-                  }}
-                >
-                  おすすめ
-                </div>
-
-                <div className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Light</div>
-                <div className="text-4xl font-black mb-1">
-                  ¥480<span className="text-lg text-muted font-normal">/月</span>
-                </div>
-                <p className="text-sm text-muted mb-6">本格的に権利を守りたい方へ</p>
-                <ul className="space-y-3 mb-8 flex-1">
-                  {[
-                    "PDF証明書 無制限",
-                    "Webタイムスタンプ証明 無制限",
-                    "公開ポートフォリオ機能",
-                    "C2PAメタデータ読取（対応予定）",
-                    "制作工程アップロード",
-                  ].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
-                      <Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={user ? "/settings" : "/auth?mode=signup"}
-                  className="block w-full px-6 py-3 rounded-full font-bold text-sm text-primary-foreground text-center mt-auto"
-                  style={{
-                    background: "linear-gradient(135deg, #6C3EF4, #8B61FF)",
-                    boxShadow: "0 0 20px rgba(108,62,244,0.4)",
-                  }}
-                >
-                  {user ? "管理画面へ進む" : "先行特典を予約する"}
-                </Link>
-              </motion.div>
+                        {plan.badge}
+                      </div>
+                    ) : null}
+                    <div className="text-xs font-bold text-muted uppercase tracking-widest mb-2">{plan.name}</div>
+                    <div className="text-3xl font-black mb-1">
+                      {plan.priceLabel}
+                      {plan.priceUnit ? <span className="text-base text-muted font-normal">{plan.priceUnit}</span> : null}
+                    </div>
+                    <p className="text-sm text-muted mb-5">{plan.tagline}</p>
+                    <ul className="space-y-2.5 mb-6 flex-1">
+                      {plan.features.slice(0, 4).map((feature) => (
+                        <li
+                          key={feature.label}
+                          className={"flex items-start gap-2 text-sm " + (feature.state === 'exclude' ? 'opacity-60' : '')}
+                        >
+                          {feature.state === 'exclude' ? (
+                            <span className="w-4 h-4 text-center text-muted/40 flex-shrink-0 select-none mt-0.5">—</span>
+                          ) : (
+                            <Check className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                          )}
+                          <span className={feature.state === 'exclude' ? 'line-through text-muted' : ''}>{feature.label}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href={ctaHref}
+                      className="block w-full px-6 py-3 rounded-full font-bold text-sm text-center mt-auto"
+                      style={
+                        isRecommended
+                          ? { background: "linear-gradient(135deg, #6C3EF4, #8B61FF)", color: "#f0f0fa", boxShadow: "0 0 20px rgba(108,62,244,0.4)" }
+                          : { borderColor: "rgba(108,62,244,0.4)", color: "#6c3ef4", border: "1px solid rgba(108,62,244,0.4)" }
+                      }
+                    >
+                      {ctaLabel}
+                    </Link>
+                  </motion.div>
+                );
+              })}
             </motion.div>
 
             <FadeInSection>
-              <p className="text-center text-sm font-bold" style={{ color: "#BC78FF" }}>
-                ※ 先着100名はLightプラン3ヶ月無料＋創設者バッジ付き
+              <div className="text-center">
+                <Link href="/pricing" className="inline-flex items-center gap-2 text-sm font-bold text-[#00D4AA] hover:text-white transition-colors">
+                  すべてのプランを比較する →
+                </Link>
+              </div>
+              <p className="text-center text-sm font-bold mt-6" style={{ color: FOUNDER_OFFER.highlight }}>
+                {FOUNDER_OFFER.text}
               </p>
             </FadeInSection>
           </div>

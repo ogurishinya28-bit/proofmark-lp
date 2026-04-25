@@ -103,6 +103,34 @@ export default function WhatItProves() {
             ← トップページへ戻る
           </Link>
         </div>
+        {/* Evidence Pack Section */}
+        <div id="evidence-pack" className="mt-24 pt-16 border-t border-[#1C1A38]">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#6C3EF4]/10 border border-[#6C3EF4]/30 text-[#BC78FF] text-xs font-bold tracking-widest uppercase mb-6">
+            DELIVERABLE EVIDENCE
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-6">納品できる証拠「Evidence Pack」</h2>
+          <p className="text-[#A8A0D8] leading-relaxed mb-8">
+            ProofMarkは単なるWeb証明書にとどまりません。著作権侵害の申し立てやクライアントへの納品時に、そのまま提出できる「証拠の束」を1つのZIPファイルとしてダウンロードできます。
+          </p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-[#151D2F]/30 border border-[#1C1A38] p-6 rounded-xl">
+              <h3 className="text-[#00D4AA] font-bold mb-2">① RFC3161 タイムスタンプ</h3>
+              <p className="text-sm text-[#A8A0D8]">国際標準規格のバイナリデータ（.tsr）。ProofMarkのサーバーがなくてもOpenSSL等で独立検証可能な絶対的証拠です。</p>
+            </div>
+            <div className="bg-[#151D2F]/30 border border-[#1C1A38] p-6 rounded-xl">
+              <h3 className="text-[#00D4AA] font-bold mb-2">② 独立検証スクリプト</h3>
+              <p className="text-sm text-[#A8A0D8]">コマンド一発で証拠の真正性を証明できる検証スクリプト（verify.sh / verify.py）を同梱。</p>
+            </div>
+            <div className="bg-[#151D2F]/30 border border-[#1C1A38] p-6 rounded-xl">
+              <h3 className="text-[#00D4AA] font-bold mb-2">③ クライアント提出用カバーレター</h3>
+              <p className="text-sm text-[#A8A0D8]">証拠パックの目的と検証方法を説明する、そのままコピペして使える提出用テキスト（日・英）を同梱。</p>
+            </div>
+            <div className="bg-[#151D2F]/30 border border-[#1C1A38] p-6 rounded-xl">
+              <h3 className="text-[#00D4AA] font-bold mb-2">④ PDF証明書・メタデータ</h3>
+              <p className="text-sm text-[#A8A0D8]">A4印刷に最適化された人間可読なHTML/PDF証明書と、機械可読なJSONメタデータを同梱。</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

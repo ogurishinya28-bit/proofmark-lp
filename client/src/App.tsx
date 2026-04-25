@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch, useLocation } from "wouter";
+import { useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./hooks/useAuth";
@@ -29,13 +29,39 @@ import Footer from "./components/Footer";
 import Pricing from "./pages/Pricing";
 import LegalResources from "./pages/LegalResources";
 import TrustCenter from "./pages/TrustCenter";
-// ▼ ここに追加：管理画面用コンポーネントのインポート
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
 import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminMonitor from "./pages/admin/AdminMonitor";
 import AdminSettings from "./pages/admin/AdminSettings";
+
+function ScrollToTop() {
+  const [location] = useLocation();
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const hash = window.location.hash;
+    if (hash) {
+      // DOMの描画完了を待つリトライ機構（最大10回、1秒間探す）
+      let attempts = 0;
+      const checkExist = setInterval(() => {
+        const id = hash.substring(1);
+        const element = document.getElementById(id);
+        if (element) {
+          // Navbarの高さ（約80px）を考慮してスクロール位置を上にズラす
+          const y = element.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+          clearInterval(checkExist);
+        }
+        if (++attempts >= 10) clearInterval(checkExist);
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }, [location]);
+  return null;
+}
 
 function Router() {
   return (
@@ -61,33 +87,40 @@ function Router() {
       <Route path="/blog" component={BlogIndex} />
       <Route path="/blog/copyright" component={ArticleCopyright} />
       <Route path="/blog/monetization" component={ArticleMonetization} />
-      {/* ▼ ここに追加：管理画面のルーティング */}
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/certificates" component={AdminCertificates} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/monitor" component={AdminMonitor} />
       <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/placeholder" component={AdminPlaceholder} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-function App() {
+function AppShell() {
   const [location] = useLocation();
   const isEmbedRoute = location.startsWith('/embed/');
 
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <ScrollToTop />
+      <Toaster />
+      <Router />
+      {!isEmbedRoute ? <Footer /> : null}
+    </div>
+  );
+}
+
+function App() {
   return (
     <HelmetProvider>
       <ErrorBoundary>
         <ThemeProvider>
           <AuthProvider>
             <TooltipProvider>
-              <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-                <Toaster />
-                <Router />
-                {!isEmbedRoute ? <Footer /> : null}
-              </div>
+              <AppShell />
             </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>

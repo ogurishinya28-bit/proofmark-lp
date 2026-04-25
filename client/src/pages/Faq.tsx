@@ -11,6 +11,22 @@ interface FAQItem {
 
 const faqData: FAQItem[] = [
   {
+    id: "pricing",
+    question: "料金プランについて教えてください",
+    answer: (
+      <>
+        <p>ProofMarkは「証明回数」ではなく「納品信頼の運用」に基づいた料金体系です。</p>
+        <ul className="list-disc pl-5 space-y-1 my-4">
+          <li><strong>Free（0円）</strong>: 月30件までのWeb証明（PDF発行は含みません）</li>
+          <li><strong>Spot（1回100円）</strong>: 単発でのEvidence Pack発行（登録不要）</li>
+          <li><strong>Creator（月額980円）</strong>: 無制限の証明とEvidence Pack納品機能</li>
+          <li><strong>Studio（月額3,980円）</strong>: チーム管理、監査ログを含むスタジオ向け</li>
+        </ul>
+        <p>詳細は<a href="/pricing" style={{ color: "#00D4AA", textDecoration: "underline" }}>料金プランページ</a>をご確認ください。</p>
+      </>
+    ),
+  },
+  {
     id: "copyright",
     question: "これは著作権を保証しますか？",
     answer: (
