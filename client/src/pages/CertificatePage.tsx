@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useRoute, useLocation, Link } from 'wouter';
 import { QRCodeSVG } from 'qrcode.react';
-import { CheckCircle, Clock, ShieldCheck, Image as ImageIcon, Copy, Check, FileText, Lock, ShieldAlert, Flag } from 'lucide-react';
+import { CheckCircle, Clock, ShieldCheck, Image as ImageIcon, Copy, Check, FileText, Lock, ShieldAlert, Flag, Package } from 'lucide-react';
+import { evidencePackDownloadUrl } from '../lib/checkout';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
@@ -14,27 +15,27 @@ import { supabase } from '../lib/supabase';
 
 // ---- RFC3161 FreeTSA Timestamp API ----
 const applyRFC3161Timestamp = async (certId: string, hash: string) => {
-  try {
-    // 👑 ユーザーの現在の身分証（トークン）を取得
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    const response = await fetch('/api/timestamp', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token}`,
-      },
-      body: JSON.stringify({ certId, hash }),
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'タイムスタンプの取得に失敗しました');
+    try {
+        // 👑 ユーザーの現在の身分証（トークン）を取得
+        const { data: { session } } = await supabase.auth.getSession();
+
+        const response = await fetch('/api/timestamp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.access_token}`,
+            },
+            body: JSON.stringify({ certId, hash }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'タイムスタンプの取得に失敗しました');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Timestamp request failed:', error);
+        throw error;
     }
-    return await response.json();
-  } catch (error) {
-    console.error('Timestamp request failed:', error);
-    throw error;
-  }
 };
 
 export default function CertificatePage() {
@@ -53,11 +54,42 @@ export default function CertificatePage() {
     const { user, profile, signOut } = useAuth(); // profileを追加
     const actualPlanVariable = user?.user_metadata?.plan_type;
     const currentPlan = (actualPlanVariable || '').toLowerCase();
-    const isPaidPlan = currentPlan === 'light' || currentPlan === 'admin';
+    const isPaidPlan = ['light', 'creator', 'studio', 'admin'].includes(currentPlan);
 
     // ---- RFC3161 Timestamp State ----
     const [isStamping, setIsStamping] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const [verifiedTime, setVerifiedTime] = useState<string | null>(cert?.certified_at || null);
+
+    const handleDownloadEvidencePack = async () => {
+        setIsDownloading(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const url = evidencePackDownloadUrl({ certId: cert.id });
+            const res = await fetch(url, {
+                headers: session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : undefined
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || 'ダウンロードに失敗しました');
+            }
+
+            const blob = await res.blob();
+            const objectUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = objectUrl;
+            a.download = `evidence-pack-${cert.id.slice(0, 8)}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(objectUrl);
+        } catch (error: any) {
+            alert(error.message);
+        } finally {
+            setIsDownloading(false);
+        }
+    };
 
     useEffect(() => {
         async function fetchCertificate() {
@@ -66,7 +98,7 @@ export default function CertificatePage() {
                 setLoading(false);
                 return;
             }
-            
+
             // 1. 証明書データの取得
             const { data: certData, error: certError } = await supabase
                 .from('certificates')
@@ -77,7 +109,7 @@ export default function CertificatePage() {
             if (!certError && certData) {
                 setCert(certData);
                 setVerifiedTime(certData.certified_at || null);
-                
+
                 // 2. 最新のプロフィール情報を取得（ユーザー名変更に対応）
                 if (certData.user_id) {
                     const { data: profileData } = await supabase
@@ -85,7 +117,7 @@ export default function CertificatePage() {
                         .select('username, avatar_url')
                         .eq('id', certData.user_id)
                         .maybeSingle();
-                    
+
                     if (profileData) {
                         setAuthorProfile(profileData);
                     }
@@ -125,7 +157,11 @@ export default function CertificatePage() {
                 alert('FreeTSAによる公的タイムスタンプの付与に成功しました！');
             }
         } catch (error: any) {
-            alert(`エラーが発生しました: ${error.message}`);
+            if (error.message === 'free_quota_exceeded') {
+                alert('今月の無料枠（30件）を使い切りました。引き続きスタンプを付与するにはプランをアップグレードしてください。');
+            } else {
+                alert(`エラーが発生しました: ${error.message}`);
+            }
         } finally {
             setIsStamping(false);
         }
@@ -195,7 +231,7 @@ export default function CertificatePage() {
         }
         return 'Verified_Digital_Artwork';
     };
-    
+
     const ogTitle = getDisplayTitle();
     const ogThumb = cert.public_image_url || '';
     const ogHash = cert.sha256 ? cert.sha256.substring(0, 12) : '000000000000';
@@ -207,7 +243,7 @@ export default function CertificatePage() {
 
     return (
         <>
-            <SEO 
+            <SEO
                 title={`証明書: ${ogTitle}`}
                 description={`この作品の存在と制作日時はProofMarkによって暗号学的に証明されています。`}
                 image={ogpUrl}
@@ -281,13 +317,13 @@ export default function CertificatePage() {
                                         <img src={cert.public_image_url} alt="Artwork" className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="flex flex-col items-center justify-center text-center p-8 w-full h-full bg-[#0D0B24] rounded-xl border border-[#1C1A38]">
-                                          <div className="flex items-center px-4 py-2 bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-[#00D4AA] text-xs font-bold tracking-widest uppercase rounded-full mb-6">
-                                            CLIENT-SIDE HASHING
-                                          </div>
-                                          <div className="text-2xl font-bold text-white mb-2">Image Data Hidden</div>
-                                          <div className="text-[#A8A0D8] text-sm max-w-[250px]">
-                                            Verified in a complete zero-knowledge state.
-                                          </div>
+                                            <div className="flex items-center px-4 py-2 bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-[#00D4AA] text-xs font-bold tracking-widest uppercase rounded-full mb-6">
+                                                CLIENT-SIDE HASHING
+                                            </div>
+                                            <div className="text-2xl font-bold text-white mb-2">Image Data Hidden</div>
+                                            <div className="text-[#A8A0D8] text-sm max-w-[250px]">
+                                                Verified in a complete zero-knowledge state.
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -373,11 +409,10 @@ export default function CertificatePage() {
                         <button
                             onClick={handleApplyTimestamp}
                             disabled={isStamping}
-                            className={`flex items-center px-6 py-3 rounded-full font-bold transition-all ${
-                                isStamping
+                            className={`flex items-center px-6 py-3 rounded-full font-bold transition-all ${isStamping
                                     ? 'bg-gray-600 cursor-not-allowed text-gray-300'
                                     : 'bg-[#6C3EF4] hover:bg-[#5A33CC] text-white shadow-[0_0_15px_rgba(108,62,244,0.5)]'
-                            }`}
+                                }`}
                         >
                             {isStamping ? (
                                 <>
@@ -395,40 +430,50 @@ export default function CertificatePage() {
                 </div>
 
                 <div className="pt-8 border-t border-slate-700 flex flex-wrap gap-4">
+                    <button
+                        onClick={shareOnX}
+                        className="no-print bg-[#0f1419] hover:bg-[#272c30] text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 border border-slate-700"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5 fill-current"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 3.827H5.078z"></path></svg>
+                        Xで証明をシェア
+                    </button>
+                    {isPaidPlan ? (
+                        <>
+                            <button
+                                onClick={() => window.print()}
+                                className="no-print bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2"
+                            >
+                                <FileText className="w-4 h-4" /> PDFとして保存
+                            </button>
+                            <button
+                                onClick={handleDownloadEvidencePack}
+                                disabled={isDownloading}
+                                className="no-print bg-gradient-to-r from-[#6C3EF4] to-[#8B61FF] text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-[0_0_18px_rgba(108,62,244,0.35)] hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Package className="w-4 h-4" /> {isDownloading ? 'ダウンロード中...' : 'Evidence Pack をダウンロード'}
+                            </button>
+                        </>
+                    ) : (
                         <button
-                            onClick={shareOnX}
-                            className="no-print bg-[#0f1419] hover:bg-[#272c30] text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 border border-slate-700"
+                            onClick={() => {
+                                alert('PDF証明書と Evidence Pack ダウンロードは Creator / Studio プラン限定の機能です。今すぐ、プランをアップグレードしてください。');
+                                window.location.href = '/pricing#creator';
+                            }}
+                            className="no-print bg-slate-800 text-slate-400 px-6 py-3 rounded-xl font-bold border border-slate-700 flex items-center gap-2 hover:bg-slate-700 hover:text-white transition-all cursor-pointer relative group"
                         >
-                            <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5 fill-current"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 3.827H5.078z"></path></svg>
-                            Xで証明をシェア
+                            <Lock className="w-4 h-4" /> PDF・Evidence Pack をロック解除
+                            <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#F0BB38] text-[#1A1200] text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                Creatorプラン限定
+                            </span>
                         </button>
-    {isPaidPlan ? (
-        <button
-            onClick={() => window.print()}
-            className="no-print bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2"
-        >
-            <FileText className="w-4 h-4" /> PDFとして保存
-        </button>
-    ) : (
-        <button
-            onClick={() => {
-                alert("PDF証明書の保存はLIGHTプラン限定の機能です。プランをアップグレードしてください。");
-            }}
-            className="no-print bg-slate-800 text-slate-400 px-6 py-3 rounded-xl font-bold border border-slate-700 flex items-center gap-2 hover:bg-slate-700 hover:text-white transition-all cursor-pointer relative group"
-        >
-             <Lock className="w-4 h-4" /> PDF保存をロック解除
-             <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#F0BB38] text-[#1A1200] text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                 LIGHTプラン限定
-             </span>
-        </button>
-    )}
-                        <button
-                            onClick={() => setLocation('/')}
-                            className="no-print bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold transition-all"
-                        >
-                            トップに戻る
-                        </button>
-                    </div>
+                    )}
+                    <button
+                        onClick={() => setLocation('/')}
+                        className="no-print bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold transition-all"
+                    >
+                        トップに戻る
+                    </button>
+                </div>
 
                 {/* 💡 2パターンの強力なテンプレート */}
                 <div className="print:hidden w-full max-w-5xl mt-16 bg-[#0D0B24] p-6 sm:p-8 rounded-2xl border border-[#1C1A38] mb-20">
@@ -490,15 +535,15 @@ export default function CertificatePage() {
 
                 {/* 🚨 通報導線 (Report Abuse) */}
                 <div className="mt-12 text-center pb-8 print:hidden">
-                  <a 
-                    href="https://forms.gle/YOUR_GOOGLE_FORM_ID_HERE" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-xs text-slate-600 hover:text-slate-400 underline transition-colors flex items-center justify-center gap-1"
-                  >
-                    <Flag className="w-3 h-3" />
-                    違法・悪質なコンテンツを通報する (Report Abuse)
-                  </a>
+                    <a
+                        href="https://forms.gle/YOUR_GOOGLE_FORM_ID_HERE"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-slate-600 hover:text-slate-400 underline transition-colors flex items-center justify-center gap-1"
+                    >
+                        <Flag className="w-3 h-3" />
+                        違法・悪質なコンテンツを通報する (Report Abuse)
+                    </a>
                 </div>
 
             </div>

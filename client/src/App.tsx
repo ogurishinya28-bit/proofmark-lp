@@ -29,12 +29,16 @@ import Footer from "./components/Footer";
 import Pricing from "./pages/Pricing";
 import LegalResources from "./pages/LegalResources";
 import TrustCenter from "./pages/TrustCenter";
+import SpotIssue from "./pages/SpotIssue";
+import SpotIssueResult from "./pages/SpotIssueResult";
+import Contact from "./pages/Contact";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
 import AdminCertificates from "./pages/admin/AdminCertificates";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminMonitor from "./pages/admin/AdminMonitor";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AcceptInvite from "./pages/AcceptInvite";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -87,6 +91,10 @@ function Router() {
       <Route path="/blog" component={BlogIndex} />
       <Route path="/blog/copyright" component={ArticleCopyright} />
       <Route path="/blog/monetization" component={ArticleMonetization} />
+      <Route path="/spot-issue" component={SpotIssue} />
+      <Route path="/spot-issue/result" component={SpotIssueResult} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/invite" component={AcceptInvite} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/certificates" component={AdminCertificates} />
       <Route path="/admin/users" component={AdminUsers} />

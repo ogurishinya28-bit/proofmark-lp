@@ -22,7 +22,7 @@ import path from 'node:path';
 dotenv.config({ path: path.join(process.cwd(), '.env.local') });
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { supabaseAdmin } from "./lib/supabase-admin";
+import { supabaseAdmin } from "./_lib/supabase-admin.js";
 
 // ---------------------------------------------------------------------------
 // 設定

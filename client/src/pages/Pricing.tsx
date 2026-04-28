@@ -12,6 +12,7 @@ import {
   type PricingPlan,
 } from '../data/pricingPlans';
 import { PROOFMARK_COPY } from '../lib/proofmark-copy';
+import { startCheckout } from '../lib/checkout';
 
 /* ────────────────────────────────────────────
  * Pricing Page
@@ -159,38 +160,18 @@ export default function Pricing() {
   const [, setLocation] = useLocation();
   const [reserving, setReserving] = useState(false);
 
-  const handleReserveCreator = async (e: React.MouseEvent) => {
+  const handleCheckout = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!user) {
       setLocation('/auth?mode=signup&plan=creator');
       return;
     }
-
-    if (
-      window.confirm(
-        'Creatorプラン3ヶ月無料 + 創設者バッジを予約しますか？\n※現在料金は発生しません。',
-      )
-    ) {
-      try {
-        setReserving(true);
-        const { error: authError } = await supabase.auth.updateUser({
-          data: { is_founder: true },
-        });
-        if (authError) throw authError;
-        await supabase
-          .from('profiles')
-          .update({ is_founder: true })
-          .eq('id', user.id);
-
-        toast.success('先行特典の予約が完了しました！', {
-          description: '創設者バッジがアカウントに付与されました。',
-        });
-        setTimeout(() => window.location.reload(), 1500);
-      } catch (err: any) {
-        toast.error('エラーが発生しました', { description: err.message });
-      } finally {
-        setReserving(false);
-      }
+    try {
+      setReserving(true);
+      await startCheckout({ plan: 'creator' });
+    } catch (err: any) {
+      toast.error('決済画面への遷移に失敗しました', { description: err.message });
+      setReserving(false);
     }
   };
 
@@ -249,7 +230,7 @@ export default function Pricing() {
               index={idx}
               authed={!!user}
               reserving={reserving}
-              onReserveCreator={handleReserveCreator}
+              onReserveCreator={handleCheckout}
             />
           ))}
         </div>

@@ -9,7 +9,21 @@
     "api/cert.ts": {
       "memory": 512
     },
-    "api/evidence-pack.ts": { "maxDuration": 30 }
+    "api/evidence-pack.ts": {
+      "maxDuration": 30
+    },
+    "api/generate-evidence-pack.ts": {
+      "maxDuration": 60
+    },
+    "api/timestamp.ts": {
+      "maxDuration": 30
+    },
+    "api/webhooks/stripe.ts": {
+      "maxDuration": 30
+    },
+    "api/cron/cleanup-spot-data.ts": {
+      "maxDuration": 60
+    }
   },
   "rewrites": [
     {
@@ -64,14 +78,6 @@
           "value": "*"
         },
         {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
-        },
-        {
           "key": "Cache-Control",
           "value": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400"
         }
@@ -80,14 +86,21 @@
     {
       "source": "/api/evidence-pack",
       "headers": [
-        { "key": "Cache-Control", "value": "private, max-age=0, must-revalidate" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Access-Control-Allow-Origin", "value": "https://proofmark.jp" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Authorization, Content-Type, Accept" },
-        { "key": "Access-Control-Expose-Headers", "value": "Content-Disposition, X-Request-Id, X-Evidence-Cert-Id, X-Evidence-Trust-Tier" }
+        {
+          "key": "Cache-Control",
+          "value": "private, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Access-Control-Expose-Headers",
+          "value": "Content-Disposition, X-Request-Id, X-Evidence-Cert-Id, X-Evidence-Trust-Tier"
+        }
       ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/cleanup-spot-data",
+      "schedule": "0 * * * *"
     }
   ]
 }

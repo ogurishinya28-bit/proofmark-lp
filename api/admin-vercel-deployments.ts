@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import * as Sentry from "@sentry/node";
-import { supabaseAdmin } from "./lib/supabase-admin";
+import { supabaseAdmin } from "./_lib/supabase-admin.js";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN || "",

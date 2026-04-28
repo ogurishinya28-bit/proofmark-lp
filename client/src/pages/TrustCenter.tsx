@@ -109,7 +109,7 @@ export default function TrustCenter() {
 
   return (
     <div className="min-h-screen bg-[#07061A] text-[#F0EFF8] font-sans selection:bg-[#6C3EF4]/30 selection:text-white">
-      <SEO 
+      <SEO
         title="ProofMark セキュリティ白書 | RFC3161・SHA-256による技術証明の全貌"
         description="AI生成作品の真正性を証明する暗号アーキテクチャの完全仕様。SHA-256・RFC3161・Supabase RLSの実装詳細を完全公開します。"
         url="https://proofmark.jp/trust-center"
@@ -139,8 +139,8 @@ export default function TrustCenter() {
                   key={item.id}
                   onClick={() => scrollTo(item.id)}
                   className={`text-left px-4 py-2.5 rounded-lg text-sm transition-all flex items-center gap-3 border-l-2 ${activeId === item.id
-                      ? "bg-[#6C3EF4]/10 text-white font-bold border-[#6C3EF4]"
-                      : "text-[#A8A0D8] border-transparent hover:text-white hover:bg-white/5"
+                    ? "bg-[#6C3EF4]/10 text-white font-bold border-[#6C3EF4]"
+                    : "text-[#A8A0D8] border-transparent hover:text-white hover:bg-white/5"
                     }`}
                 >
                   <span className="font-mono text-xs text-[#6C3EF4] w-5">{item.title.split(' ')[0]}</span>
@@ -173,10 +173,10 @@ export default function TrustCenter() {
 
             <div className="text-sm text-gray-400 -mt-2 mb-8 flex items-center gap-1.5">
               <span>Written by:</span>
-              <a 
-                href="https://x.com/ProofMark_jp" 
-                target="_blank" 
-                rel="noopener" 
+              <a
+                href="https://x.com/ProofMark_jp"
+                target="_blank"
+                rel="noopener"
                 className="font-bold text-[#F0EFF8] hover:text-[#00D4AA] transition-colors decoration-[#00D4AA] underline-offset-4 hover:underline"
               >
                 ProofMark Security Team
@@ -410,9 +410,28 @@ export default function TrustCenter() {
 
           {/* §4 */}
           <motion.section id="s4" variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="mb-20 scroll-mt-32">
-            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-white/10">
+            <div className="flex items-center gap-4 mb-4 pb-4 border-b border-white/10">
               <span className="font-mono bg-[#6C3EF4] text-white px-2 py-1 rounded text-sm font-bold">§4</span>
               <h2 className="text-2xl font-bold text-white tracking-tight">TSA選定：現在の構成と、商用TSAへの移行条件</h2>
+            </div>
+
+            {/* §4 最終更新日・Business向け移行条件サマリ */}
+            <div className="mb-8 grid gap-4 md:grid-cols-3">
+              <div className="rounded-xl border border-white/10 bg-[#0D0B24] p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A8A0D8] mb-1">Section last updated</p>
+                <p className="text-base font-black text-white">2026-04-26 (JST)</p>
+                <p className="text-[11px] text-[#A8A0D8] mt-1">§9 更新履歴と 1～1 で一致させています。</p>
+              </div>
+              <div className="rounded-xl border border-[#00D4AA]/30 bg-[#00D4AA]/5 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#00D4AA] mb-1">Business / API 専用 TSA</p>
+                <p className="text-base font-black text-white">DigiCert / GlobalSign 二重定結</p>
+                <p className="text-[11px] text-[#A8A0D8] mt-1">SLA・DPA・長期検証 (LTV) を含むサポート付き。</p>
+              </div>
+              <div className="rounded-xl border border-[#F0BB38]/30 bg-[#F0BB38]/5 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#F0BB38] mb-1">Commercial TSA 切替トリガ</p>
+                <p className="text-base font-black text-white">5 条件すべて満たした日</p>
+                <p className="text-[11px] text-[#A8A0D8] mt-1">4.4 に掲載した5項目がすべてTrueになったタイミングで公式切替としてアナウンスします。</p>
+              </div>
             </div>
 
             <Callout type="info">
