@@ -64,7 +64,7 @@ export default function SpotIssueResult() {
     }, [sid]);
 
     const downloadHref = state?.status === 'paid' && state.staging_id
-        ? `/api/generate-evidence-pack?staging=${state.staging_id}&spot=1`
+        ? `/api/generate-evidence-pack?staging=${state.staging_id}&spot=${sid}`
         : null;
 
     return (
