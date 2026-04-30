@@ -1,5 +1,5 @@
 export const config = { runtime: 'edge' };
-import { json, supabaseAdmin, getAuthenticatedUserId } from '../_shared';
+import { json, supabaseAdmin, getAuthenticatedUserId } from '../_shared.js';
 
 export default async function handler(request: Request) {
   if (request.method !== 'POST') return json(405, { error: 'Method not allowed' });

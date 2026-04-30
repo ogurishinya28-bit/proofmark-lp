@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import { json, supabaseAdmin, verifyEvidenceChain } from '../../_shared';
+import { json, supabaseAdmin, verifyEvidenceChain } from '../../_shared.js';
 
 const clamp = (value: number, min: number, max: number) => {
   const safeValue = Number.isFinite(value) ? value : min;

@@ -1,5 +1,5 @@
 export const config = { runtime: 'edge' };
-import { getAuthenticatedUserId, getOrigin, json, supabaseAdmin } from '../_shared';
+import { getAuthenticatedUserId, getOrigin, json, supabaseAdmin } from '../_shared.js';
 import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
 

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getAuthenticatedUserId, supabaseAdmin, buildEvidenceStep } from '../_shared';
+import { getAuthenticatedUserId, supabaseAdmin, buildEvidenceStep } from '../_shared.js';
 import crypto from 'crypto';
 
 // Disable default body parser to handle raw multipart buffer

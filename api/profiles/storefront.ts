@@ -11,7 +11,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getAdminClient, isAllowedOrigin, json, makeLogger, methodGuard } from '../_lib/server';
+import { getAdminClient, isAllowedOrigin, json, makeLogger, methodGuard } from '../_lib/server.js';
 
 const USERNAME_RE = /^[a-zA-Z0-9_-]{1,32}$/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
