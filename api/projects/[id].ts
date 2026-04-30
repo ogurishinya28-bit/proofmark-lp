@@ -15,7 +15,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import {
   HttpError, getUserClient, isAllowedOrigin, json, makeLogger, methodGuard, requireUser,
-} from '../_lib/server';
+} from '../_lib/server.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;

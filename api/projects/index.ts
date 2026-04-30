@@ -19,7 +19,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import {
   HttpError, getUserClient, isAllowedOrigin, json, makeLogger, methodGuard,
   requireStudioPlan, requireUser, getAdminClient,
-} from '../_lib/server';
+} from '../_lib/server.js';
 
 interface CreateBody {
   name: string;
