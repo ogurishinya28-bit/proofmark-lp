@@ -12,7 +12,7 @@
 
 import { motion } from 'framer-motion';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { Eye, EyeOff, FileImage, Hash, Layers3, Lock, ShieldCheck, Sparkles } from 'lucide-react';
+import { Eye, Hash, Layers3, Lock, ShieldCheck, Sparkles } from 'lucide-react';
 import {
   deriveTsaTier,
   shortenHashBlocks,
@@ -39,10 +39,8 @@ export interface StorefrontCertModel {
 
 interface Props {
   cert: StorefrontCertModel;
-  /** 親で監査チェーン整合のフェッチ結果がある場合のみ true / false。未取得は undefined。 */
   chainOk?: boolean;
   ndaMode?: NdaMode;
-  /** 現在の閲覧者がこの証明書のオーナーか否か */
   isOwner?: boolean;
   onOpenAudit?: (cert: StorefrontCertModel) => void;
 }
@@ -71,9 +69,6 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', isOwner
       }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
       className="group relative overflow-hidden rounded-[calc(0.65rem+2px)] border border-[#2a2a4e] bg-[#151d2f] transition-shadow"
-      style={{
-        // ホバー時の glow は CSS class で
-      }}
       aria-label={`${cert.title} — ${tsa.label}`}
     >
       <a
@@ -98,7 +93,7 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', isOwner
             <TheVault />
           )}
 
-          {/* TSA 階層バッジ (右上、宝石) */}
+          {/* TSA 階層バッジ */}
           <span
             className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
             style={{
@@ -114,7 +109,7 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', isOwner
             {tsa.short}
           </span>
 
-          {/* NDA バッジ (左上) */}
+          {/* NDA バッジ */}
           {isMasked && (
             <span
               className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
@@ -142,7 +137,6 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', isOwner
             {cert.title}
           </h3>
 
-          {/* Trust strip: ハッシュ + 時刻 + Chain integrity */}
           <dl className="mt-3 flex flex-col gap-1.5 text-[11px]">
             <div className="flex items-center gap-2 text-[#a0a0c0]">
               <Hash className="w-3 h-3 shrink-0" aria-hidden="true" />
@@ -188,7 +182,6 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', isOwner
             )}
           </dl>
 
-          {/* CTA: 検証 / 履歴 */}
           <div className="mt-4 flex items-center justify-between gap-2">
             <span
               className="inline-flex items-center gap-1.5 text-[11px] font-semibold"
@@ -222,8 +215,7 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', isOwner
 /* ─────────────────────────────────────────────────────────── */
 
 /**
- * The Vault — プレミアムな機密保管庫UX
- * 物理的なチタンや石板の質感を持ち、極秘性を表現する。
+ * The Vault — プレミアムな機密保管庫UX (Mobile-First)
  */
 function TheVault() {
   return (
@@ -234,38 +226,41 @@ function TheVault() {
             className="absolute inset-0 flex flex-col items-center justify-center cursor-default overflow-hidden"
             style={{
               backgroundColor: '#0a0e27',
-              backgroundImage: 'radial-gradient(circle at center, rgba(108,62,244,0.08) 0%, transparent 60%)',
+              // 変更: モバイルでも沈まないよう輝度をUP (0.08 -> 0.18)
+              backgroundImage: 'radial-gradient(circle at center, rgba(108,62,244,0.18) 0%, transparent 65%)',
             }}
           >
             {/* 走査線・チタンテクスチャ */}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
+                backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)',
                 mixBlendMode: 'overlay',
               }}
             />
 
             {/* The Lock Mechanism */}
             <div className="relative mb-3 flex items-center justify-center">
-              {/* Glow Behind Lock */}
+              {/* 変更: モバイル用に常時点灯するベースGlow */}
+              <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 15px rgba(108,62,244,0.4)' }} />
+
+              {/* ホバー用Glow */}
               <motion.div
                 variants={{
                   initial: { opacity: 0, scale: 0.8 },
-                  animate: { opacity: 0, scale: 0.8 },
-                  hover: { opacity: 1, scale: 1 },
+                  animate: { opacity: 0, scale: 0.8 }, // animateの明記
+                  hover: { opacity: 1, scale: 1.2 },
                 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 className="absolute inset-0 rounded-full"
-                style={{
-                  boxShadow: '0 0 20px rgba(0, 212, 170, 0.4)',
-                }}
+                style={{ boxShadow: '0 0 25px rgba(0, 212, 170, 0.6)' }}
               />
 
               <motion.div
                 variants={{
-                  initial: { y: 0, color: '#6c3ef4', opacity: 0.5 },
-                  animate: { y: 0, color: '#6c3ef4', opacity: 0.5 },
+                  // 変更: スマホで最初から美しく見えるよう初期Opacityを 0.85 に。
+                  initial: { y: 0, color: '#8a64f6', opacity: 0.85 },
+                  animate: { y: 0, color: '#8a64f6', opacity: 0.85 }, // animateの明記
                   hover: { y: -4, color: '#00d4aa', opacity: 1 },
                 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
@@ -276,10 +271,11 @@ function TheVault() {
             </div>
 
             {/* Typography */}
-            <h4 className="relative z-10 font-bold tracking-wide text-[#f0f0fa] text-sm/none mb-1.5 opacity-90">
+            {/* 変更: モバイルで暗くならないようopacityを100%に */}
+            <h4 className="relative z-10 font-bold tracking-wide text-[#f0f0fa] text-sm/none mb-1.5 opacity-100">
               NDA Protected
             </h4>
-            <p className="relative z-10 font-mono text-[10px] tracking-widest text-[#00d4aa] opacity-70">
+            <p className="relative z-10 font-mono text-[10px] tracking-widest text-[#00d4aa] opacity-80">
               ZERO-KNOWLEDGE ENCRYPTION
             </p>
           </div>
@@ -289,17 +285,9 @@ function TheVault() {
           <Tooltip.Content
             sideOffset={8}
             className="z-50 max-w-[280px] px-4 py-3 rounded-xl shadow-2xl text-xs leading-relaxed"
-            style={{
-              backgroundColor: '#151d2f',
-              border: '1px solid #2a2a4e',
-              color: '#a0a0c0',
-            }}
+            style={{ backgroundColor: '#151d2f', border: '1px solid #2a2a4e', color: '#a0a0c0' }}
           >
-            <motion.div
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-            >
+            <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
               この作品は機密保持契約（NDA）に基づき、高度な暗号化技術で保護されています。元の画像はクリエイターのローカル環境から一切送信されていません。
             </motion.div>
             <Tooltip.Arrow className="fill-[#2a2a4e] w-3 h-1.5" />
@@ -314,13 +302,10 @@ function TheVault() {
 
 /**
  * TranslucentVault — オーナー専用のすりガラスプレビュー。
- * 実画像を極度のBlur + モノクロ化で表示し、中央にウォーターマークを重ねる。
- * これにより「どれがどの案件か」がオーナーにだけ判別できる。
  */
 function TranslucentVault({ imageUrl }: { imageUrl: string }) {
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Blurred + Grayscale actual image */}
       <img
         src={imageUrl}
         alt=""
@@ -332,22 +317,22 @@ function TranslucentVault({ imageUrl }: { imageUrl: string }) {
           filter: 'blur(16px) grayscale(100%) opacity(0.6)',
         }}
       />
-      {/* Watermark overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0e27]/40">
         <motion.div
           variants={{
-            initial: { y: 0, opacity: 0.6 },
-            animate: { y: 0, opacity: 0.6 },
+            // モバイル用に初期Opacityを0.8に引き上げ
+            initial: { y: 0, opacity: 0.8 },
+            animate: { y: 0, opacity: 0.8 }, // animateの明記
             hover: { y: -2, opacity: 1 },
           }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
-          <Lock className="w-6 h-6 text-[#f0f0fa]/60 mb-2 mx-auto" />
+          <Lock className="w-6 h-6 text-[#f0f0fa]/80 mb-2 mx-auto" />
         </motion.div>
-        <span className="font-bold text-[11px] tracking-wider text-[#f0f0fa]/70 uppercase">
+        <span className="font-bold text-[11px] tracking-wider text-[#f0f0fa]/90 uppercase">
           Owner Preview
         </span>
-        <span className="font-mono text-[9px] tracking-widest text-[#00d4aa]/50 uppercase mt-0.5">
+        <span className="font-mono text-[9px] tracking-widest text-[#00d4aa]/70 uppercase mt-0.5">
           NDA Protected
         </span>
       </div>
@@ -358,9 +343,7 @@ function TranslucentVault({ imageUrl }: { imageUrl: string }) {
 /* ─────────────────────────────────────────────────────────── */
 
 /**
- * OwnerVault — オーナー用の「識別可能な石板」。
- * 実画像URLが存在しない場合でも、本人だけがオーナーと分かる
- * パープルアクセントの石板を表示する。
+ * OwnerVault — オーナー用の「識別可能な石板」(Mobile-First)
  */
 function OwnerVault() {
   return (
@@ -368,32 +351,35 @@ function OwnerVault() {
       className="absolute inset-0 flex flex-col items-center justify-center cursor-default overflow-hidden"
       style={{
         backgroundColor: '#0a0e27',
-        backgroundImage: 'radial-gradient(circle at center, rgba(108,62,244,0.12) 0%, transparent 60%)',
+        // 変更: モバイルでもパープルが見えるように輝度UP (0.12 -> 0.2)
+        backgroundImage: 'radial-gradient(circle at center, rgba(108,62,244,0.2) 0%, transparent 60%)',
       }}
     >
-      {/* 走査線 */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)',
           mixBlendMode: 'overlay',
         }}
       />
       <motion.div
         variants={{
-          initial: { y: 0, opacity: 0.5 },
-          animate: { y: 0, opacity: 0.5 },
+          // 変更: スマホで最初からくっきり見えるようにOpacityを 0.9 に。
+          initial: { y: 0, opacity: 0.9 },
+          animate: { y: 0, opacity: 0.9 }, // animateの明記
           hover: { y: -4, opacity: 1 },
         }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="mb-3"
+        className="mb-3 relative"
       >
-        <Lock className="w-8 h-8 text-[#6c3ef4]" />
+        {/* 常時点灯のパープルGlow */}
+        <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 20px rgba(108,62,244,0.5)' }} />
+        <Lock className="w-8 h-8 text-[#9b7bfa] relative z-10" />
       </motion.div>
-      <h4 className="relative z-10 font-bold tracking-wide text-[#f0f0fa] text-sm/none mb-1 opacity-90">
+      <h4 className="relative z-10 font-bold tracking-wide text-[#f0f0fa] text-sm/none mb-1 opacity-100">
         NDA Protected
       </h4>
-      <span className="font-mono text-[9px] tracking-widest text-[#6c3ef4] opacity-70 uppercase">
+      <span className="relative z-10 font-mono text-[9px] tracking-widest text-[#9b7bfa] opacity-90 uppercase bg-[#6c3ef4]/10 px-2 py-0.5 rounded-full border border-[#6c3ef4]/30">
         Owner View
       </span>
     </div>
