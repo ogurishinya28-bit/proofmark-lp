@@ -11,6 +11,7 @@
  */
 
 import { motion } from 'framer-motion';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { Eye, EyeOff, FileImage, Hash, Layers3, Lock, ShieldCheck, Sparkles } from 'lucide-react';
 import {
   deriveTsaTier,
@@ -58,10 +59,15 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', onOpenA
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial="initial"
+      animate="animate"
+      whileHover="hover"
+      variants={{
+        initial: { opacity: 0, y: 8 },
+        animate: { opacity: 1, y: 0 },
+        hover: { y: -3 },
+      }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -3 }}
       className="group relative overflow-hidden rounded-[calc(0.65rem+2px)] border border-[#2a2a4e] bg-[#151d2f] transition-shadow"
       style={{
         // ホバー時の glow は CSS class で
@@ -83,7 +89,7 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', onOpenA
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
           ) : (
-            <NdaMaskCanvas hash={sha} />
+            <TheVault />
           )}
 
           {/* TSA 階層バッジ (右上、宝石) */}
@@ -210,51 +216,90 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', onOpenA
 /* ─────────────────────────────────────────────────────────── */
 
 /**
- * NdaMaskCanvas — 暗号ハッシュを「グリッド模様の機密キャンバス」に変換する。
- * 64 文字の SHA-256 を 8x8 のドットマトリクスに投影し、各セルは hex 値の輝度で
- * 微妙に変化する。NDA を「黒塗り」せず、敬意を持って表現する。
+ * The Vault — プレミアムな機密保管庫UX
+ * 物理的なチタンや石板の質感を持ち、極秘性を表現する。
  */
-function NdaMaskCanvas({ hash }: { hash: string }) {
-  const safe = (hash || '').padEnd(64, '0').slice(0, 64).toLowerCase();
-  // 8x8 = 64 dots
-  const cells = Array.from(safe).map((ch) => {
-    const v = parseInt(ch, 16);
-    const opacity = 0.10 + (v / 15) * 0.40;
-    return opacity;
-  });
+function TheVault() {
   return (
-    <div
-      className="absolute inset-0 flex flex-col items-center justify-center"
-      style={{
-        background:
-          'radial-gradient(circle at 30% 25%, rgba(108,62,244,0.18), transparent 65%), radial-gradient(circle at 75% 80%, rgba(0,212,170,0.10), transparent 60%), #0a0e27',
-      }}
-      aria-hidden="true"
-    >
-      <div
-        className="grid gap-[6px] opacity-70"
-        style={{
-          gridTemplateColumns: 'repeat(8, 14px)',
-          gridTemplateRows: 'repeat(8, 14px)',
-        }}
-      >
-        {cells.map((op, i) => (
-          <span
-            key={i}
+    <Tooltip.Provider delayDuration={200}>
+      <Tooltip.Root>
+        <Tooltip.Trigger asChild>
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center cursor-default overflow-hidden"
             style={{
-              background: `rgba(240, 240, 250, ${op.toFixed(3)})`,
-              borderRadius: 3,
-              width: 14,
-              height: 14,
+              backgroundColor: '#0a0e27',
+              backgroundImage: 'radial-gradient(circle at center, rgba(108,62,244,0.08) 0%, transparent 60%)',
             }}
-          />
-        ))}
-      </div>
-      <div className="absolute bottom-3 inset-x-0 flex items-center justify-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-[#a0a0c0]/70">
-        <FileImage className="w-3 h-3" aria-hidden="true" />
-        Confidential · Cryptographically Verified
-        <EyeOff className="w-3 h-3" aria-hidden="true" />
-      </div>
-    </div>
+          >
+            {/* 走査線・チタンテクスチャ */}
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px)',
+                mixBlendMode: 'overlay',
+              }}
+            />
+
+            {/* The Lock Mechanism */}
+            <div className="relative mb-3 flex items-center justify-center">
+              {/* Glow Behind Lock */}
+              <motion.div
+                variants={{
+                  initial: { opacity: 0, scale: 0.8 },
+                  animate: { opacity: 0, scale: 0.8 },
+                  hover: { opacity: 1, scale: 1 },
+                }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="absolute inset-0 rounded-full"
+                style={{
+                  boxShadow: '0 0 20px rgba(0, 212, 170, 0.4)',
+                }}
+              />
+              
+              <motion.div
+                variants={{
+                  initial: { y: 0, color: '#6c3ef4', opacity: 0.5 },
+                  animate: { y: 0, color: '#6c3ef4', opacity: 0.5 },
+                  hover: { y: -4, color: '#00d4aa', opacity: 1 },
+                }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="relative z-10"
+              >
+                <Lock className="w-8 h-8" />
+              </motion.div>
+            </div>
+
+            {/* Typography */}
+            <h4 className="relative z-10 font-bold tracking-wide text-[#f0f0fa] text-sm/none mb-1.5 opacity-90">
+              NDA Protected
+            </h4>
+            <p className="relative z-10 font-mono text-[10px] tracking-widest text-[#00d4aa] opacity-70">
+              ZERO-KNOWLEDGE ENCRYPTION
+            </p>
+          </div>
+        </Tooltip.Trigger>
+
+        <Tooltip.Portal>
+          <Tooltip.Content
+            sideOffset={8}
+            className="z-50 max-w-[280px] px-4 py-3 rounded-xl shadow-2xl text-xs leading-relaxed"
+            style={{
+              backgroundColor: '#151d2f',
+              border: '1px solid #2a2a4e',
+              color: '#a0a0c0',
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
+              この作品は機密保持契約（NDA）に基づき、高度な暗号化技術で保護されています。元の画像はクリエイターのローカル環境から一切送信されていません。
+            </motion.div>
+            <Tooltip.Arrow className="fill-[#2a2a4e] w-3 h-1.5" />
+          </Tooltip.Content>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    </Tooltip.Provider>
   );
 }
