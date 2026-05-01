@@ -16,24 +16,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const log = makeLogger('storefront-html-bff');
   let rawHtml = '';
   try {
-    // Vercel bundles includeFiles relative to the function's own directory.
-    // Use __dirname (function bundle root) first; fall back to process.cwd().
-    const candidates = [
-      path.join(__dirname, 'dist', 'index.html'),
-      path.join(__dirname, '..', 'dist', 'index.html'),
+    // Vercel bundles `includeFiles` relative to process.cwd() at runtime.
+    // The vercel.json entry { "includeFiles": "dist/index.html" } guarantees
+    // this file is present in the function package.
+    rawHtml = fs.readFileSync(
       path.join(process.cwd(), 'dist', 'index.html'),
-    ];
-    let loaded = false;
-    for (const candidate of candidates) {
-      try {
-        rawHtml = fs.readFileSync(candidate, 'utf8');
-        loaded = true;
-        break;
-      } catch {
-        // try next
-      }
-    }
-    if (!loaded) throw new Error('index.html not found in any candidate path');
+      'utf8',
+    );
   } catch (e) {
     log.error({ event: 'html_read_failed', message: String(e) });
     return res.status(500).send('Internal Server Error: Missing index.html');
