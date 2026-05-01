@@ -217,7 +217,7 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', isOwner
 /**
  * The Vault — プレミアムな機密保管庫UX (Mobile-First)
  */
-function TheVault() {
+export function TheVault() {
   return (
     <Tooltip.Provider delayDuration={200}>
       <Tooltip.Root>
@@ -303,7 +303,7 @@ function TheVault() {
 /**
  * TranslucentVault — オーナー専用のすりガラスプレビュー。
  */
-function TranslucentVault({ imageUrl }: { imageUrl: string }) {
+export function TranslucentVault({ imageUrl }: { imageUrl: string }) {
   return (
     <div className="absolute inset-0 overflow-hidden">
       <img
@@ -345,7 +345,7 @@ function TranslucentVault({ imageUrl }: { imageUrl: string }) {
 /**
  * OwnerVault — オーナー用の「識別可能な石板」(Mobile-First)
  */
-function OwnerVault() {
+export function OwnerVault() {
   return (
     <div
       className="absolute inset-0 flex flex-col items-center justify-center cursor-default overflow-hidden"

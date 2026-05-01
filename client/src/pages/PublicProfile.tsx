@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from '../components/Navbar';
 import FounderBadge from '../components/FounderBadge';
+import { TheVault, TranslucentVault, OwnerVault } from '../components/storefront/StorefrontProofCard';
 
 interface CertRecord {
   id: string;
@@ -396,7 +397,8 @@ export default function PublicProfile() {
 // Gallery Item Component (World-Class Grid & Aspect Ratio)
 // ----------------------
 function GalleryItem({ cert, isFeatured, user }: { cert: CertRecord; isFeatured?: boolean; user: any }) {
-  const showImage = cert.proof_mode === 'shareable' && cert.public_image_url && (cert.visibility === 'public' || user?.id === cert.user_id);
+  const isOwner = user?.id === cert.user_id;
+  const isMasked = cert.proof_mode === 'confidential' || cert.visibility === 'private';
   const title = (cert.metadata && typeof cert.metadata.title === 'string' ? cert.metadata.title : null) || formatFilename(cert);
   const processBundle = Array.isArray(cert.metadata?.process_bundle) ? cert.metadata!.process_bundle : [];
 
@@ -416,47 +418,53 @@ function GalleryItem({ cert, isFeatured, user }: { cert: CertRecord; isFeatured?
       <Link href={`/cert/${cert.id || ''}`}>
         <div className="relative group block cursor-pointer w-full">
 
-          {showImage ? (
-            <div className={`relative overflow-hidden bg-[#0A0A0A] rounded-xl border border-[#111] group-hover:border-[#333] transition-all duration-500 ${layoutClasses} ${isFeatured ? 'shadow-[0_0_80px_rgba(255,255,255,0.03)] group-hover:shadow-[0_8px_40px_rgba(108,62,244,0.1)]' : 'group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]'}`}>
-              <motion.img
-                whileHover={{ scale: 1.03 }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
-                src={typeof cert.public_image_url === 'string' ? cert.public_image_url : ''}
-                alt={title}
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-700"
-              />
-              
-              {isFeatured && (
-                <div className="absolute top-4 left-4 bg-[#050505]/80 backdrop-blur-md border border-[#333] px-3 py-1.5 rounded-full z-20 flex items-center gap-2">
-                  <span className="text-[#FFD700] text-[9px] font-bold tracking-[0.2em] uppercase flex items-center gap-1.5"><Sparkles className="w-3 h-3 text-[#FFD700]" /> Featured</span>
-                </div>
-              )}
-
-              {processBundle.length > 0 && (
-                <div className="absolute inset-0 bg-[#050505]/70 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center hidden md:flex">
-                  <div className="flex flex-col gap-8 items-center w-full px-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                    <span className="text-[#888] text-[10px] tracking-[0.4em] uppercase font-light">Sequence</span>
-                    <div className="flex items-center justify-center w-full max-w-[90%] mx-auto">
-                      {processBundle.map((step, idx, arr) => (
-                        <div key={idx} className="flex items-center flex-1 last:flex-none">
-                          <div className="flex flex-col items-center gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
-                            <span className="text-white text-[9px] font-light tracking-[0.2em] whitespace-nowrap uppercase">{typeof step === 'string' ? step : 'STEP'}</span>
+          <div className={`relative overflow-hidden bg-[#0A0A0A] rounded-xl border border-[#111] group-hover:border-[#333] transition-all duration-500 ${layoutClasses} ${isFeatured ? 'shadow-[0_0_80px_rgba(255,255,255,0.03)] group-hover:shadow-[0_8px_40px_rgba(108,62,244,0.1)]' : 'group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]'}`}>
+            
+            {!isMasked && cert.public_image_url ? (
+              <>
+                <motion.img
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                  src={typeof cert.public_image_url === 'string' ? cert.public_image_url : ''}
+                  alt={title}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-700"
+                />
+                {processBundle.length > 0 && (
+                  <div className="absolute inset-0 bg-[#050505]/70 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center hidden md:flex">
+                    <div className="flex flex-col gap-8 items-center w-full px-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                      <span className="text-[#888] text-[10px] tracking-[0.4em] uppercase font-light">Sequence</span>
+                      <div className="flex items-center justify-center w-full max-w-[90%] mx-auto">
+                        {processBundle.map((step, idx, arr) => (
+                          <div key={idx} className="flex items-center flex-1 last:flex-none">
+                            <div className="flex flex-col items-center gap-3">
+                              <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+                              <span className="text-white text-[9px] font-light tracking-[0.2em] whitespace-nowrap uppercase">{typeof step === 'string' ? step : 'STEP'}</span>
+                            </div>
+                            {idx < arr.length - 1 && (
+                              <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent mx-3 self-start mt-[2px]" />
+                            )}
                           </div>
-                          {idx < arr.length - 1 && (
-                            <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent mx-3 self-start mt-[2px]" />
-                          )}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className={layoutClasses}><ObsidianSlab hash={cert.file_hash} isFeatured={isFeatured} /></div>
-          )}
+                )}
+              </>
+            ) : isOwner && cert.public_image_url ? (
+              <TranslucentVault imageUrl={cert.public_image_url} />
+            ) : isOwner ? (
+              <OwnerVault />
+            ) : (
+              <TheVault />
+            )}
+            
+            {isFeatured && (
+              <div className="absolute top-4 left-4 bg-[#050505]/80 backdrop-blur-md border border-[#333] px-3 py-1.5 rounded-full z-20 flex items-center gap-2">
+                <span className="text-[#FFD700] text-[9px] font-bold tracking-[0.2em] uppercase flex items-center gap-1.5"><Sparkles className="w-3 h-3 text-[#FFD700]" /> Featured</span>
+              </div>
+            )}
+          </div>
 
           {/* Responsive Meta Data (Mobile Safe) */}
           <div className="mt-4 sm:mt-6 flex justify-between items-center relative z-10 w-full px-1 overflow-hidden">
@@ -471,40 +479,5 @@ function GalleryItem({ cert, isFeatured, user }: { cert: CertRecord; isFeatured?
         </div>
       </Link>
     </motion.div>
-  );
-}
-
-// 👑 Obsidian Slab (Functional Minimalism & Affordance)
-function ObsidianSlab({ hash, isFeatured }: { hash: any, isFeatured?: boolean }) {
-  const safeHash = typeof hash === 'string' ? hash : String(hash || '');
-  const displayHash = safeHash.length > 16 ? `${safeHash.slice(0, 16)}...` : safeHash;
-
-  return (
-    <div className="w-full h-full bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl flex flex-col items-center justify-center relative overflow-hidden group shadow-[inset_0_1px_4px_rgba(255,255,255,0.02)] transition-all duration-500 hover:border-[#222] hover:shadow-[inset_0_1px_8px_rgba(255,255,255,0.05),_0_8px_30px_rgba(108,62,244,0.06)]">
-      {/* Glossy Sweep Effect */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#151515] to-transparent opacity-0 group-hover:opacity-100 -translate-x-full group-hover:translate-x-full transition-all duration-[2s] ease-in-out pointer-events-none" />
-      
-      {isFeatured && (
-        <div className="absolute top-4 left-4 bg-[#111] border border-[#333] px-3 py-1.5 rounded-full z-20 flex items-center gap-2">
-          <span className="text-[#FFD700] text-[9px] font-bold tracking-[0.2em] uppercase flex items-center gap-1.5"><Sparkles className="w-3 h-3 text-[#FFD700]" /> Featured</span>
-        </div>
-      )}
-
-      <div className="z-10 flex flex-col items-center gap-8 sm:gap-10 transform scale-95 group-hover:scale-100 transition-transform duration-700 ease-out px-4">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-[#222] bg-[#111] flex items-center justify-center group-hover:border-[#444] group-hover:bg-[#1A1A1A] transition-all duration-700 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
-          <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-[#444] stroke-[1.5] group-hover:text-[#6C3EF4] transition-colors duration-700" />
-        </div>
-
-        <div className="flex flex-col items-center gap-3 sm:gap-4 text-center">
-          <span className="text-[#555] font-mono text-[8px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.4em] font-light group-hover:text-[#00D4AA] transition-colors duration-700 break-all px-2">
-            {displayHash || 'ZERO-KNOWLEDGE'}
-          </span>
-          <div className="w-8 sm:w-10 h-[1px] bg-[#222] group-hover:bg-gradient-to-r group-hover:from-transparent group-hover:via-[#6C3EF4] group-hover:to-transparent transition-all duration-700" />
-          <span className="text-[#444] text-[7px] sm:text-[8px] uppercase tracking-[0.3em] sm:tracking-[0.5em] font-medium group-hover:text-[#888] transition-colors duration-700">
-            Classified Asset
-          </span>
-        </div>
-      </div>
-    </div>
   );
 }
