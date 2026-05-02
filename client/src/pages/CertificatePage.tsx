@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRoute, useLocation, Link } from 'wouter';
 import { QRCodeSVG } from 'qrcode.react';
 import { CheckCircle, Clock, ShieldCheck, Image as ImageIcon, Copy, Check, FileText, Lock, ShieldAlert, Flag, Package } from 'lucide-react';
@@ -14,6 +14,8 @@ import { getProcessBundleByVerifyToken } from '../lib/proofmark-api';
 import navbarLogo from '../assets/logo/navbar/proofmark-navbar-symbol-dark.svg';
 import founderBadge from '../assets/logo/badges/proofmark-badge-founder.svg';
 import { supabase } from '../lib/supabase';
+import { getC2paSummary } from '../lib/c2pa-schema';
+import { ContentCredentialsSection } from '../components/cert/ContentCredentialsSection';
 
 // ---- RFC3161 FreeTSA Timestamp API ----
 const applyRFC3161Timestamp = async (certId: string, hash: string) => {
@@ -57,6 +59,7 @@ export default function CertificatePage() {
     const actualPlanVariable = user?.user_metadata?.plan_type;
     const currentPlan = (actualPlanVariable || '').toLowerCase();
     const isPaidPlan = ['light', 'creator', 'studio', 'admin'].includes(currentPlan);
+    const c2pa = useMemo(() => getC2paSummary(cert?.c2pa_manifest), [cert?.c2pa_manifest]);
 
     // ---- RFC3161 Timestamp State ----
     const [isStamping, setIsStamping] = useState(false);
@@ -292,6 +295,11 @@ export default function CertificatePage() {
                                 <div className="flex items-center gap-1.5 bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-[#00D4AA] px-4 py-2 rounded-full text-xs font-black tracking-widest uppercase print:bg-teal-50 print:border-teal-500 print:text-teal-700">
                                     <ShieldCheck className="w-4 h-4" /> VERIFIED
                                 </div>
+                                {c2pa.present && (
+                                    <div className="flex items-center gap-1.5 bg-[#6C3EF4]/10 border border-[#6C3EF4]/50 shadow-[0_0_12px_rgba(108,62,244,0.4)] text-[#BC78FF] px-4 py-2 rounded-full text-xs font-black tracking-widest uppercase print:bg-purple-50 print:border-purple-500 print:text-purple-700">
+                                        <ShieldCheck className="w-4 h-4"/> C2PA VERIFIED
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-1.5 bg-[#6C3EF4]/10 border border-[#6C3EF4]/50 shadow-[0_0_12px_rgba(108,62,244,0.4)] text-[#BC78FF] px-4 py-2 rounded-full text-xs font-black tracking-widest uppercase print:bg-purple-50 print:border-purple-500 print:text-purple-700">
                                     <img src={founderBadge} alt="Founder" className="w-4 h-4 print:hidden" />
                                     <span className="hidden print:inline-block w-4 h-4 text-center leading-4">🚀</span>
@@ -397,6 +405,10 @@ export default function CertificatePage() {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div className="w-full max-w-5xl mt-8">
+                    <ContentCredentialsSection manifest={cert?.c2pa_manifest}/>
                 </div>
 
                 {/* --- 🚫 ここから下は印刷時すべて非表示 (print:hidden) --- */}

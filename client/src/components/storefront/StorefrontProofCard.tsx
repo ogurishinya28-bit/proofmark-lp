@@ -12,14 +12,18 @@
 
 import { motion } from 'framer-motion';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { Eye, Hash, Layers3, Lock, ShieldCheck, Sparkles } from 'lucide-react';
+import { Eye, Hash, Layers3, Lock, ShieldCheck, Sparkles, Wand2 } from 'lucide-react';
 import {
   deriveTsaTier,
+  deriveC2paVault,
+  getC2paSummary,
   shortenHashBlocks,
   formatProofTime,
   NDA_TOKENS,
   type NdaMode,
+  type C2paVaultTone,
 } from '../../lib/proofmark-storefront';
+import type { C2paVisualSummary } from '../../lib/c2pa-schema';
 
 export interface StorefrontCertModel {
   id: string;
@@ -35,6 +39,13 @@ export interface StorefrontCertModel {
   delivery_status: string | null;
   project_id: string | null;
   badge_tier: string | null;
+  // C2PA fields — manifest body (preferred) or scalar fallback columns
+  c2pa_manifest?: unknown;
+  c2pa_present?: boolean | null;
+  c2pa_valid?: boolean | null;
+  c2pa_ai_used?: boolean | null;
+  c2pa_ai_provider?: string | null;
+  c2pa_issuer?: string | null;
 }
 
 interface Props {
@@ -56,6 +67,19 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', isOwner
   });
   const time = formatProofTime(cert.proven_at ?? cert.certified_at);
   const sha = cert.sha256 ?? '';
+
+  // C2PA: manifest body が削ぎ落とされた場合はスカラーカラムでフォールバック
+  const c2pa: C2paVisualSummary = getC2paSummary(cert.c2pa_manifest ?? {
+    present: cert.c2pa_present,
+    validity: cert.c2pa_valid === true ? 'valid' : cert.c2pa_valid === false ? 'invalid' : cert.c2pa_present ? 'unknown' : undefined,
+    issuer: cert.c2pa_issuer ?? null,
+    ai_used: cert.c2pa_ai_used ?? null,
+    ai_provider: cert.c2pa_ai_provider ?? null,
+  });
+  const c2paVault: C2paVaultTone = deriveC2paVault(cert.c2pa_manifest ?? {
+    validity: c2pa.validity === 'absent' ? undefined : c2pa.validity,
+    issuer: c2pa.issuer, ai_used: c2pa.aiUsed, ai_provider: c2pa.aiProvider, present: c2pa.present,
+  });
 
   return (
     <motion.article
@@ -88,9 +112,9 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', isOwner
           ) : isOwner && cert.public_image_url ? (
             <TranslucentVault imageUrl={cert.public_image_url} />
           ) : isOwner ? (
-            <OwnerVault />
+            <OwnerVault c2pa={c2pa} c2paVault={c2paVault} />
           ) : (
-            <TheVault />
+            <TheVault c2pa={c2pa} c2paVault={c2paVault} />
           )}
 
           {/* TSA 階層バッジ */}
@@ -217,7 +241,12 @@ export function StorefrontProofCard({ cert, chainOk, ndaMode = 'masked', isOwner
 /**
  * The Vault — プレミアムな機密保管庫UX (Mobile-First)
  */
-export function TheVault() {
+interface VaultC2paProps {
+  c2pa?: C2paVisualSummary;
+  c2paVault?: C2paVaultTone;
+}
+
+export function TheVault({ c2pa, c2paVault }: VaultC2paProps = {}) {
   return (
     <Tooltip.Provider delayDuration={200}>
       <Tooltip.Root>
@@ -278,6 +307,22 @@ export function TheVault() {
             <p className="relative z-10 font-mono text-[10px] tracking-widest text-[#00d4aa] opacity-80">
               ZERO-KNOWLEDGE ENCRYPTION
             </p>
+
+            {/* C2PA バッジ — present の場合のみ表示（Void汚染なし） */}
+            {c2pa?.present && c2paVault && (
+              <span
+                className="relative z-10 mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+                style={{
+                  color: c2paVault.color,
+                  background: c2paVault.bg,
+                  border: `1px solid ${c2paVault.border}`,
+                }}
+                title={c2paVault.description}
+              >
+                <Wand2 className="w-2.5 h-2.5" aria-hidden="true" />
+                {c2paVault.gem}
+              </span>
+            )}
           </div>
         </Tooltip.Trigger>
 
@@ -289,6 +334,9 @@ export function TheVault() {
           >
             <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
               この作品は機密保持契約（NDA）に基づき、高度な暗号化技術で保護されています。元の画像はクリエイターのローカル環境から一切送信されていません。
+              {c2pa?.present && c2paVault && (
+                <><br /><br /><strong style={{ color: c2paVault.color }}>C2PA: {c2paVault.label}</strong> — {c2paVault.description}</>
+              )}
             </motion.div>
             <Tooltip.Arrow className="fill-[#2a2a4e] w-3 h-1.5" />
           </Tooltip.Content>
@@ -345,7 +393,7 @@ export function TranslucentVault({ imageUrl }: { imageUrl: string }) {
 /**
  * OwnerVault — オーナー用の「識別可能な石板」(Mobile-First)
  */
-export function OwnerVault() {
+export function OwnerVault({ c2pa, c2paVault }: VaultC2paProps = {}) {
   return (
     <div
       className="absolute inset-0 flex flex-col items-center justify-center cursor-default overflow-hidden"
@@ -382,6 +430,21 @@ export function OwnerVault() {
       <span className="relative z-10 font-mono text-[9px] tracking-widest text-[#9b7bfa] opacity-90 uppercase bg-[#6c3ef4]/10 px-2 py-0.5 rounded-full border border-[#6c3ef4]/30">
         Owner View
       </span>
+      {/* C2PA バッジ — present の場合のみ表示（Void汚染なし） */}
+      {c2pa?.present && c2paVault && (
+        <span
+          className="relative z-10 mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+          style={{
+            color: c2paVault.color,
+            background: c2paVault.bg,
+            border: `1px solid ${c2paVault.border}`,
+          }}
+          title={c2paVault.description}
+        >
+          <Wand2 className="w-2.5 h-2.5" aria-hidden="true" />
+          {c2paVault.gem}
+        </span>
+      )}
     </div>
   );
 }

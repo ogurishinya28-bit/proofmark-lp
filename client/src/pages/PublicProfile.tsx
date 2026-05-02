@@ -10,6 +10,11 @@ import { useAuth } from '../hooks/useAuth';
 import Navbar from '../components/Navbar';
 import FounderBadge from '../components/FounderBadge';
 import { TheVault, TranslucentVault, OwnerVault } from '../components/storefront/StorefrontProofCard';
+import {
+  STOREFRONT_AI_FILTERS,
+  matchesAiFilter,
+  type StorefrontAiFilter,
+} from '../lib/proofmark-storefront';
 
 interface CertRecord {
   id: string;
@@ -133,6 +138,7 @@ export default function PublicProfile() {
 
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [aiFilter, setAiFilter] = useState<StorefrontAiFilter>('all');
 
   useEffect(() => {
     let active = true;
@@ -210,8 +216,23 @@ export default function PublicProfile() {
         return title.includes(q) || hash.includes(q);
       });
     }
+
+    // C2PA AI フィルタ: manifest 本体またはスカラーフラグでフォールバック
+    if (aiFilter !== 'all') {
+      result = result.filter(c => {
+        const raw = (c as any).c2pa_manifest ?? {
+          present: (c as any).c2pa_present,
+          validity: (c as any).c2pa_valid === true ? 'valid' : (c as any).c2pa_valid === false ? 'invalid' : (c as any).c2pa_present ? 'unknown' : undefined,
+          ai_used: (c as any).c2pa_ai_used ?? null,
+          ai_provider: (c as any).c2pa_ai_provider ?? null,
+          issuer: (c as any).c2pa_issuer ?? null,
+        };
+        return matchesAiFilter(raw, aiFilter);
+      });
+    }
+
     return result;
-  }, [certs, activeCategory, searchQuery]);
+  }, [certs, activeCategory, searchQuery, aiFilter]);
 
   const featuredCerts = filteredCerts.filter(c => c.is_starred || c.metadata?.is_starred);
   const standardCerts = filteredCerts.filter(c => !c.is_starred && !c.metadata?.is_starred);
@@ -338,6 +359,36 @@ export default function PublicProfile() {
             <input type="text" placeholder="Search proofs..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
               className="block w-full pl-11 pr-4 py-2.5 border border-[#333] hover:border-[#444] rounded-full leading-5 bg-[#111]/90 backdrop-blur-md text-white placeholder-[#666] focus:outline-none focus:border-[#6C3EF4] focus:ring-1 focus:ring-[#6C3EF4] sm:text-sm transition-all duration-300 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]"
             />
+          </div>
+
+          {/* C2PA AI フィルタ — 罠3対策: not-generated を「Human-first (暗号証明済)」に上書き */}
+          <div className="flex flex-wrap gap-2 mt-3 lg:mt-0">
+            {STOREFRONT_AI_FILTERS.map(f => {
+              const displayLabel =
+                f.value === 'not-generated' ? 'Human-first (暗号証明済)' : f.label;
+              const isActive = aiFilter === f.value;
+              return (
+                <button
+                  key={f.value}
+                  onClick={() => setAiFilter(f.value)}
+                  className={[
+                    'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase transition-all duration-200',
+                    isActive
+                      ? 'bg-[#6C3EF4]/20 border border-[#6C3EF4]/60 text-[#BC78FF] shadow-[0_0_10px_rgba(108,62,244,0.35)]'
+                      : 'bg-[#111] border border-[#333] text-[#666] hover:border-[#555] hover:text-[#aaa]',
+                  ].join(' ')}
+                  title={
+                    f.value === 'not-generated'
+                      ? 'C2PA Content Credentialsによって「AI生成でない」ことが暗号的に証明された作品のみ表示します'
+                      : undefined
+                  }
+                >
+                  {f.value === 'ai-generated' && <span aria-hidden>✦</span>}
+                  {f.value === 'not-generated' && <span aria-hidden>🔒</span>}
+                  {displayLabel}
+                </button>
+              );
+            })}
           </div>
         </div>
 

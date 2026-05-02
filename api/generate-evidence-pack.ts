@@ -52,6 +52,7 @@ interface CertRecord {
     tsa_provider: string | null;
     tsa_url: string | null;
     team_id: string | null;
+    c2pa_manifest: Record<string, unknown> | null;
 }
 
 interface SpotOrderRecord {
@@ -101,7 +102,8 @@ function buildClientLetter(cert: CertRecord, verifyUrl: string): string {
         '1. Compute SHA-256 of the supplied file and ensure it matches "SHA-256" above.',
         '2. Run `verify.sh` (or `verify.py`) inside this archive to verify the RFC3161',
         '   timestamp token (timestamp.tsr) using OpenSSL.',
-        '3. Optionally open Verify URL to compare against the public certificate page.',
+        '3. If this work contains Content Credentials, open c2pa.json to review the scrubbed manifest.',
+        '4. Optionally open Verify URL to compare against the public certificate page.',
         '',
         'Notes',
         '-----',
@@ -226,7 +228,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             const { data, error } = await admin
                 .from('certificates')
-                .select('id, user_id, title, sha256, proof_mode, visibility, public_image_url, storage_path, original_filename, file_name, certified_at, proven_at, created_at, timestamp_token, tsa_provider, tsa_url, team_id')
+                .select('id, user_id, title, sha256, proof_mode, visibility, public_image_url, storage_path, original_filename, file_name, certified_at, proven_at, created_at, timestamp_token, tsa_provider, tsa_url, team_id, c2pa_manifest')
                 .eq('id', certParam)
                 .maybeSingle();
 
@@ -295,6 +297,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             archive.append(buildClientLetter(cert, verifyUrl), { name: 'CLIENT_LETTER.txt', date: FIXED_ZIP_TIME });
+            if (cert.c2pa_manifest) {
+                archive.append(JSON.stringify(cert.c2pa_manifest, null, 2), { name: 'c2pa.json', date: FIXED_ZIP_TIME });
+            }
             archive.append(buildVerifyShellScript(), { name: 'verify.sh', date: FIXED_ZIP_TIME, mode: 0o755 });
             archive.append(buildVerifyPython(), { name: 'verify.py', date: FIXED_ZIP_TIME, mode: 0o755 });
 
@@ -310,6 +315,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 tsa_provider: cert.tsa_provider,
                 tsa_url: cert.tsa_url,
                 verify_url: verifyUrl,
+                c2pa_present: !!cert.c2pa_manifest,
             };
             archive.append(JSON.stringify(meta, null, 2), { name: 'metadata.json', date: FIXED_ZIP_TIME });
 
