@@ -26,6 +26,7 @@ import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO';
 import TrustSignalRow from '@/components/TrustSignalRow';
 import EvidencePackTeaser from '@/components/EvidencePackTeaser';
+import C2paComparisonRow from '@/components/lp/C2paComparisonRow';
 import EngineeringPillarsSection from '@/components/EngineeringPillarsSection';
 import UseCasesSection from '@/components/UseCasesSection';
 import NdaPortfolioSection from '@/components/NdaPortfolioSection';
@@ -281,6 +282,9 @@ export default function Home() {
 
         {/* Evidence Pack（差別化のコア） */}
         <EvidencePackTeaser />
+
+        {/* C2PAとの戦略的比較（相互補完） */}
+        <C2paComparisonRow />
 
         {/* ─────────────────────────────────
          * Pain Points（営業文脈）
