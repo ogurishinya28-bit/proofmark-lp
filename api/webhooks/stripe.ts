@@ -32,7 +32,7 @@ import { getStripe } from '../_lib/stripe.js';
 import { requestTimestampWithFallback } from '../_lib/tsa.js';
 
 // Stripe requires the *raw* body for signature verification.
-export const config = { api: { bodyParser: false }, maxDuration: 30 };
+export const config = { api: { bodyParser: false }, maxDuration: 300 }; // 5分に変更
 
 async function readRawBody(req: VercelRequest): Promise<Buffer> {
     const chunks: Buffer[] = [];
