@@ -6,6 +6,21 @@ import { useAuth } from '../hooks/useAuth';
 import { useHashFile } from '../hooks/useHashFile';
 import { prepareEvidencePayload } from '../lib/evidence-prep';
 import { supabase } from '../lib/supabase';
+import UpgradeModal from './UpgradeModal';
+import { useCertIssueQuota } from '../hooks/useCertIssueQuota';
+
+interface QuotaError {
+    status: number;
+    body?: { error?: string; quota?: number; used?: number; resetAt?: string };
+}
+
+function isQuotaError(err: unknown): err is QuotaError {
+    if (!err || typeof err !== 'object') return false;
+    const e = err as { status?: number; body?: { error?: string } };
+    if (e.status === 429) return true;
+    if (e.body?.error === 'quota_exceeded') return true;
+    return false;
+}
 
 type ProofMode = 'private' | 'shareable';
 type VisibilityMode = 'private' | 'public';
@@ -20,6 +35,10 @@ export default function CertificateUpload() {
   const [visibility, setVisibility] = useState<VisibilityMode>('private');
   const [processStatus, setProcessStatus] = useState<string>('');
   const [, setLocation] = useLocation();
+
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [quotaContext, setQuotaContext] = useState<{ used?: number; quota?: number; resetAt?: string }>({});
+  const { forceLock } = useCertIssueQuota();
 
   const { user, profile } = useAuth(); // profileを追加
   const actualPlanVariable = user?.user_metadata?.plan_type;
@@ -86,6 +105,10 @@ export default function CertificateUpload() {
       if (!res.ok) {
          const errData = await res.json().catch(() => ({}));
          
+         if (res.status === 429 || errData.error === 'quota_exceeded') {
+            throw { status: res.status, body: errData };
+         }
+
          if (res.status === 409) {
             throw new Error(`すでに同一の証明書が存在します。(Token: ${errData.certificate?.public_verify_token})`);
          }
@@ -106,8 +129,22 @@ export default function CertificateUpload() {
       }, 500);
 
     } catch (error: any) {
+      if (isQuotaError(error)) {
+        const body = error.body ?? {};
+        setQuotaContext({
+            used: body.used,
+            quota: body.quota ?? 30,
+            resetAt: body.resetAt,
+        });
+        forceLock(body.resetAt);
+        setUpgradeOpen(true);
+        setIsProcessing(false);
+        setProcessStatus('');
+        return;
+      }
+
       console.error("Process failed:", error);
-      alert('アップロードエラー: ' + error.message);
+      alert('アップロードエラー: ' + (error.message || '不明なエラーが発生しました'));
       setProcessStatus('エラーが発生しました。もう一度お試しください。');
       setIsProcessing(false);
     }
@@ -263,6 +300,14 @@ export default function CertificateUpload() {
           </button>
         </div>
       )}
+
+      <UpgradeModal
+          open={upgradeOpen}
+          onClose={() => setUpgradeOpen(false)}
+          used={quotaContext.used}
+          quota={quotaContext.quota ?? 30}
+          resetAt={quotaContext.resetAt ?? null}
+      />
     </div>
   );
 }

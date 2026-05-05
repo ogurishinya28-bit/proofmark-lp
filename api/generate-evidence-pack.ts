@@ -42,7 +42,7 @@ import {
 import { buildChainOfEvidence } from './_lib/chain-of-evidence.js';
 import { getLegalCopyrightPdf } from './_lib/legal-pdf-cache.js';
 
-export const config = { maxDuration: 60 };
+export const config = { maxDuration: 300 };
 
 const FIXED_ZIP_TIME = new Date('2026-01-01T00:00:00.000Z');
 
