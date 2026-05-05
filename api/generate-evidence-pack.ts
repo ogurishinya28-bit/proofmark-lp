@@ -3,34 +3,34 @@
  *      OR
  * GET /api/generate-evidence-pack?spot=<sessionId>&staging=<uuid>
  *
- * Phase 11.B — Evidence Engine hardening pass.
+ * Phase 12.4 — Evidence Engine Value-Add pass.
  *
- * Reaffirmed invariants (do NOT regress):
- *   • We pipe `archiver` directly to `res`. We never `await` the entire
- *     archive into memory. Big files are STREAMED from Supabase Storage to
- *     the ZIP entry without buffering.
- *   • The DOSTime inside the ZIP is fixed (`FIXED_ZIP_TIME`) so the same
- *     evidence yields the same bytes (CDN cache friendly).
+ * Phase 11.B で確立した invariants は厳守:
+ *   • archiver を `res` に直接 pipe。原画は Buffer 化せずストリーム結合。
+ *   • FIXED_ZIP_TIME による決定論的 ZIP。
+ *   • upstream stream の AbortController + watchdog timeout。
+ *   • TSA CA bundle の process-local cache (LRU=1, TTL 6h)。
+ *   • c2pa.json 10KB ハードキャップ + 動的 CLIENT_LETTER。
  *
- * Phase 11.B additions:
- *   • Strict per-stream AbortController + watchdog timeout — slow/hung
- *     storage fetches cannot pin sockets and starve concurrent requests.
- *   • c2pa.json size cap re-enforced server-side at append time — even if
- *     the WORM column were ever bypassed, we will not append a >10KB blob.
- *   • Dynamic CLIENT_LETTER.txt — the C2PA paragraph is ONLY emitted when
- *     a manifest is actually included in this archive. No misleading
- *     instructions when the work has no Content Credentials.
- *   • TSA CA bundle is fetched once per cold start and reused (LRU=1).
- *     This both removes 200ms of fetch latency from the hot path and
- *     prevents N parallel cold-start requests from each opening their
- *     own TLS connection to freetsa.org.
- *   • Listener registration is unchanged but `archive.on('error')`
- *     additionally aborts all in-flight upstream streams to release sockets.
+ * Phase 12.4 で追加:
+ *   1. **chain_of_evidence.json** — `cert_audit_logs` から監査ログを時系列
+ *      取得し、`fn_verify_audit_chain` の結果を chain_ok として埋め込む。
+ *      Buffer のまま archiver に渡す (動的生成 / DB 軽量読み出しのみ)。
+ *   2. **/legal_guide / AI_Copyright_Explanation.pdf ** — Supabase public バケット
+    * にあらかじめ配置された静的 PDF を CDN から fetch し、Vercel グローバル
+        * スコープに Buffer キャッシュ(TTL 6h)。PDFKit 等の動的 PDF 生成は
+            * 絶対に使わない(Zero - Op 厳守)。
+ * 3. ** stream.pipeline 化 ** — archiver→res の接続を`node:stream/promises`
+    * の pipeline で行い、backpressure を Node.js 側に確実に委ねる。
+ * これにより slow consumer(スマホ回線) でも heap が膨張しない。
+ * 4. CLIENT_LETTER に「法務向け参考 PDF が同梱される旨」を、PDF が実際に
+    * 同梱できた時のみ動的に追記。
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import archiver from 'archiver';
 import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import {
     HttpError,
     getAdminClient,
@@ -39,20 +39,17 @@ import {
     methodGuard,
     tryUser,
 } from './_lib/server.js';
+import { buildChainOfEvidence } from './_lib/chain-of-evidence.js';
+import { getLegalCopyrightPdf } from './_lib/legal-pdf-cache.js';
 
-// Vercel Node Function — bumped to 60s, but Node default ~1024MB. We never
-// load originals into Buffer; only the .tsr (≤2KB) and c2pa.json (≤10KB) ever
-// enter the heap as Buffers/strings.
 export const config = { maxDuration: 60 };
 
-// Fixed timestamp for ZIP entries → stable CDN cache key.
 const FIXED_ZIP_TIME = new Date('2026-01-01T00:00:00.000Z');
 
-// Hard guards
-const C2PA_HARD_CAP_BYTES = 10 * 1024;            // mirrors c2pa-schema.ts
-const STREAM_FETCH_TIMEOUT_MS = 15_000;           // per-file ceiling
+const C2PA_HARD_CAP_BYTES = 10 * 1024;
+const STREAM_FETCH_TIMEOUT_MS = 15_000;
 const TSA_CA_FETCH_TIMEOUT_MS = 3_000;
-const TSA_CA_TTL_MS = 6 * 60 * 60 * 1000;         // 6h cold-process cache
+const TSA_CA_TTL_MS = 6 * 60 * 60 * 1000;
 
 interface CertRecord {
     id: string;
@@ -99,17 +96,16 @@ function safeFilename(input: string | null | undefined, fallback: string): strin
     return base.length > 0 ? base : fallback;
 }
 
-/**
- * CLIENT_LETTER.txt — dynamic.
- *
- * The C2PA-related step (#3 in the verify list) is ONLY appended when this
- * particular archive carries a c2pa.json. This avoids telling clients to
- * "open c2pa.json" for an asset that has none.
- */
+interface ClientLetterOptions {
+    c2paIncluded: boolean;
+    chainIncluded: boolean;
+    legalGuideIncluded: boolean;
+}
+
 function buildClientLetter(
     cert: CertRecord,
     verifyUrl: string,
-    options: { c2paIncluded: boolean },
+    options: ClientLetterOptions,
 ): string {
     const issuedAt = cert.certified_at ?? cert.proven_at ?? cert.created_at ?? '';
     const niceTitle = cert.title ?? cert.original_filename ?? cert.file_name ?? 'Verified Digital Artwork';
@@ -120,16 +116,28 @@ function buildClientLetter(
         '2. Run `verify.sh` (or `verify.py`) inside this archive to verify the RFC3161',
         '   timestamp token (timestamp.tsr) using OpenSSL.',
     ];
+    let n = 3;
     if (options.c2paIncluded) {
-        verifySteps.push(
-            '3. If this work contains Content Credentials, open c2pa.json to review the scrubbed manifest.',
-            '4. Optionally open Verify URL to compare against the public certificate page.',
-        );
-    } else {
-        verifySteps.push(
-            '3. Optionally open Verify URL to compare against the public certificate page.',
-        );
+        verifySteps.push(`${n}. If this work contains Content Credentials, open c2pa.json to review the scrubbed manifest.`);
+        n += 1;
     }
+    if (options.chainIncluded) {
+        verifySteps.push(`${n}. Open chain_of_evidence.json to inspect the tamper-evident audit log (SHA-256 chain).`);
+        n += 1;
+    }
+    if (options.legalGuideIncluded) {
+        verifySteps.push(`${n}. Refer to /legal_guide/AI_Copyright_Explanation.pdf for the relevant legal context.`);
+        n += 1;
+    }
+    verifySteps.push(`${n}. Optionally open Verify URL to compare against the public certificate page.`);
+
+    const inclusions: string[] = [];
+    if (options.c2paIncluded) inclusions.push('a scrubbed Content Credentials (C2PA) manifest as c2pa.json');
+    if (options.chainIncluded) inclusions.push('a tamper-evident audit chain as chain_of_evidence.json');
+    if (options.legalGuideIncluded) inclusions.push('a legal context PDF under /legal_guide/');
+    const inclusionLine = inclusions.length
+        ? `It additionally embeds ${inclusions.join('; ')}.`
+        : '';
 
     return [
         'ProofMark Evidence Pack — Client Hand-off Letter',
@@ -144,9 +152,7 @@ function buildClientLetter(
         'This package contains the cryptographic timestamp data and verification scripts',
         'required to independently confirm that the file with the SHA-256 above existed',
         'at the issued time and has not been modified since.',
-        options.c2paIncluded
-            ? 'It additionally embeds a scrubbed Content Credentials (C2PA) manifest as c2pa.json.'
-            : '',
+        inclusionLine,
         '',
         'How to verify (no ProofMark account required)',
         '----------------------------------------------',
@@ -157,13 +163,13 @@ function buildClientLetter(
         "ProofMark issues RFC3161-compliant timestamp data. Whether such data is",
         'admissible as evidence depends on the venue, jurisdiction, and TSA in use.',
         'See https://proofmark.jp/trust-center for the current TSA configuration.',
-    ].filter((line) => line !== null && line !== undefined).join('\n');
+    ].filter((line) => line !== '').join('\n');
 }
 
-function buildSpotClientLetter(c2paIncluded: boolean): string {
+function buildSpotClientLetter(legalGuideIncluded: boolean): string {
     const head = 'ProofMark Spot Evidence Pack\n\nThis archive contains the cryptographic timestamp data required to independently confirm the existence of your file. Keep it safe.';
-    return c2paIncluded
-        ? `${head}\nThis archive also contains a scrubbed Content Credentials (C2PA) manifest as c2pa.json.`
+    return legalGuideIncluded
+        ? `${head}\nA legal context PDF is bundled under /legal_guide/.`
         : head;
 }
 
@@ -179,7 +185,6 @@ function buildVerifyShellScript(): string {
         '  exit 1',
         'fi',
         '',
-        '# Provide the original file as the first argument and verify both file integrity and TST.',
         'ORIG="${1:-}"',
         'if [ -n "$ORIG" ] && [ -f "$ORIG" ]; then',
         '  ACTUAL=$(openssl dgst -sha256 "$ORIG" | awk "{print \\$2}")',
@@ -205,7 +210,7 @@ function buildVerifyPython(): string {
     return [
         '#!/usr/bin/env python3',
         '"""ProofMark Evidence Pack — RFC3161 Verifier (Python+OpenSSL)"""',
-        'import sys, hashlib, base64, subprocess, pathlib',
+        'import sys, hashlib, subprocess, pathlib',
         '',
         'def main(argv):',
         '    if len(argv) < 2:',
@@ -232,10 +237,6 @@ function buildVerifyPython(): string {
         '    main(sys.argv)',
     ].join('\n');
 }
-
-/* ──────────────────────────────────────────────────────────────────── */
-/* TSA CA bundle — process-local cache (1 entry, TTL).                  */
-/* ──────────────────────────────────────────────────────────────────── */
 
 let tsaCaCache: { ca: Buffer; tsa: Buffer; expiresAt: number } | null = null;
 let tsaCaInflight: Promise<{ ca: Buffer; tsa: Buffer } | null> | null = null;
@@ -269,12 +270,6 @@ async function fetchTsaCa(): Promise<{ ca: Buffer; tsa: Buffer } | null> {
     })();
     return tsaCaInflight;
 }
-
-/* ──────────────────────────────────────────────────────────────────── */
-/* Streaming download from Supabase Storage with an AbortController.    */
-/* The returned stream and its abort controller are tracked by the      */
-/* caller so a single archive failure cleanly tears down all uploads.   */
-/* ──────────────────────────────────────────────────────────────────── */
 
 interface ManagedStream {
     stream: Readable;
@@ -320,15 +315,9 @@ async function streamSupabaseFile(
     };
 }
 
-/**
- * Re-validate a c2pa_manifest before appending it to the ZIP.
- * The DB column has its own size constraint, but we belt-and-suspenders here.
- */
 function safeC2paJson(raw: Record<string, unknown> | null): { json: string; bytes: number } | null {
     if (!raw) return null;
     if (typeof raw !== 'object' || Array.isArray(raw)) return null;
-    if (!('issuer' in raw) && !('assertions' in raw) && !('signature' in raw)) return null;
-
     let json: string;
     try {
         json = JSON.stringify(raw, null, 2);
@@ -406,7 +395,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             evidencePackName = `evidence-pack-spot-${stagingId.slice(0, 8)}.zip`;
         }
 
-        // Stream ZIP
+        // Stream ZIP — backpressure aware
         res.status(200);
         res.setHeader('Content-Type', 'application/zip');
         res.setHeader('Content-Disposition', `attachment; filename="${evidencePackName}"`);
@@ -415,7 +404,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const archive = archiver('zip', {
             zlib: { level: 6 },
             forceLocalTime: false,
-            // archiver default highWaterMark is fine; do not raise it.
         });
 
         const cleanupUpstreams = () => {
@@ -425,17 +413,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         };
 
         archive.on('warning', (err) => log.warn({ event: 'archiver.warning', message: err.message }));
-        archive.on('error', (err) => {
-            log.error({ event: 'archiver.error', message: err.message });
-            cleanupUpstreams();
-            if (!res.headersSent) {
-                res.status(500).send('Archive error');
-            } else {
-                try { res.end(); } catch { /* noop */ }
-            }
-        });
-        // If the client disconnects mid-stream, do NOT keep pulling bytes from
-        // Supabase Storage — abort upstream fetches immediately to free sockets.
+
+        // クライアント切断 → upstream を即座に解放
         res.on('close', () => {
             if (!res.writableEnded) {
                 log.warn({ event: 'evidence-pack.client_disconnect' });
@@ -444,16 +423,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         });
 
-        archive.pipe(res);
+        // pipeline で archiver→res を結ぶ。drain / error / cleanup を Node に
+        // 任せる (Phase 12.4 罠3 への回答)。pipeline の戻り Promise は最後に
+        // await する。
+        const pipelineDone = pipeline(archive, res).catch((err) => {
+            log.error({ event: 'pipeline.error', message: String((err as Error)?.message ?? err) });
+            cleanupUpstreams();
+            // headersSent の場合は何もできない (res は破棄)
+        });
 
         if (downloadKind === 'auth' && cert) {
             const sha256 = cert.sha256 ?? '';
             const verifyUrl = `https://proofmark.jp/cert/${cert.id}`;
             const baseFile = safeFilename(cert.original_filename ?? cert.file_name, 'asset.bin');
 
-            // Decide c2pa.json inclusion ONCE — used by client letter and metadata.
             const c2paBlob = safeC2paJson(cert.c2pa_manifest);
             const c2paIncluded = c2paBlob !== null;
+
+            // chain_of_evidence.json (Phase 12.4)
+            let chainBuffer: Buffer | null = null;
+            try {
+                chainBuffer = await buildChainOfEvidence(admin, cert.id, { log });
+                if (chainBuffer.byteLength > 1 * 1024 * 1024) {
+                    // Audit chain は通常 数十KB ですが、念のためソフト上限
+                    log.warn({ event: 'chain.size_warn', bytes: chainBuffer.byteLength });
+                }
+            } catch (err) {
+                log.warn({ event: 'chain.build_failed', message: String((err as Error)?.message ?? err) });
+                chainBuffer = null;
+            }
+            const chainIncluded = chainBuffer !== null && chainBuffer.byteLength > 0;
+
+            // Legal guide PDF (Phase 12.4) — CDN 経由でグローバルキャッシュから取得
+            const legalPdf = await getLegalCopyrightPdf(log);
+            const legalGuideIncluded = legalPdf !== null;
 
             archive.append(`SHA256= ${sha256}\n`, { name: 'hash.txt', date: FIXED_ZIP_TIME });
 
@@ -467,25 +470,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 });
             }
 
-            archive.append(buildClientLetter(cert, verifyUrl, { c2paIncluded }), {
-                name: 'CLIENT_LETTER.txt',
-                date: FIXED_ZIP_TIME,
-            });
+            archive.append(
+                buildClientLetter(cert, verifyUrl, { c2paIncluded, chainIncluded, legalGuideIncluded }),
+                { name: 'CLIENT_LETTER.txt', date: FIXED_ZIP_TIME },
+            );
 
             if (c2paBlob) {
                 archive.append(c2paBlob.json, { name: 'c2pa.json', date: FIXED_ZIP_TIME });
-                log.info({
-                    event: 'evidence-pack.c2pa_attached',
-                    bytes: c2paBlob.bytes,
-                });
+                log.info({ event: 'evidence-pack.c2pa_attached', bytes: c2paBlob.bytes });
             }
 
-            archive.append(buildVerifyShellScript(), {
-                name: 'verify.sh', date: FIXED_ZIP_TIME, mode: 0o755,
-            });
-            archive.append(buildVerifyPython(), {
-                name: 'verify.py', date: FIXED_ZIP_TIME, mode: 0o755,
-            });
+            if (chainBuffer) {
+                archive.append(chainBuffer, { name: 'chain_of_evidence.json', date: FIXED_ZIP_TIME });
+                log.info({ event: 'evidence-pack.chain_attached', bytes: chainBuffer.byteLength });
+            }
+
+            if (legalPdf) {
+                archive.append(legalPdf.buffer, {
+                    name: 'legal_guide/AI_Copyright_Explanation.pdf',
+                    date: FIXED_ZIP_TIME,
+                });
+                log.info({ event: 'evidence-pack.legal_guide_attached', bytes: legalPdf.bytes });
+            } else {
+                archive.append(
+                    'AI_Copyright_Explanation.pdf could not be embedded in this archive.\n' +
+                    'Please refer to https://proofmark.jp/legal-guide for the latest legal context.\n',
+                    { name: 'legal_guide/README.txt', date: FIXED_ZIP_TIME },
+                );
+            }
+
+            archive.append(buildVerifyShellScript(), { name: 'verify.sh', date: FIXED_ZIP_TIME, mode: 0o755 });
+            archive.append(buildVerifyPython(), { name: 'verify.py', date: FIXED_ZIP_TIME, mode: 0o755 });
 
             const meta = {
                 certificate_id: cert.id,
@@ -501,12 +516,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 verify_url: verifyUrl,
                 c2pa_present: c2paIncluded,
                 c2pa_bytes: c2paBlob?.bytes ?? 0,
+                chain_present: chainIncluded,
+                legal_guide_present: legalGuideIncluded,
             };
-            archive.append(JSON.stringify(meta, null, 2), {
-                name: 'metadata.json', date: FIXED_ZIP_TIME,
-            });
+            archive.append(JSON.stringify(meta, null, 2), { name: 'metadata.json', date: FIXED_ZIP_TIME });
 
-            // Optional: original file (only if shareable + storage_path exists).
+            // 原画 (shareable のみ) — ストリーム結合
             if (cert.proof_mode === 'shareable' && cert.storage_path) {
                 try {
                     const managed = await streamSupabaseFile(admin, 'proofmark-originals', cert.storage_path);
@@ -525,7 +540,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 }
             }
 
-            // Optional: FreeTSA CA bundle for offline verification (cached).
+            // FreeTSA CA (キャッシュ済み)
             const caBundle = await fetchTsaCa();
             if (caBundle) {
                 archive.append(caBundle.ca, { name: 'freetsa-ca.crt', date: FIXED_ZIP_TIME });
@@ -540,18 +555,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const sha256 = spotOrder.sha256 ?? '';
             const verifyUrl = `https://proofmark.jp/spot-issue/result?sid=${spotOrder.stripe_session_id}`;
 
-            // Spot flow does NOT carry a c2pa_manifest column; always false here.
-            const c2paIncluded = false;
+            // Spot は監査ログ・C2PA を持たないが、Legal Guide PDF だけは同梱できる
+            const legalPdf = await getLegalCopyrightPdf(log);
+            const legalGuideIncluded = legalPdf !== null;
 
-            archive.append(buildSpotClientLetter(c2paIncluded), {
+            archive.append(buildSpotClientLetter(legalGuideIncluded), {
                 name: 'CLIENT_LETTER.txt', date: FIXED_ZIP_TIME,
             });
-            archive.append(buildVerifyShellScript(), {
-                name: 'verify.sh', date: FIXED_ZIP_TIME, mode: 0o755,
-            });
-            archive.append(buildVerifyPython(), {
-                name: 'verify.py', date: FIXED_ZIP_TIME, mode: 0o755,
-            });
+            archive.append(buildVerifyShellScript(), { name: 'verify.sh', date: FIXED_ZIP_TIME, mode: 0o755 });
+            archive.append(buildVerifyPython(), { name: 'verify.py', date: FIXED_ZIP_TIME, mode: 0o755 });
             archive.append(`SHA256= ${sha256}\n`, { name: 'hash.txt', date: FIXED_ZIP_TIME });
 
             archive.append(
@@ -564,6 +576,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         paid_at: spotOrder.paid_at,
                         verify_url: verifyUrl,
                         c2pa_present: false,
+                        chain_present: false,
+                        legal_guide_present: legalGuideIncluded,
                     },
                     null,
                     2,
@@ -571,8 +585,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 { name: 'metadata.json', date: FIXED_ZIP_TIME },
             );
 
+            if (legalPdf) {
+                archive.append(legalPdf.buffer, {
+                    name: 'legal_guide/AI_Copyright_Explanation.pdf',
+                    date: FIXED_ZIP_TIME,
+                });
+                log.info({ event: 'evidence-pack.legal_guide_attached', kind: 'spot', bytes: legalPdf.bytes });
+            }
+
             try {
-                // TODO(CRITICAL): Supabaseの 'spot-evidence' バケットにおいて、.tsr ファイルが確実に '${spotOrder.staging_id}/timestamp.tsr' に配置されているか本番運用前に必ず確認すること。パスが異なる場合、CLIENT_LETTERでMISSINGエラーになります。
                 const managed = await streamSupabaseFile(
                     admin, 'spot-evidence', `${spotOrder.staging_id}/timestamp.tsr`,
                 );
@@ -598,12 +619,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         await archive.finalize();
+        await pipelineDone;
+
         log.info({
             event: 'evidence-pack.streamed',
             kind: downloadKind,
             certId: cert?.id ?? null,
             stagingId: spotOrder?.staging_id ?? null,
-            c2pa_present: !!cert?.c2pa_manifest,
         });
     } catch (err) {
         for (const s of upstreamStreams) {

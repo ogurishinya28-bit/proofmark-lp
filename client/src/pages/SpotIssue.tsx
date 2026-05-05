@@ -1,3 +1,17 @@
+/**
+ * SpotIssue.tsx — Phase 12.3 (429 Graceful Handling 対応版)
+ *
+ * Spot は本来 Free プラン制限の対象ではない (1案件購入フローで Stripe を経由する)。
+ * しかし本ファイルは「ログイン済みユーザーが認証フローで Spot 画面に来た場合」も
+ * 想定して、429 を受けたら UpgradeModal をマウントするハンドラを共通化する。
+ *
+ * 変更点:
+ *   • UpgradeModal を import し、`upgradeOpen` で制御。
+ *   • startCheckout の throw が `quota_exceeded` を含む / status 429 を伴う場合、
+ *     エラートーストではなく UpgradeModal を強制展開する。
+ *   • 既存の UI / コピーは一切退行させない。
+ */
+
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
@@ -5,23 +19,29 @@ import { useDropzone } from 'react-dropzone';
 import { CheckCircle, ShieldCheck, FileText, Loader2, Lock, Sparkles, Upload, X } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
+import UpgradeModal from '../components/UpgradeModal';
 import { useAuth } from '../hooks/useAuth';
 import { startCheckout } from '../lib/checkout';
 
-/**
- * /spot-issue — guest one-shot Evidence Pack purchase flow.
- *
- *  Step 1) Drop a file → compute SHA-256 in-browser (Private Proof keeps original local).
- *  Step 2) Optional email + privacy ack → redirect to Stripe Checkout.
- *  Step 3) After Checkout success the user lands on /spot-issue/result?sid=...
- *          (rendered by SpotIssueResult.tsx) which downloads the Evidence Pack.
- */
 async function sha256FromFile(file: File): Promise<string> {
     const buf = await file.arrayBuffer();
     const digest = await crypto.subtle.digest('SHA-256', buf);
     return Array.from(new Uint8Array(digest))
         .map((b) => b.toString(16).padStart(2, '0'))
         .join('');
+}
+
+interface QuotaError {
+    status: number;
+    body?: { error?: string; quota?: number; used?: number; resetAt?: string };
+}
+
+function isQuotaError(err: unknown): err is QuotaError {
+    if (!err || typeof err !== 'object') return false;
+    const e = err as { status?: number; body?: { error?: string } };
+    if (e.status === 429) return true;
+    if (e.body?.error === 'quota_exceeded') return true;
+    return false;
 }
 
 export default function SpotIssue() {
@@ -33,6 +53,10 @@ export default function SpotIssue() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Phase 12.3 — Graceful upsell
+    const [upgradeOpen, setUpgradeOpen] = useState(false);
+    const [quotaContext, setQuotaContext] = useState<{ used?: number; quota?: number; resetAt?: string }>({});
+
     const onDrop = useCallback(async (accepted: File[]) => {
         if (!accepted[0]) return;
         setError(null);
@@ -42,7 +66,7 @@ export default function SpotIssue() {
         try {
             const hash = await sha256FromFile(f);
             setSha256(hash);
-        } catch (err) {
+        } catch {
             setError('ファイルのハッシュ計算に失敗しました');
         }
     }, []);
@@ -53,7 +77,10 @@ export default function SpotIssue() {
         maxSize: 50 * 1024 * 1024,
     });
 
-    const isReady = useMemo(() => !!file && !!sha256 && agreed && !loading, [file, sha256, agreed, loading]);
+    const isReady = useMemo(
+        () => !!file && !!sha256 && agreed && !loading,
+        [file, sha256, agreed, loading],
+    );
 
     const handlePurchase = async () => {
         if (!isReady || !sha256 || !file) return;
@@ -66,8 +93,22 @@ export default function SpotIssue() {
                 filename: file.name,
                 spotEmail: email || undefined,
             });
-        } catch (err: any) {
-            setError(err?.message ?? '決済の開始に失敗しました');
+        } catch (err: unknown) {
+            // Phase 12.3 — 429 は単純トーストではなく UpgradeModal で受け止める
+            if (isQuotaError(err)) {
+                const body = (err as QuotaError).body ?? {};
+                setQuotaContext({
+                    used: body.used,
+                    quota: body.quota ?? 30,
+                    resetAt: body.resetAt,
+                });
+                setUpgradeOpen(true);
+            } else {
+                const message = err && typeof err === 'object' && 'message' in err
+                    ? String((err as { message: string }).message)
+                    : '決済の開始に失敗しました';
+                setError(message);
+            }
             setLoading(false);
         }
     };
@@ -106,8 +147,8 @@ export default function SpotIssue() {
                     <div
                         {...getRootProps()}
                         className={`group flex flex-col items-center justify-center gap-3 py-12 px-6 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${isDragActive
-                                ? 'border-[#00D4AA] bg-[#00D4AA]/5'
-                                : 'border-[#2a2a4e] hover:border-[#00D4AA]/40 hover:bg-white/[0.02]'
+                            ? 'border-[#00D4AA] bg-[#00D4AA]/5'
+                            : 'border-[#2a2a4e] hover:border-[#00D4AA]/40 hover:bg-white/[0.02]'
                             }`}
                     >
                         <input {...getInputProps()} aria-label="ファイル選択" />
@@ -177,8 +218,8 @@ export default function SpotIssue() {
                         onClick={handlePurchase}
                         disabled={!isReady}
                         className={`mt-6 w-full py-4 rounded-full font-black text-base transition-all flex items-center justify-center gap-2 ${isReady
-                                ? 'bg-gradient-to-r from-[#6C3EF4] to-[#8B61FF] text-white shadow-[0_0_24px_rgba(108,62,244,0.45)] hover:scale-[1.02]'
-                                : 'bg-[#1C1A38] text-[#A8A0D8] cursor-not-allowed'
+                            ? 'bg-gradient-to-r from-[#6C3EF4] to-[#8B61FF] text-white shadow-[0_0_24px_rgba(108,62,244,0.45)] hover:scale-[1.02]'
+                            : 'bg-[#1C1A38] text-[#A8A0D8] cursor-not-allowed'
                             }`}
                     >
                         {loading ? (
@@ -211,6 +252,15 @@ export default function SpotIssue() {
                     ))}
                 </div>
             </main>
+
+            {/* Phase 12.3 — 429 Graceful Upsell */}
+            <UpgradeModal
+                open={upgradeOpen}
+                onClose={() => setUpgradeOpen(false)}
+                used={quotaContext.used}
+                quota={quotaContext.quota ?? 30}
+                resetAt={quotaContext.resetAt ?? null}
+            />
         </div>
     );
 }
