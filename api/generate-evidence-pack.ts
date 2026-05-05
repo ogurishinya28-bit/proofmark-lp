@@ -16,15 +16,15 @@
  *   1. **chain_of_evidence.json** — `cert_audit_logs` から監査ログを時系列
  *      取得し、`fn_verify_audit_chain` の結果を chain_ok として埋め込む。
  *      Buffer のまま archiver に渡す (動的生成 / DB 軽量読み出しのみ)。
- *   2. **/legal_guide / AI_Copyright_Explanation.pdf ** — Supabase public バケット
-    * にあらかじめ配置された静的 PDF を CDN から fetch し、Vercel グローバル
-        * スコープに Buffer キャッシュ(TTL 6h)。PDFKit 等の動的 PDF 生成は
-            * 絶対に使わない(Zero - Op 厳守)。
- * 3. ** stream.pipeline 化 ** — archiver→res の接続を`node:stream/promises`
-    * の pipeline で行い、backpressure を Node.js 側に確実に委ねる。
- * これにより slow consumer(スマホ回線) でも heap が膨張しない。
- * 4. CLIENT_LETTER に「法務向け参考 PDF が同梱される旨」を、PDF が実際に
-    * 同梱できた時のみ動的に追記。
+ *   2. ** /legal_guide/ProofMark_Legal_and_Compliance_Guide.pdf ** — Supabase public バケット
+ *      にあらかじめ配置された静的 PDF を CDN から fetch し、Vercel グローバル
+ *      スコープに Buffer キャッシュ(TTL 6h)。PDFKit 等の動的 PDF 生成は
+ *      絶対に使わない(Zero - Op 厳守)。
+ *   3. ** stream.pipeline 化 ** — archiver→res の接続を`node:stream/promises`
+ *      の pipeline で行い、backpressure を Node.js 側に確実に委ねる。
+ *      これにより slow consumer(スマホ回線) でも heap が膨張しない。
+ *   4. CLIENT_LETTER に「法務向け参考 PDF が同梱される旨」を、PDF が実際に
+ *      同梱できた時のみ動的に追記。
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
@@ -126,7 +126,7 @@ function buildClientLetter(
         n += 1;
     }
     if (options.legalGuideIncluded) {
-        verifySteps.push(`${n}. Refer to /legal_guide/AI_Copyright_Explanation.pdf for the relevant legal context.`);
+        verifySteps.push(`${n}. Refer to /legal_guide/ProofMark_Legal_and_Compliance_Guide.pdf for the relevant legal context.`);
         n += 1;
     }
     verifySteps.push(`${n}. Optionally open Verify URL to compare against the public certificate page.`);
@@ -487,13 +487,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             if (legalPdf) {
                 archive.append(legalPdf.buffer, {
-                    name: 'legal_guide/AI_Copyright_Explanation.pdf',
+                    name: 'legal_guide/ProofMark_Legal_and_Compliance_Guide.pdf',
                     date: FIXED_ZIP_TIME,
                 });
                 log.info({ event: 'evidence-pack.legal_guide_attached', bytes: legalPdf.bytes });
             } else {
                 archive.append(
-                    'AI_Copyright_Explanation.pdf could not be embedded in this archive.\n' +
+                    'ProofMark_Legal_and_Compliance_Guide.pdf could not be embedded in this archive.\n' +
                     'Please refer to https://proofmark.jp/legal-guide for the latest legal context.\n',
                     { name: 'legal_guide/README.txt', date: FIXED_ZIP_TIME },
                 );
@@ -587,7 +587,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             if (legalPdf) {
                 archive.append(legalPdf.buffer, {
-                    name: 'legal_guide/AI_Copyright_Explanation.pdf',
+                    name: 'legal_guide/ProofMark_Legal_and_Compliance_Guide.pdf',
                     date: FIXED_ZIP_TIME,
                 });
                 log.info({ event: 'evidence-pack.legal_guide_attached', kind: 'spot', bytes: legalPdf.bytes });

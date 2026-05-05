@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { Shield, Eye, ShieldCheck, UploadCloud, Lock, Star } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useHashFile } from '../hooks/useHashFile';
@@ -158,7 +158,27 @@ export default function CertificateUpload() {
 
   return (
     <div className="w-full max-w-3xl mx-auto p-6 bg-[#0D0B24] rounded-3xl border border-[#1C1A38] text-white shadow-2xl">
-      {!file ? (
+      {!user ? (
+        <div className="py-16 px-6 text-center animate-in fade-in duration-500">
+          <ShieldCheck className="w-16 h-16 mx-auto mb-6 text-[#00D4AA] opacity-80" />
+          <h2 className="text-2xl font-bold text-white mb-4">証明書を発行するにはログインが必要です</h2>
+          <p className="text-[#A8A0D8] mb-8 leading-relaxed max-w-md mx-auto">
+            無料でデジタル存在証明を発行・管理するには、アカウント登録（無料）をお願いします。
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/auth">
+              <a className="w-full sm:w-auto px-8 py-3 rounded-xl font-bold bg-[#6C3EF4] text-white hover:bg-[#5b34d1] transition-colors">
+                ログイン / 無料登録
+              </a>
+            </Link>
+            <Link href="/spot-issue">
+              <a className="w-full sm:w-auto px-8 py-3 rounded-xl font-bold border border-[#2a2a4e] text-[#A8A0D8] hover:border-[#00D4AA] hover:text-white transition-colors">
+                登録不要で1件だけ発行 (Spot)
+              </a>
+            </Link>
+          </div>
+        </div>
+      ) : !file ? (
         <div
           {...getRootProps()}
           className={`border-2 border-dashed rounded-2xl p-16 text-center cursor-pointer transition-all duration-300 ${isDragActive
